@@ -1,0 +1,54 @@
+:root {
+    --stryker-red: #e84b39;
+    --stryker-yellow: #f1c413;
+    --mutant-text: black;
+    --mutant-removed: var(--stryker-red);
+    --mutant-added: green;
+    --bg-light: white;
+    --bg-light-1: #E9EDEE;
+}
+
+#main-content {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 5%;
+}
+
+.card {
+    margin-bottom: 1rem;
+}
+
+.mutant-container {
+    /*background-color: var(--bg-light-1);*/
+    /*padding: 1em;*/
+    /*border-radius: .25rem;*/
+}
+
+.mutant-decompose {
+    font-weight: bold;
+}
+
+.mut-pre {
+    display: inline-block;
+    color: var(--mutant-text);
+}
+
+.mut-rem {
+    display: inline-block;
+    color: var(--mutant-removed);
+    text-decoration: line-through;
+}
+
+.mut-add {
+    display: inline-block;
+    color: var(--mutant-added);
+}
+
+.mut-pos {
+    display: inline-block;
+    color: var(--mutant-text);
+}
+
+.btn:hover .gh-logo {
+    filter: invert(1);
+}
