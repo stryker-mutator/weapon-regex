@@ -4,7 +4,7 @@ skip in publish := true
 inThisBuild(
   List(
     organization := "io.stryker-mutator",
-    homepage := Some(url("https://github.com/Nhaajt/Weapon-regeX")),
+    homepage := Some(url("https://github.com/stryker-mutator/weapon-regex")),
     licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
     developers := List(
       Developer(
