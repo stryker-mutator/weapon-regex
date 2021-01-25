@@ -1,0 +1,143 @@
+RE = or
+   | simpleRE
+   ;
+
+simpleRE = concat
+         | basicRE
+         ;
+
+basicRE = quantifier
+        | elementaryRE
+        ;
+
+elementaryRE = capturing
+             | predefinedCharClass
+             | boundary
+             | charClass
+             | reference
+             | character
+             | quote
+             ;
+
+character = metaChar
+          | charLiteral
+          ;
+
+specialChar = '(' | ')' | '[' | '{' | '\\' | '.' | '^' | '$'  | '|' | '?' | '*' | '+' ;
+
+charLiteral = - specialChar ;                                 (* characters ouside of character classes *)
+
+metaChar = '\\\\'
+         | charOct
+         | charHex
+         | '\\t'                                              (* tab *)
+         | '\\n'                                              (* newline *)
+         | '\\r'                                              (* carriage-return *)
+         | '\\f'                                              (* form-feed *)
+         | '\\a'                                              (* alert (bell) *)
+         | '\\e'                                              (* escape *)
+         | '\\c' charLiteral                                  (* control *)
+         ;
+
+charOct = '\\0' oct
+        | '\\0' oct oct
+        | '\\0' ? [0-3] ? oct oct
+        ;
+
+charHex = '\\x' hex hex
+        | '\\u' hex hex hex hex
+        | '\\x{' hex { hex } '}'
+        ;
+
+specialCharClassChar =  '[' | ']' | '\\' ;                    (* special characters for character classes *)
+
+charClassCharLiteral = - specialCharClassChar ;               (* characters inside of character classes *)
+
+charClass = '[' charClassItem { charClassItem } ']'           (* positive character class *)
+          | '[^' charClassItem { charClassItem } ']'          (* negative character class *)
+          ;
+
+charClassItem = charClass
+              | predefinedCharClass
+              | metaChar
+              | charClassCharLiteral '-' charClassCharLiteral (* range *)
+              | quoteChar
+              | charClassCharLiteral
+              | charClassItem '&&' charClassItem              (* intersection *)
+              ;
+
+predefinedCharClass = '.'                                     (* any *)
+                    | '\\d'                                   (* digit [0-9] *)
+                    | '\\D'                                   (* non-digit [^0-9] *)
+                    | '\\s'                                   (* whitespace [ \t\n\x0B\f\r] *)
+                    | '\\S'                                   (* non-whitespace *)
+                    | '\\w'                                   (* word [a-zA-Z_0-9] *)
+                    | '\\W'                                   (* non-word *)
+                    ;
+
+boundary = '^'                                                (* beginning of a line *)
+         | '$'                                                (* end of a line *)
+         | '\\b'                                              (* word boundary *)
+         | '\\B'                                              (* non-word boundary *)
+         | '\\A'                                              (* beginning of the input *)
+         | '\\G'                                              (* end of the previous match *)
+         | '\\Z'                                              (* end of the input for final terminator *)
+         | '\\z'                                              (* end of the input *)
+         ;
+
+quantifier = quantifierGreedy
+           | quantifierReluctant
+           | quantifierPossessive
+           ;
+
+quantifierGreedy = elementaryRE '?'                           (* zero or one *)
+                 | elementaryRE '*'                           (* zero or more *)
+                 | elementaryRE '+'                           (* one or more *)
+                 | elementaryRE '{' number '}'                (* rep exact *)
+                 | elementaryRE '{' number ',}'               (* rep min *)
+                 | elementaryRE '{' number ',' number '}'     (* rep between *)
+                 ;
+
+quantifierReluctant = quantifierGreedy '?' ;
+
+quantifierPossessive = quantifierGreedy '+' ;
+
+concat = simpleRE basicRE ;
+
+or = RE '|' simpleRE ;
+
+quote = quoteLong | quoteChar ;
+
+quoteChar = '\\' ? any character ? ;                          (* quote next char *)
+
+quoteLong = '\\Q' { ? any character ? } [ '\\E' ] ;           (* quote from \Q to optional \E *)
+
+capturing = group | specialConstruct ;
+
+group = '(' RE ')' ;
+
+specialConstruct = '(?<' name '>' RE ')'                      (* named-capturing group *)
+                 | '(?:' RE ')'                               (* non-capturing group *)
+                 | '(?' idmsuxU ')'                           (* flag toggle group *)
+                 | '(?' { idmsuxU } '-' { idmsuxU } ')'       (* flag toggle group *)
+                 | '(?' idmsux ':' RE ')'                     (* non-capturing group with flags *)
+                 | '(?' { idmsux } '-' { idmsux } ':' RE ')'  (* non-capturing group with flags *)
+                 | '(?=' RE ')'                               (* positive lookahead *)
+                 | '(?!' RE ')'                               (* negative lookahead *)
+                 | '(?<=' RE ')'                              (* positive lookbehind *)
+                 | '(?<!' RE ')'                              (* negative lookbehind *)
+                 | '(?>' RE ')'                               (* independent non-capturing group *)
+                 ;
+
+reference = '\\' ? [1-9] ? { digit }                          (* reference nth capturing group *)
+          | '\\k<' name '>'                                   (* reference named-capturing group *)
+          ;
+
+name = alpha { alpha | digit } ;
+number = digit { digit } ;
+digit = ? [0-9] ? ;
+oct = ? [0-7] ? ;
+hex = ? [0-9a-fA-F] ? ;
+alpha = ? [a-zA-Z] ? ;
+idmsux = ? [idmsux] ? ;
+idmsuxU = ? [idmsuxU] ? ;

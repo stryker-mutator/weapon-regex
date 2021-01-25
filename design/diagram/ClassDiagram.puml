@@ -1,0 +1,234 @@
+@startuml
+
+'skinparam monochrome true
+skinparam backgroundcolor white
+'skinparam backgroundcolor transparent
+skinparam shadowing false
+skinparam class {
+    BackgroundColor transparent
+    BorderColor black
+    ArrowColor black
+}
+skinparam note {
+    BackgroundColor business
+    BorderColor black
+}
+
+'left to right direction
+
+'title Class Diagram
+
+!startsub Entire
+
+' ===================== Package structure =====================
+package "weaponregex" {
+    class WeaponRegeX <<object>> <<(O, darksalmon)>>
+'    note top of WeaponRegeX: API facade for Scala
+
+    class WeaponRegeXJS <<object>> <<(O, darksalmon)>>
+'    note top of WeaponRegeXJS: API facade for JavaScript
+
+    package "parser" {
+        class Parser
+        class "Parser" as ParserObject <<object>> <<(O, darksalmon)>>
+    }
+
+    package "model" {
+        class Location
+        class Position
+
+        package "regextree" {
+            interface RegexTree <<trait>> << (T, thistle) >>
+            abstract class Node
+            abstract class "Leaf [A]" as Leaf
+
+            class ConcreteNode
+            class "ConcreteNode" as ConcreteNodeObject <<object>> <<(O, darksalmon)>>
+
+            class ConcreteLeaf
+            class "ConcreteLeaf" as ConcreteLeafObject <<object>> <<(O, darksalmon)>>
+        }
+
+        package "mutation" {
+            class Mutant
+            class MutantJS
+            
+            interface TokenMutator <<trait>> << (T, thistle) >>
+            class TokenMutatorJS
+        }
+    }
+
+    package "mutator" {
+        class BuiltinMutators <<object>> <<(O, darksalmon)>>
+        class ConcreteTokenMutator <<object>> <<(O, darksalmon)>>
+        class TreeMutator <<object>> <<(O, darksalmon)>>
+    }
+}
+
+' ===================== Main facade =====================
+WeaponRegeX -- ParserObject :> use
+WeaponRegeX -- TreeMutator :> use
+class WeaponRegeX {
+    + mutate(pattern : String, mutators : Seq[TokenMutator] = BuiltinMutators.all, mutationLevels : Seq[Int] = null ) : Try[Seq[Mutant]]
+}
+
+WeaponRegeXJS -l- WeaponRegeX :> wrap
+WeaponRegeXJS -- MutantJS :> return
+class WeaponRegeXJS  #line:darkred {
+    + mutate(pattern : String, options : js.Object) : js.Array[MutantJS]
+}
+
+' ===================== Data models =====================
+Location "1" *-u- "2" Position
+class Location {
+    + start : Position
+    + end : Position
+}
+
+class Position {
+   + line : Int
+   + column : Int
+}
+
+Mutant *-- Location
+class Mutant {
+    + pattern : String
+    + name : String
+    + location : Location
+    + level : Seq[Int]
+    + description : String
+}
+
+MutantJS *-l- Location
+MutantJS *-u- Mutant :> wrap
+class MutantJS  #line:darkred {
+    + mutant : Mutant
+    ..
+    + pattern : String
+    + name : String
+    + location : Location
+    + level : js.Array[Int]
+    + description : String
+}
+
+' ===================== RegexTree =====================
+RegexTree "1" *-- "*" RegexTree
+RegexTree <|.. Node
+RegexTree <|.. Leaf
+RegexTree *-u- Location
+
+interface RegexTree {
+    + {abstract} children : Seq[RegexTree]
+    + {abstract} location : Location
+    ..
+    + {abstract} prefix : String
+    + {abstract} postfix : String
+    ..
+    + <<lazy>> build : String = buildWhile(_ => true)
+    __
+    + {abstract} buildWith(child : RegexTree, childString : String) : String
+    + {abstract} buildWhile(pred : RegexTree => Boolean) : String
+}
+
+abstract class Node {
+    + {abstract} children : Seq[RegexTree]
+    + {abstract} location : Location
+    ..
+    + prefix : String
+    + postfix : String
+    + sep : String
+    __
+    + buildWith(child : RegexTree, childString : String) : String
+    + buildWhile(pred : RegexTree => Boolean) : String
+}
+
+abstract class Leaf {
+    + children : Seq[RegexTree] = Nil
+    + {abstract} location : Location
+    + {abstract} value : A
+    ..
+    + prefix : String
+    + postfix : String
+    + sep : String
+    ..
+    + <<lazy>> build : String
+    __
+    + buildWith(child : RegexTree, childString : String) : String
+    + buildWhile(pred : RegexTree => Boolean) : String
+}
+
+ConcreteNode --|> Node
+ConcreteNode <..> ConcreteNodeObject : [optional]\n companion
+class ConcreteNode
+class ConcreteNodeObject
+
+ConcreteLeaf --|> Leaf
+ConcreteLeaf <..> ConcreteLeafObject : [optional]\n companion
+class ConcreteLeaf
+class ConcreteLeafObject
+
+' ===================== Parser =====================
+Parser -- RegexTree :> generate
+class Parser {
+    + pattern : String
+    __
+    .. production rule methods ..
+    + parse() : Try[RegexTree]
+}
+
+ParserObject <..> Parser : companion
+class ParserObject {
+    + specialChars : String
+    + apply(pattern : String) : Try[RegexTree]
+}
+
+' ===================== TreeMutator =====================
+TreeMutator -- BuiltinMutators :> use
+TreeMutator "1" -- "*" TokenMutator :> use
+TreeMutator "1" --- "*" Mutant :> return
+TreeMutator -- RegexTree :> traverse & mutate\n extension
+
+class TreeMutator <extension (tree : RegexTree)> {
+'    == extension (tree : RegexTree) ==
+    - filterMutators(mutators : Seq[TokenMutator], mutationLevels : Seq[Int]) : Seq[TokenMutator]
+    + mutate(mutators : Seq[TokenMutator], mutationLevels : Seq[Int]) : Seq[Mutant]
+}
+
+' ===================== TokenMutator =====================
+BuiltinMutators "1" *-- "*" TokenMutator
+class BuiltinMutators {
+    + all : Seq[TokenMutator]
+    + levels : Map[Int, Seq[TokenMutator]]
+
+    + apply(mutationLevel : Int) : Seq[TokenMutator]
+    + level(mutationLevel : Int) : Seq[TokenMutator]
+}
+
+TokenMutator -- RegexTree :> mutate
+interface TokenMutator {
+    + {abstract} name : String
+    + {abstract} levels : Seq[Int]
+    + description : String
+
+    + apply(token : RegexTree) : Seq[String]
+    + {abstract} mutate(token : RegexTree) : Seq[String]
+}
+
+ConcreteTokenMutator ..|> TokenMutator
+class ConcreteTokenMutator
+
+TokenMutatorJS *-u- TokenMutator :> wrap
+class TokenMutatorJS  #line:darkred {
+    + tokenMutator : TokenMutator
+    ..
+    + name : String
+    + levels : Seq[Int]
+    + description : String
+    __
+    + apply(token : RegexTree) : Seq[String]
+    + mutate(token : RegexTree) : Seq[String]
+}
+
+!endsub
+
+@enduml

@@ -1,0 +1,37 @@
+name: Release CI
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["*"]
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # Fetch all commits, used by sbt-dynver plugin to determine version
+          fetch-depth: 0
+        # Fetch all tags
+      - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - run: git fetch --tags
+      - uses: olafurpg/setup-gpg@v3
+      - name: Set NPM Env
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+      - name: Publish code
+        run: sbt ci-release
+        env:
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          PGP_SECRET: ${{ secrets.PGP_SECRET }}
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+          CI_RELEASE: WeaponRegeXPublishSigned
+
+
