@@ -1,0 +1,80 @@
+@startuml
+
+'skinparam monochrome true
+skinparam backgroundcolor white
+'skinparam backgroundcolor transparent
+skinparam shadowing false
+skinparam sequence {
+    ArrowColor black
+    LifeLineBorderColor black
+    LifeLineBackgroundColor transparent
+    ParticipantBorderColor black
+    ParticipantBackgroundColor transparent
+    GroupBodyBackgroundColor transparent
+    BoxBorderColor transparent
+}
+
+'left to right direction
+
+'title Sequence Diagram
+participant WeaponRegeX
+participant Parser
+participant TreeMutator
+participant TokenMutator
+participant RegexTree
+
+-> WeaponRegeX: regex string\n+ mutators\n+ mutation level
+
+'== Parsing ==
+activate WeaponRegeX
+WeaponRegeX -> Parser: regex string
+
+activate Parser
+Parser -> RegexTree: create regex tree
+return parsed regex tree
+
+'== Mutating ==
+WeaponRegeX -> TreeMutator: regex tree\n+ mutators\n+ mutation level
+activate TreeMutator
+
+opt filter mutators based on mutation level
+    alt with only a mutation level number
+        TreeMutator -> TreeMutator: filter all built-in mutators\n based on the mutation level
+    else witt a sequence of mutators and a mutation level number
+        TreeMutator -> TreeMutator: filter the mutators\n based on the mutation level
+    end
+end
+
+TreeMutator -> TreeMutator: start mutation
+activate TreeMutator #application
+    loop for each token mutator
+        TreeMutator -> TokenMutator: regex tree node
+        activate TokenMutator
+        TokenMutator --> TokenMutator: mutate node
+
+        loop for each mutated node
+            TokenMutator -> RegexTree: build mutated tree
+            activate RegexTree
+            return regex string
+        end
+        return mutated node string
+    end
+
+    loop for each child subtree
+        TreeMutator -> TreeMutator: mutate child
+        activate TreeMutator #application
+        return mutated child subtree strings\n with metadata
+
+        loop for each mutate child subtree string
+            TreeMutator -> RegexTree: build tree with mutated child subtree string
+            activate RegexTree
+            return regex string
+        end
+    end
+return mutated regex strings\n with metadata
+return mutated regex strings\n with metadata
+
+<-- WeaponRegeX: mutated regex strings\n with metadata
+deactivate WeaponRegeX
+
+@enduml

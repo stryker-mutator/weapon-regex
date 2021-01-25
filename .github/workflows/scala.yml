@@ -1,0 +1,78 @@
+name: Scala CI
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Compile code
+        run: sbt +compile
+      - name: Run Scala.js
+        run: sbt fastLinkJS
+#        run: sbt fullLinkJS
+
+  formatting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Check formatting
+        run: sbt scalafmtCheckAll
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Test
+        run: sbt jacoco
+
+  test-js:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14
+      - name: Generate JS
+        run: sbt fastLinkJS
+#        run: sbt fullLinkJS
+      - name: Npm setup
+        run: npm ci
+        working-directory: node
+      - name: Test
+        run: npm test
+        working-directory: node
+
+
+  mutation-testing:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Run stryker
+        run: sbt 'project WeaponRegeX; stryker'
+        env:
+          STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
