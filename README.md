@@ -385,3 +385,6 @@ Original | Mutated
 ```(abc)```|```(?:abc)```
 
 [Back to table 🔝](#Supported-mutators)
+
+
+_Copyright 2021 Stryker mutator team_
