@@ -60,8 +60,7 @@ Before you start working on a new feature or a bugfix, please create an issue fi
    * Subject and body: present tense (~changed~*change*, ~added~*add*) and include motivation and contrasts with previous behavior
 
 ## Reporting bugs
-You can also contribute to the project by reporting bugs in the issue tracker! Please describe in detail:
+You can also contribute to the project by reporting bugs in the issue tracker! Do make sure if the bug is related to parsing that your input regex is correct by checking it with an external syntax checker, and that the same error occurs when testing it in the [demo page](https://stryker-mutator.io/weapon-regex). Please describe in detail:
 * The input parameters to reproduce the erroneous behavior
 * The error message, or unexpected behavior
 * If applicable, the expected behavior
-* If it is related to parsing, make sure that the same error occurs when testing it in the [demo page](https://stryker-mutator.io/weapon-regex/)
