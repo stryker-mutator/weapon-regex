@@ -64,3 +64,4 @@ You can also contribute to the project by reporting bugs in the issue tracker! P
 * The input parameters to reproduce the erroneous behavior
 * The error message, or unexpected behavior
 * If applicable, the expected behavior
+* If it is related to parsing, make sure that the same error occurs when testing it in the [demo page](https://stryker-mutator.io/weapon-regex/)
