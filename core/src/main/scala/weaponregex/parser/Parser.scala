@@ -12,22 +12,30 @@ import scala.util.{Failure, Success, Try}
   */
 object Parser {
 
-  /** Regex special characters
-    */
-  final private val specialChars: String = """()[{\.^$|?*+"""
+  sealed trait ParserFlavor
+  case object ParserFlavorJVM extends ParserFlavor
+  case object ParserFlavorJS extends ParserFlavor
 
   /** Apply the parser to parse the given pattern
     * @param pattern The regex pattern to be parsed
     * @return A `Success` of parsed [[weaponregex.model.regextree.RegexTree]] if can be parsed, a `Failure` otherwise
     */
-  def apply(pattern: String): Try[RegexTree] = new Parser(pattern).parse
+  def apply(pattern: String, flavor: ParserFlavor = ParserFlavorJVM): Try[RegexTree] = flavor match {
+    case ParserFlavorJVM => new ParserJVM(pattern).parse
+    case ParserFlavorJS  => new ParserJS(pattern).parse
+    case _               => Failure(new RuntimeException("[Error] Parser: Unsupported regex flavor"))
+  }
 }
 
 /** @param pattern The regex pattern to be parsed
   * @note This class constructor is private, instances must be created using the companion [[weaponregex.parser.Parser]] object
   * @note The parsing rules methods inside this class is created based on the defined grammar
   */
-class Parser private (val pattern: String) {
+abstract class Parser(val pattern: String) {
+
+  /** Regex special characters
+    */
+  val specialChars: String
 
   /** A higher order parser that add [[weaponregex.model.Location]] index information of the parse of the given parser
     * @param p the parser to be indexed
@@ -46,7 +54,7 @@ class Parser private (val pattern: String) {
     * @return [[weaponregex.model.regextree.Character]] tree node
     * @example `"a"`
     */
-  def charLiteral[_: P]: P[Character] = Indexed(CharPred(!Parser.specialChars.contains(_)).!)
+  def charLiteral[_: P]: P[Character] = Indexed(CharPred(!specialChars.contains(_)).!)
     .map { case (loc, c) => Character(c.head, loc) }
 
   /** Intermediate parsing rule for character-related tokens which can parse either `metaCharacter` or `charLiteral`

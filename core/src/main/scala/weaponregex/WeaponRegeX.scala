@@ -4,6 +4,7 @@ import weaponregex.parser.Parser
 import weaponregex.mutator.TreeMutator._
 import weaponregex.model.mutation._
 import weaponregex.mutator.BuiltinMutators
+import weaponregex.parser.Parser.{ParserFlavor, ParserFlavorJVM}
 
 import scala.scalajs.js.annotation._
 import scala.util.Try
@@ -23,6 +24,7 @@ object WeaponRegeX {
   def mutate(
       pattern: String,
       mutators: Seq[TokenMutator] = BuiltinMutators.all,
-      mutationLevels: Seq[Int] = null
-  ): Try[Seq[Mutant]] = Parser(pattern) map (_.mutate(mutators, mutationLevels))
+      mutationLevels: Seq[Int] = null,
+      flavor: ParserFlavor = ParserFlavorJVM
+  ): Try[Seq[Mutant]] = Parser(pattern, flavor) map (_.mutate(mutators, mutationLevels))
 }
