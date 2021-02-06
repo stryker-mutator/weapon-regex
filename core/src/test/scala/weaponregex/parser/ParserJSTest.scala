@@ -1,7 +1,6 @@
 package weaponregex.parser
 
 import weaponregex.model.regextree._
-import weaponregex.parser.Parser.ParserFlavorJS
 
 class ParserJSTest extends munit.FunSuite {
   def treeBuildTest(tree: RegexTree, pattern: String): Unit = assertEquals(tree.build, pattern)

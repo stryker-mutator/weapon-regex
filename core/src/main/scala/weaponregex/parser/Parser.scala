@@ -8,13 +8,9 @@ import weaponregex.extension.StringExtension.StringIndexExtension
 
 import scala.util.{Failure, Success, Try}
 
-/** Companion object for [[weaponregex.parser.Parser]] class that instantiates [[weaponregex.parser.Parser]] instances
+/** Companion object for [[weaponregex.parser.Parser]] class that instantiates flavor-specific parsers instances
   */
 object Parser {
-
-  sealed trait ParserFlavor
-  case object ParserFlavorJVM extends ParserFlavor
-  case object ParserFlavorJS extends ParserFlavor
 
   /** Apply the parser to parse the given pattern
     * @param pattern The regex pattern to be parsed
@@ -27,8 +23,8 @@ object Parser {
   }
 }
 
-/** @param pattern The regex pattern to be parsed
-  * @note This class constructor is private, instances must be created using the companion [[weaponregex.parser.Parser]] object
+/** The based abstract parser
+  * @param pattern The regex pattern to be parsed
   * @note The parsing rules methods inside this class is created based on the defined grammar
   */
 abstract class Parser(val pattern: String) {

@@ -4,7 +4,7 @@ import weaponregex.parser.Parser
 import weaponregex.mutator.TreeMutator._
 import weaponregex.model.mutation._
 import weaponregex.mutator.BuiltinMutators
-import weaponregex.parser.Parser.{ParserFlavor, ParserFlavorJS}
+import weaponregex.parser.{ParserFlavor, ParserFlavorJS}
 
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters._
