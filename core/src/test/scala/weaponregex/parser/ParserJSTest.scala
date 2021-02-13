@@ -793,27 +793,31 @@ class ParserJSTest extends munit.FunSuite {
     treeBuildTest(parsedTree, pattern)
   }
 
-  test("Parse long quote with end") {
+  test("""Parse `\Q\E` as character quotes""") {
     val pattern = """stuff\Q$hit\Emorestuff"""
     val parsedTree = Parser(pattern, ParserFlavorJS).get
 
     assert(clue(parsedTree).isInstanceOf[Concat])
     assert(clue(parsedTree.children(5)) match {
-      case Quote("$hit", true, _) => true
-      case _                      => false
+      case QuoteChar('Q', _) => true
+      case _                 => false
+    })
+    assert(clue(parsedTree.children(10)) match {
+      case QuoteChar('E', _) => true
+      case _                 => false
     })
 
     treeBuildTest(parsedTree, pattern)
   }
 
-  test("Parse long quote without end") {
+  test("""Parse `\Q` as a character quote""") {
     val pattern = """stuff\Q$hit"""
     val parsedTree = Parser(pattern, ParserFlavorJS).get
 
     assert(clue(parsedTree).isInstanceOf[Concat])
     assert(clue(parsedTree.children(5)) match {
-      case Quote("$hit", false, _) => true
-      case _                       => false
+      case QuoteChar('Q', _) => true
+      case _                 => false
     })
 
     treeBuildTest(parsedTree, pattern)

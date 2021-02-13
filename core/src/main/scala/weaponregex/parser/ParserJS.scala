@@ -37,4 +37,9 @@ class ParserJS private[parser] (pattern: String) extends Parser(pattern) {
   override def classItem[_: P]: P[RegexTree] = P(
     preDefinedCharClass | metaCharacter | range | quoteChar | charClassCharLiteral
   )
+
+  /** Intermediate parsing rule for quoting tokens which can parse only `quoteChar`
+    * @return [[weaponregex.model.regextree.RegexTree]] (sub)tree
+    */
+  override def quote[_: P]: P[RegexTree] = quoteChar
 }
