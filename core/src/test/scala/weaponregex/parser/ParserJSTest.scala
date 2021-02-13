@@ -74,7 +74,7 @@ class ParserJSTest extends munit.FunSuite {
   }
 
   test("Parse boundary metacharacters") {
-    val pattern = """\b\B\A\G\z\Z"""
+    val pattern = """\b\B"""
     val parsedTree = Parser(pattern, ParserFlavorJS).get
 
     assert(clue(parsedTree).isInstanceOf[Concat])
@@ -86,6 +86,14 @@ class ParserJSTest extends munit.FunSuite {
     }
 
     treeBuildTest(parsedTree, pattern)
+  }
+
+  test("""Not parse `\A\G\z\Z` as boundary metacharacters""") {
+    val pattern = """\A\G\z\Z"""
+    val parsedTree = Parser(pattern, ParserFlavorJS).get
+
+    assert(clue(parsedTree).isInstanceOf[Concat])
+    parsedTree.children foreach (child => assert(!clue(child).isInstanceOf[Boundary]))
   }
 
   test("Parse multiple lines with location") {
@@ -245,6 +253,14 @@ class ParserJSTest extends munit.FunSuite {
     treeBuildTest(parsedTree, pattern)
   }
 
+  test("""Not parse `\a\e` as escape characters""") {
+    val pattern = """\a\e"""
+    val parsedTree = Parser(pattern, ParserFlavorJS).get
+
+    assert(clue(parsedTree).isInstanceOf[Concat])
+    parsedTree.children foreach (child => assert(!clue(child).isInstanceOf[MetaChar]))
+  }
+
   test("Parse hexadecimal characters") {
     val pattern = "\\x20\\u0020\\x{000020}"
     val parsedTree = Parser(pattern, ParserFlavorJS).get
@@ -276,7 +292,7 @@ class ParserJSTest extends munit.FunSuite {
   }
 
   test("Parse predefined character class") {
-    val pattern = """.\w\W\s\S\d\D"""
+    val pattern = """.\d\D\s\S\v\w\W"""
     val parsedTree = Parser(pattern, ParserFlavorJS).get
 
     assert(clue(parsedTree).isInstanceOf[Concat])
@@ -289,6 +305,14 @@ class ParserJSTest extends munit.FunSuite {
     }
 
     treeBuildTest(parsedTree, pattern)
+  }
+
+  test("""Not parse `\h\H\V` as predefined character class""") {
+    val pattern = """\h\H\V"""
+    val parsedTree = Parser(pattern, ParserFlavorJS).get
+
+    assert(clue(parsedTree).isInstanceOf[Concat])
+    parsedTree.children foreach (child => assert(!clue(child).isInstanceOf[PredefinedCharClass]))
   }
 
   test("Parse short greedy quantifiers") {

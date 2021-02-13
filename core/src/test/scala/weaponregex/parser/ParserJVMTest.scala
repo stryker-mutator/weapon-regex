@@ -230,7 +230,7 @@ class ParserJVMTest extends munit.FunSuite {
   }
 
   test("Parse escape characters") {
-    val pattern = """\\\t\n\r\f"""
+    val pattern = """\\\t\n\r\f\a\e"""
     val parsedTree = Parser(pattern, ParserFlavorJVM).get
 
     assert(clue(parsedTree).isInstanceOf[Concat])
@@ -276,7 +276,7 @@ class ParserJVMTest extends munit.FunSuite {
   }
 
   test("Parse predefined character class") {
-    val pattern = """.\w\W\s\S\d\D"""
+    val pattern = """.\d\D\h\H\s\S\v\V\w\W"""
     val parsedTree = Parser(pattern, ParserFlavorJVM).get
 
     assert(clue(parsedTree).isInstanceOf[Concat])
