@@ -116,33 +116,32 @@ abstract class Parser(val pattern: String) {
     Indexed("""\""" ~ CharPred(escapeChars.contains(_)).!) // fastparse needs //// for a single backslash
       .map { case (loc, c) => MetaChar(c, loc) }
 
-  /** Parse a character with octal value `\0n`, `\0nn`, `\0mn` (0 <= m <= 3, 0 <= n <= 7)
+  /** Parse a character with octal value
     * @return [[weaponregex.model.regextree.MetaChar]] tree node
-    * @example `"\0123"`
+    * @example `"\012"`
     */
-  def charOct[_: P]: P[MetaChar] = Indexed("""\0""" ~ CharIn("0-7").!.rep(min = 1, max = 3))
-    .map { case (loc, octDigits) => MetaChar("0" + octDigits.mkString, loc) }
+  def charOct[_: P]: P[MetaChar]
 
   /** Parse a character with hexadecimal value `\xhh`
     * @return [[weaponregex.model.regextree.MetaChar]] tree node
     * @example `"\x01"`
     */
-  def charHex[_: P]: P[MetaChar] = Indexed("""\x""" ~ CharIn("0-9a-zA-Z").!.rep(exactly = 2))
-    .map { case (loc, hexDigits) => MetaChar("x" + hexDigits.mkString, loc) }
+  def charHex[_: P]: P[MetaChar] = Indexed("""\x""" ~ CharIn("0-9a-zA-Z").rep(exactly = 2).!)
+    .map { case (loc, hexDigits) => MetaChar("x" + hexDigits, loc) }
 
   /** Parse a unicode character `\ uhhhh`
     * @return [[weaponregex.model.regextree.MetaChar]] tree node
     * @example `"\ u0020"`
     */
-  def charUnicode[_: P]: P[MetaChar] = Indexed("\\u" ~ CharIn("0-9a-zA-Z").!.rep(exactly = 4))
-    .map { case (loc, hexDigits) => MetaChar("u" + hexDigits.mkString, loc) }
+  def charUnicode[_: P]: P[MetaChar] = Indexed("\\u" ~ CharIn("0-9a-zA-Z").rep(exactly = 4).!)
+    .map { case (loc, hexDigits) => MetaChar("u" + hexDigits, loc) }
 
   /** Parse a character with hexadecimal value with braces `\x{h...h}` (Character.MIN_CODE_POINT <= 0xh...h <= Character.MAX_CODE_POINT)
     * @return [[weaponregex.model.regextree.MetaChar]] tree node
     * @example `"\x{0123}"`
     */
-  def charHexBrace[_: P]: P[MetaChar] = Indexed("""\x{""" ~ CharIn("0-9a-zA-Z").!.rep(1) ~ "}")
-    .map { case (loc, hexDigits) => MetaChar("x{" + hexDigits.mkString + "}", loc) }
+  def charHexBrace[_: P]: P[MetaChar] = Indexed("""\x{""" ~ CharIn("0-9a-zA-Z").rep(1).! ~ "}")
+    .map { case (loc, hexDigits) => MetaChar("x{" + hexDigits + "}", loc) }
 
   /** Parse a character range inside a character class
     * @return [[weaponregex.model.regextree.Range]] tree node

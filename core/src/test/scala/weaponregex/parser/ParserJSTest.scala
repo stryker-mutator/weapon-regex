@@ -285,7 +285,7 @@ class ParserJSTest extends munit.FunSuite {
   }
 
   test("Parse octal characters") {
-    val pattern = """\01\012\0123"""
+    val pattern = """\1\12\123"""
     val parsedTree = Parser(pattern, ParserFlavorJS).get
 
     assert(clue(parsedTree).isInstanceOf[Concat])
@@ -763,18 +763,6 @@ class ParserJSTest extends munit.FunSuite {
     assert(clue(parsedTree) match {
       case NameReference("name1", _) => true
       case _                         => false
-    })
-
-    treeBuildTest(parsedTree, pattern)
-  }
-
-  test("Parse numbered reference") {
-    val pattern = """\123"""
-    val parsedTree = Parser(pattern, ParserFlavorJS).get
-
-    assert(clue(parsedTree) match {
-      case NumberReference(123, _) => true
-      case _                       => false
     })
 
     treeBuildTest(parsedTree, pattern)
