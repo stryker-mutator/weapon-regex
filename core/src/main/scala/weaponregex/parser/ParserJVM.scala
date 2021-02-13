@@ -11,6 +11,10 @@ class ParserJVM private[parser] (pattern: String) extends Parser(pattern) {
     */
   override val specialChars: String = """()[{\.^$|?*+"""
 
+  /** Special characters within a character class
+    */
+  override val charClassSpecialChars: String = """[]\"""
+
   /** Allowed boundary meta-characters
     */
   override val boundaryMetaChars: String = "bBAGzZ"

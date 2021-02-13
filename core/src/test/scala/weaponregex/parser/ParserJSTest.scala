@@ -1,5 +1,6 @@
 package weaponregex.parser
 
+import scala.util.Failure
 import weaponregex.model.regextree._
 
 class ParserJSTest extends munit.FunSuite {
@@ -94,6 +95,8 @@ class ParserJSTest extends munit.FunSuite {
 
     assert(clue(parsedTree).isInstanceOf[Concat])
     parsedTree.children foreach (child => assert(!clue(child).isInstanceOf[Boundary]))
+
+    treeBuildTest(parsedTree, pattern)
   }
 
   test("Parse multiple lines with location") {
@@ -169,18 +172,21 @@ class ParserJSTest extends munit.FunSuite {
     treeBuildTest(parsedTree, pattern)
   }
 
-  test("Parse character class with nested character classes") {
-    val pattern = "[[a-z][^A-Z0-9][01234]]"
+  test("Parse `[` as character inside a character class") {
+    val pattern = "[[]"
     val parsedTree = Parser(pattern, ParserFlavorJS).get
 
     assert(clue(parsedTree).isInstanceOf[CharacterClass])
-    parsedTree.children foreach (child => assert(child.isInstanceOf[CharacterClass], clue = parsedTree.children))
+    assert(clue(parsedTree.children.head) match {
+      case Character('[', _) => true
+      case _                 => false
+    })
 
     treeBuildTest(parsedTree, pattern)
   }
 
   test("Parse character class with predefined character classes") {
-    val pattern = """[\w\W\s\S\d\D]"""
+    val pattern = """[\d\D\s\S\v\w\W]"""
     val parsedTree = Parser(pattern, ParserFlavorJS).get
 
     assert(clue(parsedTree).isInstanceOf[CharacterClass])
@@ -259,6 +265,8 @@ class ParserJSTest extends munit.FunSuite {
 
     assert(clue(parsedTree).isInstanceOf[Concat])
     parsedTree.children foreach (child => assert(!clue(child).isInstanceOf[MetaChar]))
+
+    treeBuildTest(parsedTree, pattern)
   }
 
   test("Parse hexadecimal characters") {
@@ -313,6 +321,8 @@ class ParserJSTest extends munit.FunSuite {
 
     assert(clue(parsedTree).isInstanceOf[Concat])
     parsedTree.children foreach (child => assert(!clue(child).isInstanceOf[PredefinedCharClass]))
+
+    treeBuildTest(parsedTree, pattern)
   }
 
   test("Parse short greedy quantifiers") {
@@ -813,7 +823,6 @@ class ParserJSTest extends munit.FunSuite {
     val pattern = "("
     val parsedTree = Parser(pattern, ParserFlavorJS)
 
-    import scala.util.Failure
     assert(clue(parsedTree) match {
       case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
       case _                                    => false
@@ -824,7 +833,6 @@ class ParserJSTest extends munit.FunSuite {
     val pattern = "abc(def"
     val parsedTree = Parser(pattern, ParserFlavorJS)
 
-    import scala.util.Failure
     assert(clue(parsedTree) match {
       case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
       case _                                    => false

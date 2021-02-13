@@ -1,5 +1,6 @@
 package weaponregex.parser
 
+import scala.util.Failure
 import weaponregex.model.regextree._
 
 class ParserJVMTest extends munit.FunSuite {
@@ -172,7 +173,7 @@ class ParserJVMTest extends munit.FunSuite {
   }
 
   test("Parse character class with predefined character classes") {
-    val pattern = """[\w\W\s\S\d\D]"""
+    val pattern = """[\d\D\h\H\s\S\v\V\w\W]"""
     val parsedTree = Parser(pattern, ParserFlavorJVM).get
 
     assert(clue(parsedTree).isInstanceOf[CharacterClass])
@@ -789,7 +790,6 @@ class ParserJVMTest extends munit.FunSuite {
     val pattern = "("
     val parsedTree = Parser(pattern, ParserFlavorJVM)
 
-    import scala.util.Failure
     assert(clue(parsedTree) match {
       case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
       case _                                    => false
@@ -800,7 +800,6 @@ class ParserJVMTest extends munit.FunSuite {
     val pattern = "abc(def"
     val parsedTree = Parser(pattern, ParserFlavorJVM)
 
-    import scala.util.Failure
     assert(clue(parsedTree) match {
       case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
       case _                                    => false
@@ -811,7 +810,6 @@ class ParserJVMTest extends munit.FunSuite {
     val pattern = "{"
     val parsedTree = Parser(pattern, ParserFlavorJVM)
 
-    import scala.util.Failure
     assert(clue(parsedTree) match {
       case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
       case _                                    => false
