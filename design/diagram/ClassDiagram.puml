@@ -29,8 +29,10 @@ package "weaponregex" {
 '    note top of WeaponRegeXJS: API facade for JavaScript
 
     package "parser" {
-        class Parser
+        abstract class Parser
         class "Parser" as ParserObject <<object>> <<(O, darksalmon)>>
+        class ParserJVM
+        class ParserJS
     }
 
     package "model" {
@@ -169,7 +171,10 @@ class ConcreteLeafObject
 
 ' ===================== Parser =====================
 Parser -- RegexTree :> generate
-class Parser {
+Parser <|-l- ParserJVM
+Parser <|-r- ParserJS
+abstract class Parser {
+    + specialChars : String
     + pattern : String
     __
     .. production rule methods ..
@@ -177,9 +182,10 @@ class Parser {
 }
 
 ParserObject <..> Parser : companion
+ParserObject -- ParserJVM :> create
+ParserObject -- ParserJS :> create
 class ParserObject {
-    + specialChars : String
-    + apply(pattern : String) : Try[RegexTree]
+    + apply(pattern : String, flavor: ParserFlavor) : Try[RegexTree]
 }
 
 ' ===================== TreeMutator =====================
