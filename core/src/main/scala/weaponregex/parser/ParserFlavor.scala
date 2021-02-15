@@ -2,7 +2,6 @@ package weaponregex.parser
 
 import scala.scalajs.js.annotation._
 
-@JSExportTopLevel("ParserFlavor")
 sealed trait ParserFlavor
 
 @JSExportTopLevel("ParserFlavorJVM")
