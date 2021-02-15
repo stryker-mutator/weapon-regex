@@ -36,7 +36,7 @@ class ParserJS private[parser] (pattern: String) extends Parser(pattern) {
     * @note Nested character class is a Scala/Java-only regex syntax
     */
   override def classItem[_: P]: P[RegexTree] = P(
-    preDefinedCharClass | metaCharacter | range | quoteChar | charClassCharLiteral
+    preDefinedCharClass | posixCharClass | metaCharacter | range | quoteChar | charClassCharLiteral
   )
 
   /** Intermediate parsing rule for quoting tokens which can parse only `quoteChar`

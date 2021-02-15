@@ -65,6 +65,13 @@ case class ControlChar(controlChar: String, override val location: Location)
 case class PredefinedCharClass(charClass: String, override val location: Location)
     extends Leaf(charClass, location, """\""")
 
+/** POSIX character class leaf node
+  * @param property The class character property
+  * @param location The [[weaponregex.model.Location]] of the node in the regex string
+  */
+case class POSIXCharClass(property: String, override val location: Location, isPositive: Boolean = true)
+    extends Leaf(property, location, if (isPositive) """\p{""" else """\P{""", "}")
+
 /** Beginning of Line (BOL) leaf node
   * @param location The [[weaponregex.model.Location]] of the node in the regex string
   */

@@ -171,7 +171,7 @@ abstract class Parser(val pattern: String) {
     * @return [[weaponregex.model.regextree.RegexTree]] (sub)tree
     */
   def classItem[_: P]: P[RegexTree] = P(
-    charClass | preDefinedCharClass | metaCharacter | range | quoteChar | charClassCharLiteral
+    charClass | preDefinedCharClass | posixCharClass | metaCharacter | range | quoteChar | charClassCharLiteral
   )
 
   /** Parse a character class
@@ -196,6 +196,15 @@ abstract class Parser(val pattern: String) {
   def preDefinedCharClass[_: P]: P[PredefinedCharClass] =
     Indexed("""\""" ~ CharPred(predefCharClassChars.contains(_)).!)
       .map { case (loc, c) => PredefinedCharClass(c, loc) }
+
+  /** Parse a posix character class
+    * @return [[weaponregex.model.regextree.POSIXCharClass]] tree node
+    * @example `"\p{Alpha}"`
+    * @note This does not check for the validity of the property inside `\p{}`
+    */
+  def posixCharClass[_: P]: P[POSIXCharClass] =
+    Indexed("""\""" ~ CharIn("pP").! ~ "{" ~ (CharIn("a-z", "A-Z") ~ CharIn("a-z", "A-Z", "0-9", "_").rep).! ~ "}")
+      .map { case (loc, (p, property)) => POSIXCharClass(property, loc, p == "p") }
 
   /** A higher order parser that add [[weaponregex.model.regextree.QuantifierType]] information of the parse of the given (quantifier) parser
     * @param p the quantifier parser
@@ -376,7 +385,7 @@ abstract class Parser(val pattern: String) {
     * @return [[weaponregex.model.regextree.RegexTree]] (sub)tree
     */
   def elementaryRE[_: P]: P[RegexTree] = P(
-    capturing | anyDot | preDefinedCharClass | boundary | charClass | reference | character | quote
+    capturing | anyDot | preDefinedCharClass | posixCharClass | boundary | charClass | reference | character | quote
   )
 
   /** Intermediate parsing rule which can parse either `quantifier` or `elementaryRE`

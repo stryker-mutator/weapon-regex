@@ -189,6 +189,23 @@ class ParserJVMTest extends munit.FunSuite {
     treeBuildTest(parsedTree, pattern)
   }
 
+  test("Parse character class with POSIX character classes") {
+    val pattern = """[\p{Alpha}\P{Alpha}]"""
+    val parsedTree = Parser(pattern, parserFlavor).get
+
+    assert(clue(parsedTree).isInstanceOf[CharacterClass])
+    assert(clue(parsedTree.children.head) match {
+      case POSIXCharClass("Alpha", _, true) => true
+      case _                                => false
+    })
+    assert(clue(parsedTree.children.last) match {
+      case POSIXCharClass("Alpha", _, false) => true
+      case _                                 => false
+    })
+
+    treeBuildTest(parsedTree, pattern)
+  }
+
   test("Parse character class with quotes") {
     val pattern = """[\]]"""
     val parsedTree = Parser(pattern, parserFlavor).get
@@ -306,6 +323,23 @@ class ParserJVMTest extends munit.FunSuite {
         case _                                 => false
       })
     }
+
+    treeBuildTest(parsedTree, pattern)
+  }
+
+  test("Parse POSIX character classes") {
+    val pattern = """\p{Alpha}\P{Alpha}"""
+    val parsedTree = Parser(pattern, parserFlavor).get
+
+    assert(clue(parsedTree).isInstanceOf[Concat])
+    assert(clue(parsedTree.children.head) match {
+      case POSIXCharClass("Alpha", _, true) => true
+      case _                                => false
+    })
+    assert(clue(parsedTree.children.last) match {
+      case POSIXCharClass("Alpha", _, false) => true
+      case _                                 => false
+    })
 
     treeBuildTest(parsedTree, pattern)
   }
