@@ -12,6 +12,7 @@ basicRE = quantifier
 
 elementaryRE = capturing
              | predefinedCharClass
+             | posixCharClass
              | boundary
              | charClass
              | reference
@@ -36,7 +37,7 @@ metaChar = '\\\\'
          | '\\f'                                              (* form-feed *)
          | '\\a'                                              (* alert (bell) *)
          | '\\e'                                              (* escape *)
-         | '\\c' charLiteral                                  (* control *)
+         | '\\c' ? [a-zA-Z] ?                                 (* control character *)
          ;
 
 charOct = '\\0' oct
@@ -59,6 +60,7 @@ charClass = '[' charClassItem { charClassItem } ']'           (* positive charac
 
 charClassItem = charClass
               | predefinedCharClass
+              | posixCharClass
               | metaChar
               | charClassCharLiteral '-' charClassCharLiteral (* range *)
               | quoteChar
@@ -69,11 +71,19 @@ charClassItem = charClass
 predefinedCharClass = '.'                                     (* any *)
                     | '\\d'                                   (* digit [0-9] *)
                     | '\\D'                                   (* non-digit [^0-9] *)
+                    | '\\h'                                   (* horizontal whitespace *)
+                    | '\\H'                                   (* non-horizontal whitespace *)
                     | '\\s'                                   (* whitespace [ \t\n\x0B\f\r] *)
                     | '\\S'                                   (* non-whitespace *)
+                    | '\\v'                                   (* vertical whitespace *)
+                    | '\\V'                                   (* non-vertical whitespace *)
                     | '\\w'                                   (* word [a-zA-Z_0-9] *)
                     | '\\W'                                   (* non-word *)
                     ;
+
+posixCharClass = '\\p{' ? [a-zA-Z][a-zA-Z0-9_] ? '}'          (* positive POSIX character class *)
+               | '\\P{' ? [a-zA-Z][a-zA-Z0-9_] ? '}'          (* negative POSIX character class *)
+               ;
 
 boundary = '^'                                                (* beginning of a line *)
          | '$'                                                (* end of a line *)
