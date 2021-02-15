@@ -25,7 +25,7 @@ class ParserJVM private[parser] (pattern: String) extends Parser(pattern) {
 
   /** Allowed escape characters
     */
-  override val escapeChars: String = "\\\\tnrfae"
+  override val escapeChars: String = "\\\\tnrfae" // fastparse needs `////` for a single backslash
 
   /** Allowed predefined character class characters
     */

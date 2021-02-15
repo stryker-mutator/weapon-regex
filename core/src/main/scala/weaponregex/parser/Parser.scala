@@ -105,7 +105,7 @@ abstract class Parser(val pattern: String) {
   /** Intermediate parsing rule for meta-character tokens which can parse either `charOct`, `charHex`, `charUnicode`, `charHexBrace` or `escapeChar`
     * @return [[weaponregex.model.regextree.RegexTree]] (sub)tree
     */
-  def metaCharacter[_: P]: P[RegexTree] = P(charOct | charHex | charUnicode | charHexBrace | escapeChar)
+  def metaCharacter[_: P]: P[RegexTree] = P(charOct | charHex | charUnicode | charHexBrace | escapeChar | controlChar)
 
   /** Parse an escape meta-character
     * @return [[weaponregex.model.regextree.MetaChar]] tree node
@@ -113,8 +113,17 @@ abstract class Parser(val pattern: String) {
     * @see [[weaponregex.parser.Parser.escapeChars]]
     */
   def escapeChar[_: P]: P[MetaChar] =
-    Indexed("""\""" ~ CharPred(escapeChars.contains(_)).!) // fastparse needs //// for a single backslash
+    Indexed("""\""" ~ CharPred(escapeChars.contains(_)).!)
       .map { case (loc, c) => MetaChar(c, loc) }
+
+  /** Parse an control meta-character based on caret notation
+    * @return [[weaponregex.model.regextree.ControlChar]] tree node
+    * @example `"\cA"`
+    * @see [[https://en.wikipedia.org/wiki/Caret_notation]]
+    */
+  def controlChar[_: P]: P[ControlChar] =
+    Indexed("""\c""" ~ CharIn("a-zA-Z").!)
+      .map { case (loc, c) => ControlChar(c, loc) }
 
   /** Parse a character with octal value
     * @return [[weaponregex.model.regextree.MetaChar]] tree node
