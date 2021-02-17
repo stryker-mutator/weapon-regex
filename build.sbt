@@ -34,7 +34,7 @@ lazy val WeaponRegeX = projectMatrix
   .settings(
     name := "weapon-regex",
     libraryDependencies += "com.lihaoyi" %%% "fastparse" % "2.3.1",
-    libraryDependencies += "org.scalameta" %%% "munit" % "0.7.21" % Test,
+    libraryDependencies += "org.scalameta" %%% "munit" % "0.7.22" % Test,
     testFrameworks += new TestFramework("munit.Framework")
   )
   .jvmPlatform(
