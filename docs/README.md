@@ -24,7 +24,7 @@ libraryDependencies += "io.stryker-mutator" %% "weapon-regex" % "0.3.0"
 
 Mutate!
 
-```scala
+```scala mdoc
 import weaponregex.WeaponRegeX
 import scala.util.{Try, Success, Failure}
 
@@ -32,23 +32,6 @@ WeaponRegeX.mutate("^abc(d+|[xyz])$") match {
   case Success(mutants) => mutants map (_.pattern)
   case Failure(e)       => throw e
 }
-// res0: Seq[String] = List(
-//   "abc(d+|[xyz])$",
-//   "^abc(d+|[xyz])",
-//   "\\Aabc(d+|[xyz])$",
-//   "^abc(?:d+|[xyz])$",
-//   "^abc(d|[xyz])$",
-//   "^abc(d{0,}|[xyz])$",
-//   "^abc(d{2,}|[xyz])$",
-//   "^abc(d{1}|[xyz])$",
-//   "^abc(d+?|[xyz])$",
-//   "^abc(d+|[^xyz])$",
-//   "^abc(d+|[yz])$",
-//   "^abc(d+|[xz])$",
-//   "^abc(d+|[xy])$",
-//   "^abc(d+|[\\w\\W])$",
-//   "^abc(d+|[xyz])\\z"
-// )
 ```
 
 ## JavaScript
@@ -79,7 +62,7 @@ mutants.forEach((mutant) => {
 
 The `mutate` function has the following signature:
 
-```scala
+```scala mdoc
 import weaponregex.model.mutation._
 import weaponregex.mutator.BuiltinMutators
 
@@ -90,7 +73,6 @@ def mutate(
 ): Try[Seq[Mutant]] = ???
 
 WeaponRegeX.mutate _
-// res1: (String, Seq[TokenMutator], Seq[Int]) => Try[Seq[Mutant]] = <function3>
 ```
 
 With the `mutators` argument you can give a select list of mutators that should be used in
