@@ -15,10 +15,7 @@ jobs:
         with:
           java-version: 11
       - name: Compile code
-        run: sbt +compile
-      - name: Run Scala.js
-        run: sbt fastLinkJS
-#        run: sbt fullLinkJS
+        run: sbt "compile; docs/mdoc --check"
 
   formatting:
     runs-on: ubuntu-latest
@@ -55,14 +52,12 @@ jobs:
           node-version: 14
       - name: Generate JS
         run: sbt fastLinkJS
-#        run: sbt fullLinkJS
       - name: Npm setup
         run: npm ci
         working-directory: node
       - name: Test
         run: npm test
         working-directory: node
-
 
   mutation-testing:
     runs-on: ubuntu-latest
