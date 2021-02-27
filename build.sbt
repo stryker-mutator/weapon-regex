@@ -1,7 +1,7 @@
 // Skip publish root
 skip in publish := true
 
-val Scala212 = "2.12.13"
+val Scala212 = "2.13.5"
 val Scala213 = "2.13.5"
 
 inThisBuild(
