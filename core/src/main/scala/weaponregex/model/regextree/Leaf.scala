@@ -50,12 +50,27 @@ case class AnyDot(override val location: Location) extends Leaf('.', location)
   */
 case class MetaChar(metaChar: String, override val location: Location) extends Leaf(metaChar, location, """\""")
 
+/** Control meta-characters leaf node corresponding to a given character
+  * @param controlChar Any character in a-z or A-Z
+  * @param location [[weaponregex.model.Location]] of the token in the regex string
+  * @note This is technically a meta-character, but because it has an additional target character and a `\c` prefix, it is handled separately here
+  */
+case class ControlChar(controlChar: String, override val location: Location)
+    extends Leaf(controlChar, location, """\c""")
+
 /** Predefined character class leaf node
   * @param charClass The literal class character without the `\`
   * @param location The [[weaponregex.model.Location]] of the node in the regex string
   */
 case class PredefinedCharClass(charClass: String, override val location: Location)
     extends Leaf(charClass, location, """\""")
+
+/** POSIX character class leaf node
+  * @param property The class character property
+  * @param location The [[weaponregex.model.Location]] of the node in the regex string
+  */
+case class POSIXCharClass(property: String, override val location: Location, isPositive: Boolean = true)
+    extends Leaf(property, location, if (isPositive) """\p{""" else """\P{""", "}")
 
 /** Beginning of Line (BOL) leaf node
   * @param location The [[weaponregex.model.Location]] of the node in the regex string

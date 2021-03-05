@@ -4,6 +4,7 @@ import weaponregex.parser.Parser
 import weaponregex.mutator.TreeMutator._
 import weaponregex.model.mutation._
 import weaponregex.mutator.BuiltinMutators
+import weaponregex.parser.{ParserFlavor, ParserFlavorJS}
 
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters._
@@ -26,7 +27,8 @@ object WeaponRegeXJS {
 
   class MutationOptions(
       val mutators: js.Array[TokenMutatorJS] = null,
-      val mutationLevels: js.Array[Int] = null
+      val mutationLevels: js.Array[Int] = null,
+      val flavor: ParserFlavor = ParserFlavorJS
   ) extends js.Object
 
   /** Mutate using the given mutators at some specific mutation levels
@@ -52,7 +54,11 @@ object WeaponRegeXJS {
         options.mutationLevels.toSeq
       else null
 
-    Parser(pattern) match {
+    val flavor: ParserFlavor =
+      if (options.hasOwnProperty("flavor") && options.flavor != null) options.flavor
+      else ParserFlavorJS
+
+    Parser(pattern, flavor) match {
       case Success(tree)                 => (tree.mutate(mutators, mutationLevels) map MutantJS).toJSArray
       case Failure(throwable: Throwable) => throw throwable
     }

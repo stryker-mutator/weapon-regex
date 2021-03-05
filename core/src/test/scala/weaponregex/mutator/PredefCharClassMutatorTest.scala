@@ -84,4 +84,19 @@ class PredefCharClassMutatorTest extends munit.FunSuite {
     val mutants: Seq[String] = parsedTree.mutate(Seq(PredefCharClassAnyChar)) map (_.pattern)
     assertEquals(clue(mutants), Nil)
   }
+
+  test("Negates POSIX Character Class") {
+    val pattern = """\p{Alpha}\P{Alpha}"""
+    val parsedTree = Parser(pattern).get
+
+    val mutants: Seq[String] = parsedTree.mutate(Seq(POSIXCharClassNegation)) map (_.pattern)
+
+    val expected: Seq[String] = Seq(
+      """\P{Alpha}\P{Alpha}""",
+      """\p{Alpha}\p{Alpha}"""
+    )
+
+    assertEquals(clue(mutants).length, expected.length)
+    expected foreach (m => assert(clue(mutants) contains clue(m)))
+  }
 }

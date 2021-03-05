@@ -82,15 +82,17 @@ The `mutate` function has the following signature:
 ```scala
 import weaponregex.model.mutation._
 import weaponregex.mutator.BuiltinMutators
+import weaponregex.parser.{ParserFlavor, ParserFlavorJVM}
 
 def mutate(
   pattern: String,
-    mutators: Seq[TokenMutator] = BuiltinMutators.all,
-    mutationLevels: Seq[Int] = null
+  mutators: Seq[TokenMutator] = BuiltinMutators.all,
+  mutationLevels: Seq[Int] = null,
+  flavor: ParserFlavor = ParserFlavorJVM
 ): Try[Seq[Mutant]] = ???
 
 WeaponRegeX.mutate _
-// res1: (String, Seq[TokenMutator], Seq[Int]) => Try[Seq[Mutant]] = <function3>
+// res1: (String, Seq[TokenMutator], Seq[Int], ParserFlavor) => Try[Seq[Mutant]] = <function4>
 ```
 
 With the `mutators` argument you can give a select list of mutators that should be used in
@@ -100,11 +102,14 @@ depending on the `mutationLevels` argument.
 A list of `mutationLevels` can also be passed to the function. The mutators will be filtered
 based on the levels in the list. If omitted, no filtering takes place.
 
+The `flavor` argument allows setting the parser flavor that will be used to parse the pattern. 
+Currently, we support a `ParserFlavorJVM` and `ParserFlavorJS`. By default in Scala the JVM flavor is used.
+
 This function will return a `Success` with `Seq[Mutant]` if it can be parsed, or a `Failure` otherwise.
 
 ## JavaScript
 
-The `mutate` function can be called with an options object to control which mutators should be
+The `mutate` function can be called with an options object to control which mutators and which parser flavor should be
 used in the mutation process:
 
 ```js
@@ -113,11 +118,12 @@ const wrx = require('weapon-regex');
 let mutants = wrx.mutate('^abc(d+|[xyz])$', {
   mutators: Array.from(wrx.mutators.values()),
   mutationLevels: [1, 2, 3],
+  flavor: ParserFlavorJS
 });
 ```
 
 Both options can be omitted, and have the same functionality as the options described in the Scala
-API section. You can get a map of mutators from the `mutators` attribute of the library. It is
+API section. By default in JS the JS parser flavor is used. You can get a map of mutators from the `mutators` attribute of the library. It is
 a map from string (mutator name) to a mutator object.
 
 This function will return a JavaScript Array of `Mutant` if it can be parsed, or throw an exception otherwise.

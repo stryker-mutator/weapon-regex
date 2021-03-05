@@ -8,26 +8,46 @@ import weaponregex.extension.StringExtension.StringIndexExtension
 
 import scala.util.{Failure, Success, Try}
 
-/** Companion object for [[weaponregex.parser.Parser]] class that instantiates [[weaponregex.parser.Parser]] instances
+/** Companion object for [[weaponregex.parser.Parser]] class that instantiates flavor-specific parsers instances
   */
 object Parser {
-
-  /** Regex special characters
-    */
-  final private val specialChars: String = """()[{\.^$|?*+"""
 
   /** Apply the parser to parse the given pattern
     * @param pattern The regex pattern to be parsed
     * @return A `Success` of parsed [[weaponregex.model.regextree.RegexTree]] if can be parsed, a `Failure` otherwise
     */
-  def apply(pattern: String): Try[RegexTree] = new Parser(pattern).parse
+  def apply(pattern: String, flavor: ParserFlavor = ParserFlavorJVM): Try[RegexTree] = flavor match {
+    case ParserFlavorJVM => new ParserJVM(pattern).parse
+    case ParserFlavorJS  => new ParserJS(pattern).parse
+    case _               => Failure(new RuntimeException("[Error] Parser: Unsupported regex flavor"))
+  }
 }
 
-/** @param pattern The regex pattern to be parsed
-  * @note This class constructor is private, instances must be created using the companion [[weaponregex.parser.Parser]] object
+/** The based abstract parser
+  * @param pattern The regex pattern to be parsed
   * @note The parsing rules methods inside this class is created based on the defined grammar
   */
-class Parser private (val pattern: String) {
+abstract class Parser(val pattern: String) {
+
+  /** Regex special characters
+    */
+  val specialChars: String
+
+  /** Special characters within a character class
+    */
+  val charClassSpecialChars: String
+
+  /** Allowed boundary meta-characters
+    */
+  val boundaryMetaChars: String
+
+  /** Allowed escape characters
+    */
+  val escapeChars: String
+
+  /** Allowed predefined character class characters
+    */
+  val predefCharClassChars: String
 
   /** A higher order parser that add [[weaponregex.model.Location]] index information of the parse of the given parser
     * @param p the parser to be indexed
@@ -45,8 +65,9 @@ class Parser private (val pattern: String) {
   /** Parse a single literal character that is not a regex special character
     * @return [[weaponregex.model.regextree.Character]] tree node
     * @example `"a"`
+    * @see [[weaponregex.parser.Parser.specialChars]]
     */
-  def charLiteral[_: P]: P[Character] = Indexed(CharPred(!Parser.specialChars.contains(_)).!)
+  def charLiteral[_: P]: P[Character] = Indexed(CharPred(!specialChars.contains(_)).!)
     .map { case (loc, c) => Character(c.head, loc) }
 
   /** Intermediate parsing rule for character-related tokens which can parse either `metaCharacter` or `charLiteral`
@@ -68,11 +89,12 @@ class Parser private (val pattern: String) {
   def eol[_: P]: P[EOL] = Indexed(P("$"))
     .map { case (loc, _) => EOL(loc) }
 
-  /** Parse a boundary meta-character character (`\b`, `\B`, `\A`, `\G`, `\z`, `\Z`)
+  /** Parse a boundary meta-character character
     * @return [[weaponregex.model.regextree.BOL]] tree node
     * @example `"\z"`
+    * @see [[weaponregex.parser.Parser.boundaryMetaChars]]
     */
-  def boundaryMetaChar[_: P]: P[Boundary] = Indexed("""\""" ~ CharIn("bBAGzZ").!)
+  def boundaryMetaChar[_: P]: P[Boundary] = Indexed("""\""" ~ CharPred(boundaryMetaChars.contains(_)).!)
     .map { case (loc, b) => Boundary(b, loc) }
 
   /** Intermediate parsing rule for boundary tokens which can parse either `bol`, `eol` or `boundaryMetaChar`
@@ -83,44 +105,52 @@ class Parser private (val pattern: String) {
   /** Intermediate parsing rule for meta-character tokens which can parse either `charOct`, `charHex`, `charUnicode`, `charHexBrace` or `escapeChar`
     * @return [[weaponregex.model.regextree.RegexTree]] (sub)tree
     */
-  def metaCharacter[_: P]: P[RegexTree] = P(charOct | charHex | charUnicode | charHexBrace | escapeChar)
+  def metaCharacter[_: P]: P[RegexTree] = P(charOct | charHex | charUnicode | charHexBrace | escapeChar | controlChar)
 
-  /** Parse an escape meta-character (`\\`, `\t`, `\n`, `\r`, `\f`)
+  /** Parse an escape meta-character
     * @return [[weaponregex.model.regextree.MetaChar]] tree node
     * @example `"\n"`
-    * @note `\a`, `\c`, and `\e` is not supported. `\a` and `\e` are valid but interpreted differently in Scala/Java and JavaScript.
+    * @see [[weaponregex.parser.Parser.escapeChars]]
     */
   def escapeChar[_: P]: P[MetaChar] =
-    Indexed("""\""" ~ CharIn("\\\\tnrf").!) // fastparse needs //// for a single backslash
+    Indexed("""\""" ~ CharPred(escapeChars.contains(_)).!)
       .map { case (loc, c) => MetaChar(c, loc) }
 
-  /** Parse a character with octal value `\0n`, `\0nn`, `\0mn` (0 <= m <= 3, 0 <= n <= 7)
-    * @return [[weaponregex.model.regextree.MetaChar]] tree node
-    * @example `"\0123"`
+  /** Parse an control meta-character based on caret notation
+    * @return [[weaponregex.model.regextree.ControlChar]] tree node
+    * @example `"\cA"`
+    * @see [[https://en.wikipedia.org/wiki/Caret_notation]]
     */
-  def charOct[_: P]: P[MetaChar] = Indexed("""\0""" ~ CharIn("0-7").!.rep(min = 1, max = 3))
-    .map { case (loc, octDigits) => MetaChar("0" + octDigits.mkString, loc) }
+  def controlChar[_: P]: P[ControlChar] =
+    Indexed("""\c""" ~ CharIn("a-zA-Z").!)
+      .map { case (loc, c) => ControlChar(c, loc) }
+
+  /** Parse a character with octal value
+    * @return [[weaponregex.model.regextree.MetaChar]] tree node
+    * @example `"\012"`
+    */
+  def charOct[_: P]: P[MetaChar]
 
   /** Parse a character with hexadecimal value `\xhh`
     * @return [[weaponregex.model.regextree.MetaChar]] tree node
     * @example `"\x01"`
     */
-  def charHex[_: P]: P[MetaChar] = Indexed("""\x""" ~ CharIn("0-9a-zA-Z").!.rep(exactly = 2))
-    .map { case (loc, hexDigits) => MetaChar("x" + hexDigits.mkString, loc) }
+  def charHex[_: P]: P[MetaChar] = Indexed("""\x""" ~ CharIn("0-9a-zA-Z").rep(exactly = 2).!)
+    .map { case (loc, hexDigits) => MetaChar("x" + hexDigits, loc) }
 
   /** Parse a unicode character `\ uhhhh`
     * @return [[weaponregex.model.regextree.MetaChar]] tree node
     * @example `"\ u0020"`
     */
-  def charUnicode[_: P]: P[MetaChar] = Indexed("\\u" ~ CharIn("0-9a-zA-Z").!.rep(exactly = 4))
-    .map { case (loc, hexDigits) => MetaChar("u" + hexDigits.mkString, loc) }
+  def charUnicode[_: P]: P[MetaChar] = Indexed("\\u" ~ CharIn("0-9a-zA-Z").rep(exactly = 4).!)
+    .map { case (loc, hexDigits) => MetaChar("u" + hexDigits, loc) }
 
   /** Parse a character with hexadecimal value with braces `\x{h...h}` (Character.MIN_CODE_POINT <= 0xh...h <= Character.MAX_CODE_POINT)
     * @return [[weaponregex.model.regextree.MetaChar]] tree node
     * @example `"\x{0123}"`
     */
-  def charHexBrace[_: P]: P[MetaChar] = Indexed("""\x{""" ~ CharIn("0-9a-zA-Z").!.rep(1) ~ "}")
-    .map { case (loc, hexDigits) => MetaChar("x{" + hexDigits.mkString + "}", loc) }
+  def charHexBrace[_: P]: P[MetaChar] = Indexed("""\x{""" ~ CharIn("0-9a-zA-Z").rep(1).! ~ "}")
+    .map { case (loc, hexDigits) => MetaChar("x{" + hexDigits + "}", loc) }
 
   /** Parse a character range inside a character class
     * @return [[weaponregex.model.regextree.Range]] tree node
@@ -132,17 +162,16 @@ class Parser private (val pattern: String) {
   /** Parse a single literal character that is allowed to be in a character class
     * @return [[weaponregex.model.regextree.Character]] tree node
     * @example `"{"`
-    * @note The only characters which cannot be in a character class on their own are `[`, `]` and `\`
+    * @see [[weaponregex.parser.Parser.charClassSpecialChars]]
     */
-  def charClassCharLiteral[_: P]: P[Character] = Indexed(CharPred(!"""[]\""".contains(_)).!)
+  def charClassCharLiteral[_: P]: P[Character] = Indexed(CharPred(!charClassSpecialChars.contains(_)).!)
     .map { case (loc, c) => Character(c.head, loc) }
 
   /** Intermediate parsing rule for character class item tokens which can parse either `charClass`, `preDefinedCharClass`, `metaCharacter`, `range`, `quoteChar`, or `charClassCharLiteral`
     * @return [[weaponregex.model.regextree.RegexTree]] (sub)tree
-    * @note Nested character class is a Scala/Java-only regex syntax
     */
   def classItem[_: P]: P[RegexTree] = P(
-    charClass | preDefinedCharClass | metaCharacter | range | quoteChar | charClassCharLiteral
+    charClass | preDefinedCharClass | posixCharClass | metaCharacter | range | quoteChar | charClassCharLiteral
   )
 
   /** Parse a character class
@@ -159,12 +188,23 @@ class Parser private (val pattern: String) {
   def anyDot[_: P]: P[AnyDot] = Indexed(P("."))
     .map { case (loc, _) => AnyDot(loc) }
 
-  /** Parse a predefined character class (`\d`, `\D`, `\s`, `\S`, `\w`, `\W`)
+  /** Parse a predefined character class
     * @return [[weaponregex.model.regextree.PredefinedCharClass]] tree node
     * @example `"\d"`
+    * @see [[weaponregex.parser.Parser.predefCharClassChars]]
     */
-  def preDefinedCharClass[_: P]: P[PredefinedCharClass] = Indexed("""\""" ~ CharIn("dDsSwW").!)
-    .map { case (loc, c) => PredefinedCharClass(c, loc) }
+  def preDefinedCharClass[_: P]: P[PredefinedCharClass] =
+    Indexed("""\""" ~ CharPred(predefCharClassChars.contains(_)).!)
+      .map { case (loc, c) => PredefinedCharClass(c, loc) }
+
+  /** Parse a posix character class
+    * @return [[weaponregex.model.regextree.POSIXCharClass]] tree node
+    * @example `"\p{Alpha}"`
+    * @note This does not check for the validity of the property inside `\p{}`
+    */
+  def posixCharClass[_: P]: P[POSIXCharClass] =
+    Indexed("""\""" ~ CharIn("pP").! ~ "{" ~ (CharIn("a-z", "A-Z") ~ CharIn("a-z", "A-Z", "0-9", "_").rep).! ~ "}")
+      .map { case (loc, (p, property)) => POSIXCharClass(property, loc, p == "p") }
 
   /** A higher order parser that add [[weaponregex.model.regextree.QuantifierType]] information of the parse of the given (quantifier) parser
     * @param p the quantifier parser
@@ -345,7 +385,7 @@ class Parser private (val pattern: String) {
     * @return [[weaponregex.model.regextree.RegexTree]] (sub)tree
     */
   def elementaryRE[_: P]: P[RegexTree] = P(
-    capturing | anyDot | preDefinedCharClass | boundary | charClass | reference | character | quote
+    capturing | anyDot | preDefinedCharClass | posixCharClass | boundary | charClass | reference | character | quote
   )
 
   /** Intermediate parsing rule which can parse either `quantifier` or `elementaryRE`
