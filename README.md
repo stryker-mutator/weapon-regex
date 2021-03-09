@@ -19,7 +19,7 @@ The current supported versions for Scala are: `2.12` and `2.13`.
 Add Weapon regeX to your `build.sbt`.
 
 ```scala
-libraryDependencies += "io.stryker-mutator" %% "weapon-regex" % "0.3.0"
+libraryDependencies += "io.stryker-mutator" %% "weapon-regex" % "0.4.1"
 ```
 
 Mutate!
