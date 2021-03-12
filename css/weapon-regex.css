@@ -8,20 +8,12 @@
     --bg-light-1: #E9EDEE;
 }
 
-#main-content {
-    max-width: 1080px;
-    margin: 0 auto;
-    padding: 5%;
+.main-content {
+    padding-top: 5%;
 }
 
 .card {
     margin-bottom: 1rem;
-}
-
-.mutant-container {
-    /*background-color: var(--bg-light-1);*/
-    /*padding: 1em;*/
-    /*border-radius: .25rem;*/
 }
 
 .mutant-decompose {

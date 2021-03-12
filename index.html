@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Weapon regeX</title>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
@@ -53,121 +54,123 @@
     </div>
 </nav>
 
-<div id="main-content">
-    <h1 style="font-variant: small-caps">Weapon regeX</h1>
+<div class="container">
+    <div class="row">
+        <div class="col-12 main-content">
+            <h1 style="font-variant: small-caps">Weapon regeX</h1>
 
-    <form onsubmit="runMutator(); return false;">
-        <div class="form-row align-items-end">
-            <div class="form-group col-2">
-                <label for="parserFlavor">Flavor</label>
-                <select id="parserFlavor" class="form-control custom-select" required>
-                    <option selected>JS</option>
-                    <option>JVM</option>
-                </select>
-            </div>
-
-            <div class="form-group col-7">
-                <label for="inputPattern" class="floatingInput">Regex pattern</label>
-                <input type="text" class="form-control" id="inputPattern"
-                       placeholder="e.g. \n\t.[0-9[a-zA-Z[^#]]abc]|d|e" required>
-            </div>
-
-            <div class="form-group col-2">
-                <label for="inputLevel">Mutation level</label>
-                <select id="inputLevel" class="form-control custom-select" required>
-                    <option selected>1</option>
-                    <option>2</option>
-                    <option>3</option>
-                    <option value="0">All</option>
-                </select>
-            </div>
-
-            <div class="form-group col-1">
-                <button type="button" class="btn btn-primary" onclick="runMutator()">Mutate</button>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label for="mutants">Mutants</label>
-            <div class="mutant-container" id="mutants">
-                <div class="alert alert-secondary" role="alert">
-                    Mutants will appear here 👽
+            <form onsubmit="runMutator(); return false;">
+                <div class="form-row align-items-end">
+                    <div class="form-group col-md-2">
+                        <label for="parserFlavor">Flavor</label>
+                        <select id="parserFlavor" class="form-control custom-select" required>
+                            <option selected>JS</option>
+                            <option>JVM</option>
+                        </select>
+                    </div>
+        
+                    <div class="form-group col-md-7">
+                        <label for="inputPattern" class="floatingInput">Regex pattern</label>
+                        <input type="text" class="form-control" id="inputPattern"
+                               placeholder="e.g. \n\t.[0-9[a-zA-Z[^#]]abc]|d|e" required>
+                    </div>
+        
+                    <div class="form-group col-md-2">
+                        <label for="inputLevel">Mutation level</label>
+                        <select id="inputLevel" class="form-control custom-select" required>
+                            <option selected>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option value="0">All</option>
+                        </select>
+                    </div>
+        
+                    <div class="form-group col-md-1">
+                        <button type="button" class="btn btn-primary" onclick="runMutator()">Mutate</button>
+                    </div>
                 </div>
-            </div>
-
-            <div id="alertFailed" class="alert alert-danger d-none" role="alert">
-                <strong>Failed to process input regex!</strong><hr>
-                <div id="alertFailedMsg"></div>
-            </div>
-
-            <div id="alertNoMutant" class="alert alert-info d-none" role="alert">
-                The input regex has no available mutant 👽
-            </div>
-        </div>
-
-        <script>
-            input = document.getElementById('inputPattern');
-            output = document.getElementById('mutants');
-            level = document.getElementById('inputLevel');
-            flavor = document.getElementById('parserFlavor');
-            alertFailed = document.getElementById('alertFailed');
-            alertFailedMsg = document.getElementById('alertFailedMsg');
-            alertNoMutant = document.getElementById('alertNoMutant');
-            counter = 0;
-
-            function clearOutput() {
-                output.innerHTML = '';
-                alertFailed.classList.add("d-none");
-                alertNoMutant.classList.add("d-none");
-            }
-
-            function getFlavor() {
-                switch (flavor.value) {
-                    case "JVM": return exports.ParserFlavorJVM
-                    default: return exports.ParserFlavorJS
-                }
-            }
-
-            function getLevels() {
-                const selectedLevel = parseInt(level.value);
-                return  selectedLevel === 0 ? null : [selectedLevel];
-            }
-
-            function runMutator() {
-                clearOutput();
-
-                const mutationOptions = {
-                    flavor: getFlavor(),
-                    mutationLevels: getLevels(),
-                }
-                let mutants;
-
-                try {
-                    mutants = exports.mutate(input.value, mutationOptions);
-                } catch (error) {
-                    console.error(error);
-                    alertFailedMsg.innerText = error.message;
-                    alertFailed.classList.remove("d-none");
-                    return;
-                }
-
-                console.log(mutants);
-                if (mutants.length) mutants.forEach(mutant => {
-                    processMutant(mutant, input.value);
-                });
-                else alertNoMutant.classList.remove("d-none");
-            }
-
-            function processMutant(mutant, orig) {
-                const mutatorStart = mutant.location.start.column;
-                const mutatorEnd = mutant.location.end.column;
-                const lengthDiff = mutant.pattern.length - orig.length;
-                const pre = orig.substr(0, mutatorStart);
-                const removed = orig.substr(mutatorStart, mutatorEnd - mutatorStart);
-                const added = mutant.pattern.substr(mutatorStart, mutatorEnd - mutatorStart + lengthDiff);
-                const post = orig.substr(mutatorEnd);
-
-                output.innerHTML = output.innerHTML + `
+        
+                <div class="form-group">
+                    <label for="mutants">Mutants</label>
+                    <div id="mutants">
+                        <div class="alert alert-secondary" role="alert">
+                            Mutants will appear here 👽
+                        </div>
+                    </div>
+        
+                    <div id="alertFailed" class="alert alert-danger d-none" role="alert">
+                        <strong>Failed to process input regex!</strong><hr>
+                        <div id="alertFailedMsg"></div>
+                    </div>
+        
+                    <div id="alertNoMutant" class="alert alert-info d-none" role="alert">
+                        The input regex has no available mutant 👽
+                    </div>
+                </div>
+        
+                <script>
+                    input = document.getElementById('inputPattern');
+                    output = document.getElementById('mutants');
+                    level = document.getElementById('inputLevel');
+                    flavor = document.getElementById('parserFlavor');
+                    alertFailed = document.getElementById('alertFailed');
+                    alertFailedMsg = document.getElementById('alertFailedMsg');
+                    alertNoMutant = document.getElementById('alertNoMutant');
+                    counter = 0;
+        
+                    function clearOutput() {
+                        output.innerHTML = '';
+                        alertFailed.classList.add("d-none");
+                        alertNoMutant.classList.add("d-none");
+                    }
+        
+                    function getFlavor() {
+                        switch (flavor.value) {
+                            case "JVM": return exports.ParserFlavorJVM
+                            default: return exports.ParserFlavorJS
+                        }
+                    }
+        
+                    function getLevels() {
+                        const selectedLevel = parseInt(level.value);
+                        return  selectedLevel === 0 ? null : [selectedLevel];
+                    }
+        
+                    function runMutator() {
+                        clearOutput();
+        
+                        const mutationOptions = {
+                            flavor: getFlavor(),
+                            mutationLevels: getLevels(),
+                        }
+                        let mutants;
+        
+                        try {
+                            mutants = exports.mutate(input.value, mutationOptions);
+                        } catch (error) {
+                            console.error(error);
+                            alertFailedMsg.innerText = error.message;
+                            alertFailed.classList.remove("d-none");
+                            return;
+                        }
+        
+                        console.log(mutants);
+                        if (mutants.length) mutants.forEach(mutant => {
+                            processMutant(mutant, input.value);
+                        });
+                        else alertNoMutant.classList.remove("d-none");
+                    }
+        
+                    function processMutant(mutant, orig) {
+                        const mutatorStart = mutant.location.start.column;
+                        const mutatorEnd = mutant.location.end.column;
+                        const lengthDiff = mutant.pattern.length - orig.length;
+                        const pre = orig.substr(0, mutatorStart);
+                        const removed = orig.substr(mutatorStart, mutatorEnd - mutatorStart);
+                        const added = mutant.pattern.substr(mutatorStart, mutatorEnd - mutatorStart + lengthDiff);
+                        const post = orig.substr(mutatorEnd);
+        
+                        output.innerHTML = output.innerHTML + `
 <div class="card">
     <div class="card-header">
         <button class="btn btn-link btn-block text-left" type="button"
@@ -184,10 +187,12 @@
         </div>
     </div>
 </div>`
-                counter++;
-            }
-        </script>
-    </form>
+                        counter++;
+                    }
+                </script>
+            </form>
+        </div>
+    </div>
 </div>
 
 </body>
