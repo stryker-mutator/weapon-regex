@@ -331,11 +331,11 @@ abstract class Parser(val pattern: String) {
   def incGroup[_: P]: P[INCGroup] = Indexed("(?>" ~ RE ~ ")")
     .map { case (loc, expr) => INCGroup(expr, loc) }
 
-  /** Intermediate parsing rule for special construct tokens which can parse either `namedGroup`, `nonCapturingGroup`, `flagToggleGroup`, `flagNCGroup`, `lookaround` or `incGroup`
+  /** Intermediate parsing rule for special construct tokens which can parse either `namedGroup`, `nonCapturingGroup` or `lookaround`
     * @return [[weaponregex.model.regextree.RegexTree]] (sub)tree
     */
   def specialConstruct[_: P]: P[RegexTree] = P(
-    namedGroup | nonCapturingGroup | flagToggleGroup | flagNCGroup | lookaround | incGroup
+    namedGroup | nonCapturingGroup | lookaround
   )
 
   /** Intermediate parsing rule for capturing-related tokens which can parse either `group` or `specialConstruct`
