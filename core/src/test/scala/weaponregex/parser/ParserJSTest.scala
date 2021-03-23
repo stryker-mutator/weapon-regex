@@ -305,7 +305,7 @@ class ParserJSTest extends munit.FunSuite {
   }
 
   test("Parse hexadecimal characters") {
-    val pattern = "\\x20\\u0020\\x{000020}"
+    val pattern = "\\x20\\u0020"
     val parsedTree = Parser(pattern, parserFlavor).get
 
     assert(clue(parsedTree).isInstanceOf[Concat])
@@ -315,6 +315,18 @@ class ParserJSTest extends munit.FunSuite {
         case _                     => false
       })
     }
+
+    treeBuildTest(parsedTree, pattern)
+  }
+
+  test("Parse \\x{20} as quantifier") {
+    val pattern = "\\x{20}"
+    val parsedTree = Parser(pattern, parserFlavor).get
+
+    assert(clue(parsedTree) match {
+      case Quantifier(QuoteChar('x', _), 20, 20, _, GreedyQuantifier, true) => true
+      case _                                                                => false
+    })
 
     treeBuildTest(parsedTree, pattern)
   }

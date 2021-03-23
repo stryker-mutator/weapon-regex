@@ -57,4 +57,9 @@ class ParserJS private[parser] (pattern: String) extends Parser(pattern) {
     * @return [[weaponregex.model.regextree.RegexTree]] (sub)tree
     */
   override def reference[_: P]: P[RegexTree] = nameReference
+
+  /** Intermediate parsing rule for meta-character tokens which can parse either `charOct`, `charHex`, `charUnicode` or `escapeChar`
+    * @return [[weaponregex.model.regextree.RegexTree]] (sub)tree
+    */
+  override def metaCharacter[_: P]: P[RegexTree] = P(charOct | charHex | charUnicode | escapeChar | controlChar)
 }
