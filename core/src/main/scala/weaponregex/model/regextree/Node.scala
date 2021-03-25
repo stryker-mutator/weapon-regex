@@ -119,11 +119,11 @@ case class Lookaround(expr: RegexTree, isPositive: Boolean, isLookahead: Boolean
       ")"
     )
 
-/** Independent non-capturing group node
+/** Atomic (independent, non-capturing) group node
   * @param expr The regex inside the group
   * @param location The [[weaponregex.model.Location]] of the node in the regex string
   */
-case class INCGroup(expr: RegexTree, override val location: Location) extends Node(Seq(expr), location, "(?>", ")")
+case class AtomicGroup(expr: RegexTree, override val location: Location) extends Node(Seq(expr), location, "(?>", ")")
 
 /** The enumeration of the quantifier type
   * @param syntax The syntax used to represent the quantifier type

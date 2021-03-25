@@ -305,7 +305,7 @@ class ParserJSTest extends munit.FunSuite {
   }
 
   test("Parse hexadecimal characters") {
-    val pattern = "\\x20\\u0020\\x{000020}"
+    val pattern = "\\x20\\u0020"
     val parsedTree = Parser(pattern, parserFlavor).get
 
     assert(clue(parsedTree).isInstanceOf[Concat])
@@ -315,6 +315,18 @@ class ParserJSTest extends munit.FunSuite {
         case _                     => false
       })
     }
+
+    treeBuildTest(parsedTree, pattern)
+  }
+
+  test("Parse \\x{20} as quantifier") {
+    val pattern = "\\x{20}"
+    val parsedTree = Parser(pattern, parserFlavor).get
+
+    assert(clue(parsedTree) match {
+      case Quantifier(QuoteChar('x', _), 20, 20, _, GreedyQuantifier, true) => true
+      case _                                                                => false
+    })
 
     treeBuildTest(parsedTree, pattern)
   }
@@ -618,134 +630,104 @@ class ParserJSTest extends munit.FunSuite {
     treeBuildTest(parsedTree, pattern)
   }
 
-  test("Parse flag toggle group i-i") {
+  test("Unparsable: flag toggle group i-i") {
     val pattern = "(?idmsuxU-idmsuxU)"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor)
 
     assert(clue(parsedTree) match {
-      case FlagToggleGroup(FlagToggle(onFlags, true, offFlags, _), _) =>
-        onFlags.flags.map(_.char).mkString == "idmsuxU" && offFlags.flags.map(_.char).mkString == "idmsuxU"
-      case _ => false
+      case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
+      case _                                    => false
     })
-
-    treeBuildTest(parsedTree, pattern)
   }
 
-  test("Parse flag toggle group i-") {
+  test("Unparsable: flag toggle group i-") {
     val pattern = "(?idmsuxU-)"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor)
 
     assert(clue(parsedTree) match {
-      case FlagToggleGroup(FlagToggle(onFlags, true, offFlags, _), _) =>
-        onFlags.flags.map(_.char).mkString == "idmsuxU" && offFlags.flags.isEmpty
-      case _ => false
+      case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
+      case _                                    => false
     })
-
-    treeBuildTest(parsedTree, pattern)
   }
 
-  test("Parse flag toggle group -i") {
+  test("Unparsable: flag toggle group -i") {
     val pattern = "(?-idmsuxU)"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor)
 
     assert(clue(parsedTree) match {
-      case FlagToggleGroup(FlagToggle(onFlags, true, offFlags, _), _) =>
-        onFlags.flags.isEmpty && offFlags.flags.map(_.char).mkString == "idmsuxU"
-      case _ => false
+      case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
+      case _                                    => false
     })
-
-    treeBuildTest(parsedTree, pattern)
   }
 
-  test("Parse flag toggle group -") {
+  test("Unparsable: flag toggle group -") {
     val pattern = "(?-)"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor)
 
     assert(clue(parsedTree) match {
-      case FlagToggleGroup(FlagToggle(onFlags, true, offFlags, _), _) =>
-        onFlags.flags.isEmpty && offFlags.flags.isEmpty
-      case _ => false
+      case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
+      case _                                    => false
     })
-
-    treeBuildTest(parsedTree, pattern)
   }
 
-  test("Parse flag toggle group i") {
+  test("Unparsable: flag toggle group i") {
     val pattern = "(?idmsuxU)"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor)
 
     assert(clue(parsedTree) match {
-      case FlagToggleGroup(FlagToggle(onFlags, false, offFlags, _), _) =>
-        onFlags.flags.map(_.char).mkString == "idmsuxU" && offFlags.flags.isEmpty
-      case _ => false
+      case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
+      case _                                    => false
     })
-
-    treeBuildTest(parsedTree, pattern)
   }
 
-  test("Parse non-capturing group with flags i-i") {
+  test("Unparsable: non-capturing group with flags i-i") {
     val pattern = "(?idmsux-idmsux:hello)"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor)
 
     assert(clue(parsedTree) match {
-      case FlagNCGroup(FlagToggle(onFlags, true, offFlags, _), _: Concat, _) =>
-        onFlags.flags.map(_.char).mkString == "idmsux" && offFlags.flags.map(_.char).mkString == "idmsux"
-      case _ => false
+      case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
+      case _                                    => false
     })
-
-    treeBuildTest(parsedTree, pattern)
   }
 
-  test("Parse non-capturing group with flags i-") {
+  test("Unparsable: non-capturing group with flags i-") {
     val pattern = "(?idmsux-:hello)"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor)
 
     assert(clue(parsedTree) match {
-      case FlagNCGroup(FlagToggle(onFlags, true, offFlags, _), _: Concat, _) =>
-        onFlags.flags.map(_.char).mkString == "idmsux" && offFlags.flags.isEmpty
-      case _ => false
+      case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
+      case _                                    => false
     })
-
-    treeBuildTest(parsedTree, pattern)
   }
 
-  test("Parse non-capturing group with flags -i") {
+  test("Unparsable: non-capturing group with flags -i") {
     val pattern = "(?-idmsux:hello)"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor)
 
     assert(clue(parsedTree) match {
-      case FlagNCGroup(FlagToggle(onFlags, true, offFlags, _), _: Concat, _) =>
-        onFlags.flags.isEmpty && offFlags.flags.map(_.char).mkString == "idmsux"
-      case _ => false
+      case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
+      case _                                    => false
     })
-
-    treeBuildTest(parsedTree, pattern)
   }
 
-  test("Parse non-capturing group with flags -") {
+  test("Unparsable: non-capturing group with flags -") {
     val pattern = "(?-:hello)"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor)
 
     assert(clue(parsedTree) match {
-      case FlagNCGroup(FlagToggle(onFlags, true, offFlags, _), _: Concat, _) =>
-        onFlags.flags.isEmpty && offFlags.flags.isEmpty
-      case _ => false
+      case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
+      case _                                    => false
     })
-
-    treeBuildTest(parsedTree, pattern)
   }
 
-  test("Parse non-capturing group with flags i") {
+  test("Unparsable: non-capturing group with flags i") {
     val pattern = "(?idmsux:hello)"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor)
 
     assert(clue(parsedTree) match {
-      case FlagNCGroup(FlagToggle(onFlags, false, offFlags, _), _: Concat, _) =>
-        onFlags.flags.map(_.char).mkString == "idmsux" && offFlags.flags.isEmpty
-      case _ => false
+      case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
+      case _                                    => false
     })
-
-    treeBuildTest(parsedTree, pattern)
   }
 
   test("Parse positive lookahead") {
@@ -796,16 +778,14 @@ class ParserJSTest extends munit.FunSuite {
     treeBuildTest(parsedTree, pattern)
   }
 
-  test("Parse independent non-capturing group") {
+  test("Unparsable: independent non-capturing group") {
     val pattern = "(?>hello)"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor)
 
     assert(clue(parsedTree) match {
-      case INCGroup(_: Concat, _) => true
-      case _                      => false
+      case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
+      case _                                    => false
     })
-
-    treeBuildTest(parsedTree, pattern)
   }
 
   test("Parse named reference") {
