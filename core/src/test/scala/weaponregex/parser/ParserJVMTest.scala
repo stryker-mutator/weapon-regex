@@ -768,8 +768,8 @@ class ParserJVMTest extends munit.FunSuite {
     val parsedTree = Parser(pattern, parserFlavor).get
 
     assert(clue(parsedTree) match {
-      case INCGroup(_: Concat, _) => true
-      case _                      => false
+      case AtomicGroup(_: Concat, _) => true
+      case _                         => false
     })
 
     treeBuildTest(parsedTree, pattern)

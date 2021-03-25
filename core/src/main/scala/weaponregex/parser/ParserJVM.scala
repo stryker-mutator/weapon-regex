@@ -40,10 +40,10 @@ class ParserJVM private[parser] (pattern: String) extends Parser(pattern) {
     Indexed("""\0""" ~ (CharIn("0-3") ~ CharIn("0-7").rep(exactly = 2) | CharIn("0-7").rep(min = 1, max = 2)).!)
       .map { case (loc, octDigits) => MetaChar("0" + octDigits, loc) }
 
-  /** Intermediate parsing rule for special construct tokens which can parse either `namedGroup`, `nonCapturingGroup`, `flagToggleGroup`, `flagNCGroup`, `lookaround` or `incGroup`
+  /** Intermediate parsing rule for special construct tokens which can parse either `namedGroup`, `nonCapturingGroup`, `flagToggleGroup`, `flagNCGroup`, `lookaround` or `atomicGroup`
     * @return [[weaponregex.model.regextree.RegexTree]] (sub)tree
     */
   override def specialConstruct[_: P]: P[RegexTree] = P(
-    namedGroup | nonCapturingGroup | flagToggleGroup | flagNCGroup | lookaround | incGroup
+    namedGroup | nonCapturingGroup | flagToggleGroup | flagNCGroup | lookaround | atomicGroup
   )
 }

@@ -90,8 +90,8 @@ class NodeTest extends munit.FunSuite {
     assertEquals(node4.build, "(?=A)")
   }
 
-  test("INCGroup build") {
-    val node1 = INCGroup(leafStubA, locStub)
+  test("AtomicGroup build") {
+    val node1 = AtomicGroup(leafStubA, locStub)
     assertEquals(node1.build, "(?>A)")
   }
 

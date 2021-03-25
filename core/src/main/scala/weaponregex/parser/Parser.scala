@@ -324,12 +324,13 @@ abstract class Parser(val pattern: String) {
     .map { case (loc, (angleBracket, posNeg, expr)) => Lookaround(expr, posNeg == "=", angleBracket.isEmpty, loc) }
 
   /** Parse an independent non-capturing group
-    * @return [[weaponregex.model.regextree.INCGroup]]
+    *
+    * @return [[weaponregex.model.regextree.AtomicGroup]]
     * @example `"(?>abc)"`
     * @note This is a Scala/Java-only regex syntax
     */
-  def incGroup[_: P]: P[INCGroup] = Indexed("(?>" ~ RE ~ ")")
-    .map { case (loc, expr) => INCGroup(expr, loc) }
+  def atomicGroup[_: P]: P[AtomicGroup] = Indexed("(?>" ~ RE ~ ")")
+    .map { case (loc, expr) => AtomicGroup(expr, loc) }
 
   /** Intermediate parsing rule for special construct tokens which can parse either `namedGroup`, `nonCapturingGroup` or `lookaround`
     * @return [[weaponregex.model.regextree.RegexTree]] (sub)tree
