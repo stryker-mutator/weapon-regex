@@ -31,6 +31,10 @@ class ParserJS private[parser] (pattern: String) extends Parser(pattern) {
     */
   override val predefCharClassChars: String = "dDsSvwW"
 
+  /** Minimum number of character class items of a valid character class
+    */
+  override val minCharClassItem: Int = 0
+
   /** Intermediate parsing rule for character class item tokens which can parse either `preDefinedCharClass`, `metaCharacter`, `range`, `quoteChar`, or `charClassCharLiteral`
     * @return [[weaponregex.model.regextree.RegexTree]] (sub)tree
     * @note Nested character class is a Scala/Java-only regex syntax
