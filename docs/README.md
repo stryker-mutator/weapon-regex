@@ -114,28 +114,30 @@ This function will return a JavaScript Array of `Mutant` if it can be parsed, or
 
 All the supported mutators and at which mutation level they appear are shown in the table below.
 
-| Name                                                            | 1   | 2   | 3   |
+| Name                                                            |  1  |  2  |  3  |
 | --------------------------------------------------------------- | --- | --- | --- |
-| [BOLRemoval](#bolremoval)                                       | ✅  | ✅  | ✅  |
-| [EOLRemoval](#eolremoval)                                       | ✅  | ✅  | ✅  |
-| [BOL2BOI](#bol2boi)                                             |     | ✅  | ✅  |
-| [EOL2EOI](#eol2eoi)                                             |     | ✅  | ✅  |
-| [CharClassNegation](#charclassnegation)                         | ✅  |
-| [CharClassChildRemoval](#charclasschildremoval)                 |     | ✅  | ✅  |
-| [CharClassAnyChar](#charclassanychar)                           |     | ✅  | ✅  |
-| [CharClassRangeModification](#charclassrangemodification)       |     |     | ✅  |
-| [PredefCharClassNegation](#predefcharclassnegation)             | ✅  |
-| [PredefCharClassNullification](#predefcharclassnullification)   |     | ✅  | ✅  |
-| [PredefCharClassAnyChar](#predefcharclassanychar)               |     | ✅  | ✅  |
-| [QuantifierRemoval](#quantifierremoval)                         | ✅  |
-| [QuantifierNChange](#quantifiernchange)                         |     | ✅  | ✅  |
-| [QuantifierNOrMoreModification](#quantifiernormoremodification) |     | ✅  | ✅  |
-| [QuantifierNOrMoreChange](#quantifiernormorechange)             |     | ✅  | ✅  |
-| [QuantifierNMModification](#quantifiernmmodification)           |     | ✅  | ✅  |
-| [QuantifierShortModification](#quantifiershortmodification)     |     | ✅  | ✅  |
-| [QuantifierShortChange](#quantifiershortchange)                 |     | ✅  | ✅  |
-| [QuantifierReluctantAddition](#quantifierreluctantaddition)     |     |     | ✅  |
-| [GroupToNCGroup](#grouptoncgroup)                               |     | ✅  | ✅  |
+| [BOLRemoval](#bolremoval)                                       |  ✅  |  ✅  |  ✅  |
+| [EOLRemoval](#eolremoval)                                       |  ✅  |  ✅  |  ✅  |
+| [BOL2BOI](#bol2boi)                                             |     |  ✅  |  ✅  |
+| [EOL2EOI](#eol2eoi)                                             |     |  ✅  |  ✅  |
+| [CharClassNegation](#charclassnegation)                         |  ✅  |
+| [CharClassChildRemoval](#charclasschildremoval)                 |     |  ✅  |  ✅  |
+| [CharClassAnyChar](#charclassanychar)                           |     |  ✅  |  ✅  |
+| [CharClassRangeModification](#charclassrangemodification)       |     |     |  ✅  |
+| [PredefCharClassNegation](#predefcharclassnegation)             |  ✅  |
+| [PredefCharClassNullification](#predefcharclassnullification)   |     |  ✅  |  ✅  |
+| [PredefCharClassAnyChar](#predefcharclassanychar)               |     |  ✅  |  ✅  |
+| [POSIXCharClassNegation](#posixcharclassnegation)               |  ✅  |
+| [QuantifierRemoval](#quantifierremoval)                         |  ✅  |
+| [QuantifierNChange](#quantifiernchange)                         |     |  ✅  |  ✅  |
+| [QuantifierNOrMoreModification](#quantifiernormoremodification) |     |  ✅  |  ✅  |
+| [QuantifierNOrMoreChange](#quantifiernormorechange)             |     |  ✅  |  ✅  |
+| [QuantifierNMModification](#quantifiernmmodification)           |     |  ✅  |  ✅  |
+| [QuantifierShortModification](#quantifiershortmodification)     |     |  ✅  |  ✅  |
+| [QuantifierShortChange](#quantifiershortchange)                 |     |  ✅  |  ✅  |
+| [QuantifierReluctantAddition](#quantifierreluctantaddition)     |     |     |  ✅  |
+| [GroupToNCGroup](#grouptoncgroup)                               |     |  ✅  |  ✅  |
+| [LookaroundNegation](#lookaroundnegation)                       |  ✅  |  ✅  |  ✅  |
 
 ## Boundary Mutators
 
@@ -275,6 +277,17 @@ negation.
 
 [Back to table 🔝](#supported-mutators)
 
+### POSIXCharClassNegation
+
+Flips the sign of a POSIX character class.
+
+| Original    | Mutated     |
+| ----------- | ----------- |
+| `\p{Alpha}` | `\P{Alpha}` |
+| `\P{Alpha}` | `\p{Alpha}` |
+
+[Back to table 🔝](#supported-mutators)
+
 ## Quantifier mutators
 
 ### QuantifierRemoval
@@ -389,7 +402,7 @@ Change greedy quantifiers to reluctant quantifiers.
 
 [Back to table 🔝](#supported-mutators)
 
-## Group mutators
+## Group-related construct mutators
 
 ### GroupToNCGroup
 
@@ -398,6 +411,20 @@ Change a normal group to a non-capturing group.
 | Original | Mutated   |
 | -------- | --------- |
 | `(abc)`  | `(?:abc)` |
+
+[Back to table 🔝](#supported-mutators)
+
+### LookaroundNegation
+
+Flips the sign of a lookaround (lookahead, lookbehind) construct.
+
+| Original    | Mutated    |
+| ----------- | ---------- |
+| `(?=abc)`   | `(?!abc)`  |
+| `(?!abc)`   | `(?=abc)`  |
+| `(?<=abc)`  | `(?<!abc)` |
+| `(?<!abc)`  | `(?<=abc)` |
+
 
 [Back to table 🔝](#supported-mutators)
 

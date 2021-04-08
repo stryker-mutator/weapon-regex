@@ -32,7 +32,8 @@ object BuiltinMutators {
     QuantifierShortModification,
     QuantifierShortChange,
     QuantifierReluctantAddition,
-    GroupToNCGroup
+    GroupToNCGroup,
+    LookaroundNegation
   )
 
   /** Map from mutation level number to token mutators in that level
