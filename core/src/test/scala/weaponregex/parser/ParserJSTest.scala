@@ -66,6 +66,31 @@ class ParserJSTest extends munit.FunSuite {
     treeBuildTest(parsedTree, pattern)
   }
 
+  test("Parse or of characters with null children") {
+    val pattern = "|h|e||l|||l|o|"
+    val parsedTree = Parser(pattern, parserFlavor).get
+    assert(clue(parsedTree).isInstanceOf[Or])
+
+    assert(clue(parsedTree.children) match {
+      case Seq(
+            Nothing(_),
+            Character('h', _),
+            Character('e', _),
+            Nothing(_),
+            Character('l', _),
+            Nothing(_),
+            Nothing(_),
+            Character('l', _),
+            Character('o', _),
+            Nothing(_)
+          ) =>
+        true
+      case _ => false
+    })
+
+    treeBuildTest(parsedTree, pattern)
+  }
+
   test("Parse BOL and EOL") {
     val pattern = "^hello$"
     val parsedTree = Parser(pattern, parserFlavor).get
