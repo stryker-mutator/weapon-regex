@@ -1,12 +1,9 @@
 package weaponregex.parser
 
-import scala.util.Failure
 import weaponregex.model.regextree._
 
-class ParserJSTest extends munit.FunSuite {
+class ParserJSTest extends ParserTest {
   final val parserFlavor: ParserFlavor = ParserFlavorJS
-
-  def treeBuildTest(tree: RegexTree, pattern: String): Unit = assertEquals(tree.build, pattern)
 
   test("Parse concat of characters") {
     val pattern = "hello"
@@ -151,6 +148,29 @@ class ParserJSTest extends munit.FunSuite {
         case _               => false
       })
     }
+
+    treeBuildTest(parsedTree, pattern)
+  }
+
+  test("Parse empty positive character class with characters") {
+    val pattern = "[]"
+    val parsedTree = Parser(pattern, parserFlavor).get
+
+    assert(clue(parsedTree).isInstanceOf[CharacterClass])
+    assert(clue(parsedTree.children).isEmpty)
+
+    treeBuildTest(parsedTree, pattern)
+  }
+
+  test("Parse negative character class with characters") {
+    val pattern = "[^]"
+    val parsedTree = Parser(pattern, parserFlavor).get
+
+    assert(parsedTree match {
+      case CharacterClass(_, _, false) => true
+      case _                           => false
+    })
+    assert(clue(parsedTree.children).isEmpty)
 
     treeBuildTest(parsedTree, pattern)
   }
@@ -632,102 +652,52 @@ class ParserJSTest extends munit.FunSuite {
 
   test("Unparsable: flag toggle group i-i") {
     val pattern = "(?idmsuxU-idmsuxU)"
-    val parsedTree = Parser(pattern, parserFlavor)
-
-    assert(clue(parsedTree) match {
-      case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
-      case _                                    => false
-    })
+    parseErrorTest(pattern)
   }
 
   test("Unparsable: flag toggle group i-") {
     val pattern = "(?idmsuxU-)"
-    val parsedTree = Parser(pattern, parserFlavor)
-
-    assert(clue(parsedTree) match {
-      case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
-      case _                                    => false
-    })
+    parseErrorTest(pattern)
   }
 
   test("Unparsable: flag toggle group -i") {
     val pattern = "(?-idmsuxU)"
-    val parsedTree = Parser(pattern, parserFlavor)
-
-    assert(clue(parsedTree) match {
-      case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
-      case _                                    => false
-    })
+    parseErrorTest(pattern)
   }
 
   test("Unparsable: flag toggle group -") {
     val pattern = "(?-)"
-    val parsedTree = Parser(pattern, parserFlavor)
-
-    assert(clue(parsedTree) match {
-      case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
-      case _                                    => false
-    })
+    parseErrorTest(pattern)
   }
 
   test("Unparsable: flag toggle group i") {
     val pattern = "(?idmsuxU)"
-    val parsedTree = Parser(pattern, parserFlavor)
-
-    assert(clue(parsedTree) match {
-      case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
-      case _                                    => false
-    })
+    parseErrorTest(pattern)
   }
 
   test("Unparsable: non-capturing group with flags i-i") {
     val pattern = "(?idmsux-idmsux:hello)"
-    val parsedTree = Parser(pattern, parserFlavor)
-
-    assert(clue(parsedTree) match {
-      case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
-      case _                                    => false
-    })
+    parseErrorTest(pattern)
   }
 
   test("Unparsable: non-capturing group with flags i-") {
     val pattern = "(?idmsux-:hello)"
-    val parsedTree = Parser(pattern, parserFlavor)
-
-    assert(clue(parsedTree) match {
-      case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
-      case _                                    => false
-    })
+    parseErrorTest(pattern)
   }
 
   test("Unparsable: non-capturing group with flags -i") {
     val pattern = "(?-idmsux:hello)"
-    val parsedTree = Parser(pattern, parserFlavor)
-
-    assert(clue(parsedTree) match {
-      case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
-      case _                                    => false
-    })
+    parseErrorTest(pattern)
   }
 
   test("Unparsable: non-capturing group with flags -") {
     val pattern = "(?-:hello)"
-    val parsedTree = Parser(pattern, parserFlavor)
-
-    assert(clue(parsedTree) match {
-      case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
-      case _                                    => false
-    })
+    parseErrorTest(pattern)
   }
 
   test("Unparsable: non-capturing group with flags i") {
     val pattern = "(?idmsux:hello)"
-    val parsedTree = Parser(pattern, parserFlavor)
-
-    assert(clue(parsedTree) match {
-      case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
-      case _                                    => false
-    })
+    parseErrorTest(pattern)
   }
 
   test("Parse positive lookahead") {
@@ -780,12 +750,7 @@ class ParserJSTest extends munit.FunSuite {
 
   test("Unparsable: independent non-capturing group") {
     val pattern = "(?>hello)"
-    val parsedTree = Parser(pattern, parserFlavor)
-
-    assert(clue(parsedTree) match {
-      case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
-      case _                                    => false
-    })
+    parseErrorTest(pattern)
   }
 
   test("Parse named reference") {
@@ -845,22 +810,12 @@ class ParserJSTest extends munit.FunSuite {
 
   test("Parser failure at start") {
     val pattern = "("
-    val parsedTree = Parser(pattern, parserFlavor)
-
-    assert(clue(parsedTree) match {
-      case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
-      case _                                    => false
-    })
+    parseErrorTest(pattern)
   }
 
   test("Parser failure mid-regex") {
     val pattern = "abc(def"
-    val parsedTree = Parser(pattern, parserFlavor)
-
-    assert(clue(parsedTree) match {
-      case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
-      case _                                    => false
-    })
+    parseErrorTest(pattern)
   }
 
   test("Parse `{`") {

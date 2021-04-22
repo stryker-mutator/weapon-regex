@@ -31,6 +31,10 @@ class ParserJVM private[parser] (pattern: String) extends Parser(pattern) {
     */
   override val predefCharClassChars: String = "dDhHsSvVwW"
 
+  /** Minimum number of character class items of a valid character class
+    */
+  override val minCharClassItem: Int = 1
+
   /** Parse a character with octal value `\0n`, `\0nn`, `\0mnn` (0 <= m <= 3, 0 <= n <= 7)
     *
     * @return [[weaponregex.model.regextree.MetaChar]] tree node

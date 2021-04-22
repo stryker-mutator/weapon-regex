@@ -1,12 +1,9 @@
 package weaponregex.parser
 
-import scala.util.Failure
 import weaponregex.model.regextree._
 
-class ParserJVMTest extends munit.FunSuite {
+class ParserJVMTest extends ParserTest {
   final val parserFlavor: ParserFlavor = ParserFlavorJVM
-
-  def treeBuildTest(tree: RegexTree, pattern: String): Unit = assertEquals(tree.build, pattern)
 
   test("Parse concat of characters") {
     val pattern = "hello"
@@ -143,6 +140,16 @@ class ParserJVMTest extends munit.FunSuite {
     }
 
     treeBuildTest(parsedTree, pattern)
+  }
+
+  test("Unparsable: empty positive character class `[]`") {
+    val pattern = "[]"
+    parseErrorTest(pattern)
+  }
+
+  test("Unparsable: empty negative character class `[^]`") {
+    val pattern = "[^]"
+    parseErrorTest(pattern)
   }
 
   test("Parse character class with ranges") {
@@ -840,31 +847,16 @@ class ParserJVMTest extends munit.FunSuite {
 
   test("Parser failure at start") {
     val pattern = "("
-    val parsedTree = Parser(pattern, parserFlavor)
-
-    assert(clue(parsedTree) match {
-      case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
-      case _                                    => false
-    })
+    parseErrorTest(pattern)
   }
 
   test("Parser failure mid-regex") {
     val pattern = "abc(def"
-    val parsedTree = Parser(pattern, parserFlavor)
-
-    assert(clue(parsedTree) match {
-      case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
-      case _                                    => false
-    })
+    parseErrorTest(pattern)
   }
 
-  test("Not parse `{`") {
+  test("Unparsable: single `{`") {
     val pattern = "{"
-    val parsedTree = Parser(pattern, parserFlavor)
-
-    assert(clue(parsedTree) match {
-      case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
-      case _                                    => false
-    })
+    parseErrorTest(pattern)
   }
 }
