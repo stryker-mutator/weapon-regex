@@ -1,6 +1,6 @@
 package weaponregex.mutator
 
-import weaponregex.model.mutation.TokenMutator
+import weaponregex.model.mutation.{Mutant, TokenMutator}
 import weaponregex.model.regextree._
 import weaponregex.`extension`.StringExtension._
 
@@ -14,10 +14,10 @@ object PredefCharClassNegation extends TokenMutator {
   override val levels: Seq[Int] = Seq(1)
   override val description: String = "Negate predefined character class"
 
-  override def mutate(token: RegexTree): Seq[String] = (token match {
+  override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case pdcc: PredefinedCharClass => Seq(pdcc.copy(charClass = pdcc.charClass.toggleCase))
     case _                         => Nil
-  }) map (_.build)
+  }) map (_.build.toMutantOf(token))
 }
 
 /** Nullify a predefined character class by removing the `\`
@@ -30,10 +30,10 @@ object PredefCharClassNullification extends TokenMutator {
   override val levels: Seq[Int] = Seq(2, 3)
   override val description: String = "Nullify a predefined character class by removing the `\\`"
 
-  override def mutate(token: RegexTree): Seq[String] = token match {
+  override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case pdcc: PredefinedCharClass => Seq(pdcc.charClass)
     case _                         => Nil
-  }
+  }) map (_.toMutantOf(token))
 }
 
 /** "Add the negation of that predefined character class to match any character `[\\w\\W]`"
@@ -47,11 +47,11 @@ object PredefCharClassAnyChar extends TokenMutator {
   override val description: String =
     "Add the negation of that predefined character class to match any character [\\w\\W]"
 
-  override def mutate(token: RegexTree): Seq[String] = (token match {
+  override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case pdcc: PredefinedCharClass =>
       Seq(CharacterClass(Seq(pdcc, pdcc.copy(charClass = pdcc.charClass.toggleCase)), pdcc.location))
     case _ => Nil
-  }) map (_.build)
+  }) map (_.build.toMutantOf(token))
 }
 
 /** Negate POSIX character class
@@ -64,8 +64,8 @@ object POSIXCharClassNegation extends TokenMutator {
   override val levels: Seq[Int] = Seq(1)
   override val description: String = "Negate POSIX character class"
 
-  override def mutate(token: RegexTree): Seq[String] = (token match {
+  override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case pcc: POSIXCharClass => Seq(pcc.copy(isPositive = !pcc.isPositive))
     case _                   => Nil
-  }) map (_.build)
+  }) map (_.build.toMutantOf(token))
 }

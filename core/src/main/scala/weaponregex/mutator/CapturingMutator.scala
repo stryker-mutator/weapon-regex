@@ -1,6 +1,6 @@
 package weaponregex.mutator
 
-import weaponregex.model.mutation.TokenMutator
+import weaponregex.model.mutation.{Mutant, TokenMutator}
 import weaponregex.model.regextree._
 
 /** Modify capturing group to non-capturing group
@@ -13,10 +13,10 @@ object GroupToNCGroup extends TokenMutator {
   override val levels: Seq[Int] = Seq(2, 3)
   override val description: String = "Modify capturing group to non-capturing group"
 
-  override def mutate(token: RegexTree): Seq[String] = (token match {
+  override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case group @ Group(_, true, _) => Seq(group.copy(isCapturing = false))
     case _                         => Nil
-  }) map (_.build)
+  }) map (_.build.toMutantBeforeChildrenOf(token))
 }
 
 /** Negate lookaround (lookahead, lookbehind) constructs
@@ -29,8 +29,8 @@ object LookaroundNegation extends TokenMutator {
   override val levels: Seq[Int] = Seq(1, 2, 3)
   override val description: String = "Negate lookaround constructs (lookahead, lookbehind)"
 
-  override def mutate(token: RegexTree): Seq[String] = (token match {
+  override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case la: Lookaround => Seq(la.copy(isPositive = !la.isPositive))
     case _              => Nil
-  }) map (_.build)
+  }) map (_.build.toMutantBeforeChildrenOf(token))
 }

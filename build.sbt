@@ -1,5 +1,5 @@
 // Skip publish root
-skip in publish := true
+publish / skip := true
 
 val Scala212 = "2.12.13"
 val Scala213 = "2.13.5"
@@ -8,25 +8,25 @@ inThisBuild(
   List(
     organization := "io.stryker-mutator",
     homepage := Some(url("https://github.com/stryker-mutator/weapon-regex")),
-    licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+    licenses := List("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
     developers := List(
       Developer(
         id = "nhat",
         name = "Nhat",
         email = "",
-        url = url("http://github.com/Nhaajt")
+        url = url("https://github.com/Nhaajt")
       ),
       Developer(
         id = "jan",
         name = "Jan",
         email = "",
-        url = url("http://github.com/JSmits-utwente")
+        url = url("https://github.com/JSmits-utwente")
       ),
       Developer(
         id = "wijtse",
         name = "Wijtse",
         email = "",
-        url = url("http://github.com/wijtserekker")
+        url = url("https://github.com/wijtserekker")
       )
     )
   )
