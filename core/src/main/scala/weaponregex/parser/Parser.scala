@@ -49,6 +49,10 @@ abstract class Parser(val pattern: String) {
     */
   val predefCharClassChars: String
 
+  /** Minimum number of character class items of a valid character class
+    */
+  val minCharClassItem: Int
+
   /** A higher order parser that add [[weaponregex.model.Location]] index information of the parse of the given parser
     * @param p the parser to be indexed
     * @return A tuple of the [[weaponregex.model.Location]] of the parse, and the return of the given parser `p`
@@ -178,7 +182,7 @@ abstract class Parser(val pattern: String) {
     * @return [[weaponregex.model.regextree.CharacterClass]] tree node
     * @example `"[abc]"`
     */
-  def charClass[_: P]: P[CharacterClass] = Indexed("[" ~ "^".!.? ~ classItem.rep(1) ~ "]")
+  def charClass[_: P]: P[CharacterClass] = Indexed("[" ~ "^".!.? ~ classItem.rep(minCharClassItem) ~ "]")
     .map { case (loc, (hat, nodes)) => CharacterClass(nodes, loc, isPositive = hat.isEmpty) }
 
   /** Parse an any(dot) (`.`) predefined character class
