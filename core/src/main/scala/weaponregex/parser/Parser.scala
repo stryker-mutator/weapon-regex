@@ -402,16 +402,17 @@ abstract class Parser(val pattern: String) {
     .map { case (loc, nodes) => Concat(nodes, loc) }
 
   /** Parse an empty string
-    * @return [[weaponregex.model.regextree.Nothing]] tree node
+    *
+    * @return [[weaponregex.model.regextree.Empty]] tree node
     * @example `""`
     */
-  def nothing[_: P]: P[Nothing] = Indexed("")
-    .map { case (loc, _) => Nothing(loc) }
+  def empty[_: P]: P[Empty] = Indexed("")
+    .map { case (loc, _) => Empty(loc) }
 
-  /** Intermediate parsing rule which can parse either `concat`, `basicRE` or `nothing`
+  /** Intermediate parsing rule which can parse either `concat`, `basicRE` or `empty`
     * @return [[weaponregex.model.regextree.RegexTree]] (sub)tree
     */
-  def simpleRE[_: P]: P[RegexTree] = P(concat | basicRE | nothing)
+  def simpleRE[_: P]: P[RegexTree] = P(concat | basicRE | empty)
 
   /** Parse an 'or' (`|`) of `simpleRE`
     * @return [[weaponregex.model.regextree.Or]] tree node

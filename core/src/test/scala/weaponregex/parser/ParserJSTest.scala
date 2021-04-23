@@ -73,16 +73,16 @@ class ParserJSTest extends munit.FunSuite {
 
     assert(clue(parsedTree.children) match {
       case Seq(
-            Nothing(_),
+            Empty(_),
             Character('h', _),
             Character('e', _),
-            Nothing(_),
+            Empty(_),
             Character('l', _),
-            Nothing(_),
-            Nothing(_),
+            Empty(_),
+            Empty(_),
             Character('l', _),
             Character('o', _),
-            Nothing(_)
+            Empty(_)
           ) =>
         true
       case _ => false

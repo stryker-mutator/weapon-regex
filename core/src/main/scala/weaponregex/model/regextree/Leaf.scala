@@ -114,7 +114,7 @@ case class QuoteChar(char: Char, override val location: Location) extends Leaf(c
 case class Quote(quote: String, hasEnd: Boolean, override val location: Location)
     extends Leaf(quote, location, """\Q""", if (hasEnd) """\E""" else "")
 
-/** Nothing leaf (empty string)
+/** Empty string (nothing, null) leaf
   * @param location The [[weaponregex.model.Location]] of the node in the regex string
   */
-case class Nothing(override val location: Location) extends Leaf("", location)
+case class Empty(override val location: Location) extends Leaf("", location)
