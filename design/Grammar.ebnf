@@ -4,6 +4,7 @@ RE = or
 
 simpleRE = concat
          | basicRE
+         | empty
          ;
 
 basicRE = quantifier
@@ -151,3 +152,4 @@ hex = ? [0-9a-fA-F] ? ;
 alpha = ? [a-zA-Z] ? ;
 idmsux = ? [idmsux] ? ;
 idmsuxU = ? [idmsuxU] ? ;
+empty = '';

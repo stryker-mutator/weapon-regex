@@ -63,6 +63,31 @@ class ParserJSTest extends ParserTest {
     treeBuildTest(parsedTree, pattern)
   }
 
+  test("Parse or of characters with null children") {
+    val pattern = "|h|e||l|||l|o|"
+    val parsedTree = Parser(pattern, parserFlavor).get
+    assert(clue(parsedTree).isInstanceOf[Or])
+
+    assert(clue(parsedTree.children) match {
+      case Seq(
+            Empty(_),
+            Character('h', _),
+            Character('e', _),
+            Empty(_),
+            Character('l', _),
+            Empty(_),
+            Empty(_),
+            Character('l', _),
+            Character('o', _),
+            Empty(_)
+          ) =>
+        true
+      case _ => false
+    })
+
+    treeBuildTest(parsedTree, pattern)
+  }
+
   test("Parse BOL and EOL") {
     val pattern = "^hello$"
     val parsedTree = Parser(pattern, parserFlavor).get
