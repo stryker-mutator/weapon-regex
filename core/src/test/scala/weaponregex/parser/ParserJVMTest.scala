@@ -267,7 +267,7 @@ class ParserJVMTest extends ParserTest {
   }
 
   test("Parse character class with special characters") {
-    val pattern = """[(){}.^$|?*+]"""
+    val pattern = """[(){}.^$|?*+&]"""
     val parsedTree = Parser(pattern, parserFlavor).get
 
     assert(clue(parsedTree).isInstanceOf[CharacterClass])
@@ -277,6 +277,77 @@ class ParserJVMTest extends ParserTest {
         case _               => false
       })
     }
+
+    treeBuildTest(parsedTree, pattern)
+  }
+
+  test("Parse character class with simple intersection") {
+    val pattern = """[abc&&def&&ghi]"""
+    val subClasses = Seq("abc", "def", "ghi")
+    val parsedTree = Parser(pattern, parserFlavor).get
+
+    assert(clue(parsedTree).isInstanceOf[CharacterClass])
+    assertEquals(parsedTree.children.length, 1)
+    assert(clue(parsedTree.children.head).isInstanceOf[CharClassIntersection])
+    assertEquals(parsedTree.children.head.children.length, 3)
+    (subClasses zip parsedTree.children.head.children) foreach { case (str, child) =>
+      assert(clue(child) match {
+        case CharacterClassNaked(nodes, _) =>
+          (str zip nodes) forall {
+            case (char, Character(c, _)) => c == char
+            case _                       => false
+          }
+        case _ => false
+      })
+    }
+
+    treeBuildTest(parsedTree, pattern)
+  }
+
+  test("Parse character class with complex intersection") {
+    val pattern = """[a-z&&&[a&&b]]"""
+    val parsedTree = Parser(pattern, parserFlavor).get
+
+    assert(clue(parsedTree) match {
+      case CharacterClass(
+            Seq(
+              CharClassIntersection(
+                Seq(
+                  CharacterClassNaked(
+                    Seq(
+                      Range(Character('a', _), Character('z', _), _)
+                    ),
+                    _
+                  ),
+                  CharacterClassNaked(
+                    Seq(
+                      Character('&', _),
+                      CharacterClass(
+                        Seq(
+                          CharClassIntersection(
+                            Seq(
+                              CharacterClassNaked(Seq(Character('a', _)), _),
+                              CharacterClassNaked(Seq(Character('b', _)), _)
+                            ),
+                            _
+                          )
+                        ),
+                        _,
+                        true
+                      )
+                    ),
+                    _
+                  )
+                ),
+                _
+              )
+            ),
+            _,
+            true
+          ) =>
+        true
+      case _ => false
+    })
 
     treeBuildTest(parsedTree, pattern)
   }
