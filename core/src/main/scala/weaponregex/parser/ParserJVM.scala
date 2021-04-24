@@ -3,6 +3,10 @@ package weaponregex.parser
 import fastparse._
 import NoWhitespace._
 import weaponregex.model.regextree.{MetaChar, RegexTree}
+import weaponregex.model.regextree.CharacterClass
+import weaponregex.model.regextree.CharClassIntersection
+import weaponregex.model.regextree.CharacterClassNaked
+import weaponregex.model.regextree.Character
 
 /** Concrete parser for JVM flavor of regex
   * @param pattern The regex pattern to be parsed
@@ -17,7 +21,7 @@ class ParserJVM private[parser] (pattern: String) extends Parser(pattern) {
 
   /** Special characters within a character class
     */
-  override val charClassSpecialChars: String = """[]\"""
+  override val charClassSpecialChars: String = """[]\&"""
 
   /** Allowed boundary meta-characters
     */
@@ -43,6 +47,39 @@ class ParserJVM private[parser] (pattern: String) extends Parser(pattern) {
   override def charOct[_: P]: P[MetaChar] =
     Indexed("""\0""" ~ (CharIn("0-3") ~ CharIn("0-7").rep(exactly = 2) | CharIn("0-7").rep(min = 1, max = 2)).!)
       .map { case (loc, octDigits) => MetaChar("0" + octDigits, loc) }
+
+  /** Parse a single literal character that is allowed to be in a character class
+    * @return [[weaponregex.model.regextree.Character]] tree node
+    * @example `"{"`
+    * @see [[weaponregex.parser.Parser.charClassSpecialChars]]
+    */
+  override def charClassCharLiteral[_: P]: P[Character] =
+    Indexed(CharPred(!charClassSpecialChars.contains(_)).! | "&".! ~ !"&")
+      .map { case (loc, c) => Character(c.head, loc) }
+
+  /** Parse a sequence of character class items as a 'naked character class'. It is used only inside the character class intersection.
+    *
+    * @return [[weaponregex.model.regextree.CharacterClassNaked]] tree node
+    */
+  def charClassNaked[_: P]: P[CharacterClassNaked] = Indexed(classItem.rep(minCharClassItem))
+    .map { case (loc, nodes) => CharacterClassNaked(nodes, loc) }
+
+  /** Parse a character class intersection used inside a character class.
+    *
+    * @return [[weaponregex.model.regextree.CharClassIntersection]] tree node
+    * @example `"abc&&[^bc]&&a-z"`
+    */
+  def charClassIntersection[_: P]: P[CharClassIntersection] =
+    Indexed(charClassNaked.rep(2, sep = "&&"))
+      .map { case (loc, nodes) => CharClassIntersection(nodes, loc) }
+
+  /** Parse a character class
+    * @return [[weaponregex.model.regextree.CharacterClass]] tree node
+    * @example `"[abc]"`
+    */
+  override def charClass[_: P]: P[CharacterClass] =
+    Indexed("[" ~ "^".!.? ~ (charClassIntersection.rep(exactly = 1) | classItem.rep(minCharClassItem)) ~ "]")
+      .map { case (loc, (hat, nodes)) => CharacterClass(nodes, loc, isPositive = hat.isEmpty) }
 
   /** Intermediate parsing rule for special construct tokens which can parse either `namedGroup`, `nonCapturingGroup`, `flagToggleGroup`, `flagNCGroup`, `lookaround` or `atomicGroup`
     * @return [[weaponregex.model.regextree.RegexTree]] (sub)tree
