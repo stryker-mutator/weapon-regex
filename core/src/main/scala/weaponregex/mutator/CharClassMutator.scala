@@ -32,6 +32,8 @@ object CharClassChildRemoval extends TokenMutator {
   override def mutate(token: RegexTree): Seq[Mutant] = token match {
     case cc: CharacterClass if cc.children.length > 1 =>
       cc.children map (child => cc.buildWhile(_ ne child).toMutantOf(child))
+    case cc: CharacterClassNaked if cc.children.length > 1 =>
+      cc.children map (child => cc.buildWhile(_ ne child).toMutantOf(child))
     case _ => Nil
   }
 }

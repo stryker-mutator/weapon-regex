@@ -171,7 +171,8 @@ abstract class Parser(val pattern: String) {
   def charClassCharLiteral[_: P]: P[Character] = Indexed(CharPred(!charClassSpecialChars.contains(_)).!)
     .map { case (loc, c) => Character(c.head, loc) }
 
-  /** Intermediate parsing rule for character class item tokens which can parse either `charClass`, `preDefinedCharClass`, `metaCharacter`, `range`, `quoteChar`, or `charClassCharLiteral`
+  /** Intermediate parsing rule for character class item tokens which can parse either
+    * `charClass`, `preDefinedCharClass`, `metaCharacter`, `range`, `quoteChar`, or `charClassCharLiteral`
     * @return [[weaponregex.model.regextree.RegexTree]] (sub)tree
     */
   def classItem[_: P]: P[RegexTree] = P(
@@ -386,7 +387,8 @@ abstract class Parser(val pattern: String) {
     */
   def quote[_: P]: P[RegexTree] = P(quoteLong | quoteChar)
 
-  /** Intermediate parsing rule which can parse either `capturing`, `anyDot`, `preDefinedCharClass`, `boundary`, `charClass`, `reference`, `character` or `quote`
+  /** Intermediate parsing rule which can parse either
+    * `capturing`, `anyDot`, `preDefinedCharClass`, `boundary`, `charClass`, `reference`, `character` or `quote`
     * @return [[weaponregex.model.regextree.RegexTree]] (sub)tree
     */
   def elementaryRE[_: P]: P[RegexTree] = P(
@@ -405,10 +407,18 @@ abstract class Parser(val pattern: String) {
   def concat[_: P]: P[Concat] = Indexed(basicRE.rep(2))
     .map { case (loc, nodes) => Concat(nodes, loc) }
 
-  /** Intermediate parsing rule which can parse either `concat` or `basicRE`
+  /** Parse an empty string
+    *
+    * @return [[weaponregex.model.regextree.Empty]] tree node
+    * @example `""`
+    */
+  def empty[_: P]: P[Empty] = Indexed("")
+    .map { case (loc, _) => Empty(loc) }
+
+  /** Intermediate parsing rule which can parse either `concat`, `basicRE` or `empty`
     * @return [[weaponregex.model.regextree.RegexTree]] (sub)tree
     */
-  def simpleRE[_: P]: P[RegexTree] = P(concat | basicRE)
+  def simpleRE[_: P]: P[RegexTree] = P(concat | basicRE | empty)
 
   /** Parse an 'or' (`|`) of `simpleRE`
     * @return [[weaponregex.model.regextree.Or]] tree node
