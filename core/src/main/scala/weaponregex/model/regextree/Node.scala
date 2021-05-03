@@ -39,13 +39,13 @@ abstract class Node(
   * @param isPositive `true` if the character class is positive, `false` otherwise
   */
 case class CharacterClass(nodes: Seq[RegexTree], override val location: Location, isPositive: Boolean = true)
-    extends Node(nodes, location, if (isPositive) "[" else "[^", "]") {}
+    extends Node(nodes, location, if (isPositive) "[" else "[^", "]")
 
-/** Character class node without square brackets
+/** Character class node without the surround syntactical symbols, i.e. "naked"
   * @param nodes The child nodes contained in the character class
   * @param location The [[weaponregex.model.Location]] of the node in the regex string
   */
-case class CharacterClassNaked(nodes: Seq[RegexTree], override val location: Location) extends Node(nodes, location) {}
+case class CharacterClassNaked(nodes: Seq[RegexTree], override val location: Location) extends Node(nodes, location)
 
 /** Character class intersection used inside a character class
   * @param nodes The nodes that are being "or-ed"

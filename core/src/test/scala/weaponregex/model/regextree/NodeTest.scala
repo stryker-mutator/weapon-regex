@@ -16,6 +16,16 @@ class NodeTest extends munit.FunSuite {
     assertEquals(node2.build, "[^ABC]")
   }
 
+  test("CharacterClassNaked build") {
+    val node1 = CharacterClassNaked(Seq(leafStubA, leafStubB, leafStubC), locStub)
+    assertEquals(node1.build, "ABC")
+  }
+
+  test("CharClassIntersection build") {
+    val node1 = CharClassIntersection(Seq(leafStubA, leafStubB, leafStubC), locStub)
+    assertEquals(node1.build, "A&&B&&C")
+  }
+
   test("Range build") {
     val node1 = Range(leafStubA, leafStubC, locStub)
     assertEquals(node1.build, "A-C")
@@ -172,5 +182,4 @@ class NodeTest extends munit.FunSuite {
     val node2 = Or(Seq(leafStubA, leafStubB, leafStubC), locStub)
     assertEquals(node2.build, "A|B|C")
   }
-
 }

@@ -25,8 +25,8 @@ class ParserJVMTest extends ParserTest {
     val parsedTree = Parser(pattern, parserFlavor).get
 
     assert(clue(parsedTree).isInstanceOf[Concat])
-    assert(parsedTree.children(0).isInstanceOf[Quantifier])
-    assert(parsedTree.children(1) match {
+    assert(parsedTree.children.head.isInstanceOf[Quantifier])
+    assert(parsedTree.children.last match {
       case Character('}', _) => true
       case _                 => false
     })
@@ -39,8 +39,8 @@ class ParserJVMTest extends ParserTest {
     val parsedTree = Parser(pattern, parserFlavor).get
 
     assert(clue(parsedTree).isInstanceOf[Concat])
-    assert(parsedTree.children(0).isInstanceOf[CharacterClass])
-    assert(parsedTree.children(1) match {
+    assert(parsedTree.children.head.isInstanceOf[CharacterClass])
+    assert(parsedTree.children.last match {
       case Character(']', _) => true
       case _                 => false
     })
@@ -222,7 +222,7 @@ class ParserJVMTest extends ParserTest {
   }
 
   test("Parse character class with POSIX character classes") {
-    val pattern = """[\p{Alpha}\P{Alpha}]"""
+    val pattern = """[\p{Alpha}\P{hello_World_0123}]"""
     val parsedTree = Parser(pattern, parserFlavor).get
 
     assert(clue(parsedTree).isInstanceOf[CharacterClass])
@@ -231,8 +231,8 @@ class ParserJVMTest extends ParserTest {
       case _                                => false
     })
     assert(clue(parsedTree.children.last) match {
-      case POSIXCharClass("Alpha", _, false) => true
-      case _                                 => false
+      case POSIXCharClass("hello_World_0123", _, false) => true
+      case _                                            => false
     })
 
     treeBuildTest(parsedTree, pattern)
@@ -282,15 +282,17 @@ class ParserJVMTest extends ParserTest {
   }
 
   test("Parse character class with simple intersection") {
-    val pattern = """[abc&&def&&ghi]"""
     val subClasses = Seq("abc", "def", "ghi")
+    val pattern = subClasses.mkString("[", "&&", "]")
     val parsedTree = Parser(pattern, parserFlavor).get
 
     assert(clue(parsedTree).isInstanceOf[CharacterClass])
     assertEquals(parsedTree.children.length, 1)
-    assert(clue(parsedTree.children.head).isInstanceOf[CharClassIntersection])
-    assertEquals(parsedTree.children.head.children.length, 3)
-    (subClasses zip parsedTree.children.head.children) foreach { case (str, child) =>
+
+    val intersection = parsedTree.children.head
+    assert(clue(intersection).isInstanceOf[CharClassIntersection])
+    assertEquals(intersection.children.length, 3)
+    (subClasses zip intersection.children) foreach { case (str, child) =>
       assert(clue(child) match {
         case CharacterClassNaked(nodes, _) =>
           (str zip nodes) forall {
@@ -350,6 +352,18 @@ class ParserJVMTest extends ParserTest {
     })
 
     treeBuildTest(parsedTree, pattern)
+  }
+
+  test("Unparsable: more than 2 consecutive `&` inside character class") {
+    val patterns = Seq(
+      "[&&&]",
+      "[&&&a]",
+      "[&&&&]",
+      "[&&&&a]",
+      "[a&&&&]",
+      "[a&&&&a]"
+    )
+    patterns foreach parseErrorTest
   }
 
   test("Parse escape characters") {
@@ -431,7 +445,7 @@ class ParserJVMTest extends ParserTest {
   }
 
   test("Parse POSIX character classes") {
-    val pattern = """\p{Alpha}\P{Alpha}"""
+    val pattern = """\p{Alpha}\P{hello_World_0123}"""
     val parsedTree = Parser(pattern, parserFlavor).get
 
     assert(clue(parsedTree).isInstanceOf[Concat])
@@ -440,8 +454,8 @@ class ParserJVMTest extends ParserTest {
       case _                                => false
     })
     assert(clue(parsedTree.children.last) match {
-      case POSIXCharClass("Alpha", _, false) => true
-      case _                                 => false
+      case POSIXCharClass("hello_World_0123", _, false) => true
+      case _                                            => false
     })
 
     treeBuildTest(parsedTree, pattern)
@@ -619,16 +633,16 @@ class ParserJVMTest extends ParserTest {
   }
 
   test("Parse named capturing group") {
-    val pattern = "(?<name1>hello)(?<name2>world)"
+    val pattern = "(?<groupName1>hello)(?<GroupName2>world)"
     val parsedTree = Parser(pattern, parserFlavor).get
 
     assert(clue(parsedTree).isInstanceOf[Concat])
-    assert(clue(parsedTree.children(0)) match {
-      case NamedGroup(_: Concat, name, _) => name == "name1"
+    assert(clue(parsedTree.children.head) match {
+      case NamedGroup(_: Concat, name, _) => name == "groupName1"
       case _                              => false
     })
-    assert(clue(parsedTree.children(1)) match {
-      case NamedGroup(_: Concat, name, _) => name == "name2"
+    assert(clue(parsedTree.children.last) match {
+      case NamedGroup(_: Concat, name, _) => name == "GroupName2"
       case _                              => false
     })
 
@@ -636,14 +650,14 @@ class ParserJVMTest extends ParserTest {
   }
 
   test("Parse nested named capturing group") {
-    val pattern = "(?<name1>hello(?<name2>world))"
+    val pattern = "(?<groupName1>hello(?<GroupName2>world))"
     val parsedTree = Parser(pattern, parserFlavor).get
 
     assert(clue(parsedTree) match {
-      case NamedGroup(Concat(nodes, _), "name1", _) =>
+      case NamedGroup(Concat(nodes, _), "groupName1", _) =>
         assert(clue(nodes.last) match {
-          case NamedGroup(_: Concat, "name2", _) => true
-          case _                                 => false
+          case NamedGroup(_: Concat, "GroupName2", _) => true
+          case _                                      => false
         })
         true
       case _ => false

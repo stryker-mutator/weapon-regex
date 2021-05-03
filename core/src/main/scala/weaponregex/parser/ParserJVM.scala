@@ -57,9 +57,9 @@ class ParserJVM private[parser] (pattern: String) extends Parser(pattern) {
     Indexed(CharPred(!charClassSpecialChars.contains(_)).! | "&".! ~ !"&")
       .map { case (loc, c) => Character(c.head, loc) }
 
-  /** Parse a sequence of character class items as a 'naked character class'. It is used only inside the character class intersection.
-    *
+  /** Parse a character class content without the surround syntactical symbols, i.e. "naked"
     * @return [[weaponregex.model.regextree.CharacterClassNaked]] tree node
+    * @note This is used only inside the [[weaponregex.parser.ParserJVM.charClassIntersection]]
     */
   def charClassNaked[_: P]: P[CharacterClassNaked] = Indexed(classItem.rep(minCharClassItem))
     .map { case (loc, nodes) => CharacterClassNaked(nodes, loc) }
@@ -81,7 +81,8 @@ class ParserJVM private[parser] (pattern: String) extends Parser(pattern) {
     Indexed("[" ~ "^".!.? ~ (charClassIntersection.rep(exactly = 1) | classItem.rep(minCharClassItem)) ~ "]")
       .map { case (loc, (hat, nodes)) => CharacterClass(nodes, loc, isPositive = hat.isEmpty) }
 
-  /** Intermediate parsing rule for special construct tokens which can parse either `namedGroup`, `nonCapturingGroup`, `flagToggleGroup`, `flagNCGroup`, `lookaround` or `atomicGroup`
+  /** Intermediate parsing rule for special construct tokens which can parse either
+    * `namedGroup`, `nonCapturingGroup`, `flagToggleGroup`, `flagNCGroup`, `lookaround` or `atomicGroup`
     * @return [[weaponregex.model.regextree.RegexTree]] (sub)tree
     */
   override def specialConstruct[_: P]: P[RegexTree] = P(
