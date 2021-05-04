@@ -62,7 +62,7 @@ lazy val docs = projectMatrix
   .settings(
     mdocOut := file("."),
     mdocVariables := Map(
-      "VERSION" -> previousStableVersion.value.get
+      "VERSION" -> previousStableVersion.value.getOrElse(version.value)
     )
   )
   .jvmPlatform(scalaVersions = List(Scala213))
