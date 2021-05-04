@@ -60,7 +60,10 @@ lazy val docs = projectMatrix
   .in(file("wr-docs"))
   .dependsOn(WeaponRegeX)
   .settings(
-    mdocOut := file(".")
+    mdocOut := file("."),
+    mdocVariables := Map(
+      "VERSION" -> previousStableVersion.value.get
+    )
   )
   .jvmPlatform(scalaVersions = List(Scala213))
   .enablePlugins(MdocPlugin)
