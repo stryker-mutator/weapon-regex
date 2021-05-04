@@ -6,15 +6,15 @@ trait TokenMutator {
 
   /** The name of the mutator
     */
-  val name: String
+  def name: String
 
   /** The mutation levels that the token mutator falls under
     */
-  val levels: Seq[Int]
+  def levels: Seq[Int]
 
   /** A short description  of the mutator
     */
-  val description: String = name
+  def description: String
 
   /** Apply mutation to the given token
     * @param token Target token
