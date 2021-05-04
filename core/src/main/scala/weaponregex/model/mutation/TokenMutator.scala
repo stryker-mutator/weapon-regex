@@ -54,6 +54,9 @@ trait TokenMutator {
     /** Convert a mutated pattern string into a [[weaponregex.model.mutation.Mutant]]
       * with the [[weaponregex.model.Location]] starts from the start of the provided token
       * and ends at the start of the token's first child
+      *
+      * If the given token has no child, the location of the given token is considered
+      * to be the location of the mutant
       * @param token The token for reference
       * @return A [[weaponregex.model.mutation.Mutant]]
       */
@@ -67,6 +70,9 @@ trait TokenMutator {
     /** Convert a mutated pattern string into a [[weaponregex.model.mutation.Mutant]]
       * with the [[weaponregex.model.Location]] starts from the end of the provided token's last child
       * and ends at the end of the token
+      *
+      * If the given token has no child, the location of the given token is considered
+      * to be the location of the mutant
       * @param token The token for reference
       * @return A [[weaponregex.model.mutation.Mutant]]
       */
