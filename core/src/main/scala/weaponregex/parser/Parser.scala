@@ -440,7 +440,7 @@ abstract class Parser(val pattern: String) {
     * @return A `Success` of parsed [[weaponregex.model.regextree.RegexTree]] if can be parsed, a `Failure` otherwise
     */
   def parse: Try[RegexTree] = fastparse.parse(pattern, entry(_)) match {
-    case Parsed.Success(regexTree: RegexTree, index) => Success(regexTree)
-    case f @ Parsed.Failure(str, index, extra)       => Failure(new RuntimeException("[Error] Parser: " + f.msg))
+    case Parsed.Success(regexTree: RegexTree, _) => Success(regexTree)
+    case f: Parsed.Failure                       => Failure(new RuntimeException("[Error] Parser: " + f.msg))
   }
 }
