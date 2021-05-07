@@ -14,7 +14,7 @@ object TreeMutator {
       * @return Sequence of token mutators in the given mutation levels
       */
     private def filterMutators(mutators: Seq[TokenMutator], mutationLevels: Seq[Int]): Seq[TokenMutator] =
-      mutators.filter(mutator => mutationLevels.exists(mutator.levels.contains(_)))
+      mutators.filter(mutator => mutationLevels exists (mutator.levels contains _))
 
     /** Mutate using the given mutators in some specific mutation levels
       *
@@ -27,16 +27,10 @@ object TreeMutator {
         if (mutationLevels == null) mutators
         else filterMutators(mutators, mutationLevels)
 
-      val rootMutants: Seq[Mutant] = mutatorsFiltered flatMap (mutator =>
-        mutator(tree) map (mutatedPattern =>
-          Mutant(mutatedPattern, mutator.name, tree.location, mutator.levels, mutator.description)
-        )
-      )
+      val rootMutants: Seq[Mutant] = mutatorsFiltered flatMap (_(tree))
 
       val childrenMutants: Seq[Mutant] = tree.children flatMap (child =>
-        child.mutate(mutatorsFiltered) map { case mutant @ Mutant(mutatedPattern, _, _, _, _) =>
-          mutant.copy(pattern = tree.buildWith(child, mutatedPattern))
-        }
+        child.mutate(mutatorsFiltered) map (mutant => mutant.copy(pattern = tree.buildWith(child, mutant.pattern)))
       )
 
       rootMutants ++ childrenMutants

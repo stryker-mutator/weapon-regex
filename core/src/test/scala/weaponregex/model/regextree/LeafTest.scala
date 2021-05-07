@@ -40,6 +40,16 @@ class LeafTest extends munit.FunSuite {
     assertEquals(node2.build, """\W""")
   }
 
+  test("POSIXCharClass build") {
+    val node1 = POSIXCharClass("hello_World_0123", locStub)
+    assertEquals(node1.build, """\p{hello_World_0123}""")
+  }
+
+  test("POSIXCharClass build negated") {
+    val node1 = POSIXCharClass("hello_World_0123", locStub, isPositive = false)
+    assertEquals(node1.build, """\P{hello_World_0123}""")
+  }
+
   test("BOL build") {
     val node1 = BOL(locStub)
     assertEquals(node1.build, "^")

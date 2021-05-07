@@ -48,6 +48,27 @@ class CharClassMutatorTest extends munit.FunSuite {
     expected foreach (m => assert(clue(mutants) contains clue(m)))
   }
 
+  test("Removes children of Naked Character Classes") {
+    val pattern = "[abc&&def&&[gh]]"
+    val parsedTree = Parser(pattern).get
+
+    val mutants: Seq[String] = parsedTree.mutate(Seq(CharClassChildRemoval)) map (_.pattern)
+
+    val expected: Seq[String] = Seq(
+      "[bc&&def&&[gh]]",
+      "[ac&&def&&[gh]]",
+      "[ab&&def&&[gh]]",
+      "[abc&&ef&&[gh]]",
+      "[abc&&df&&[gh]]",
+      "[abc&&de&&[gh]]",
+      "[abc&&def&&[h]]",
+      "[abc&&def&&[g]]"
+    )
+
+    assertEquals(clue(mutants).length, expected.length)
+    expected foreach (m => assert(clue(mutants) contains clue(m)))
+  }
+
   test("Does not mutate (remove children) escaped Character Classes") {
     val pattern = "\\[abc\\]abc"
     val parsedTree = Parser(pattern).get
