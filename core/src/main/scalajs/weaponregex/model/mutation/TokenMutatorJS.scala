@@ -28,13 +28,13 @@ case class TokenMutatorJS(tokenMutator: TokenMutator) {
 
   /** Apply mutation to the given token
     * @param token Target token
-    * @return Sequence of strings, which are mutations of the original token
+    * @return Sequence [[weaponregex.model.mutation.MutantJS]]
     */
-  final def apply(token: RegexTree): Seq[String] = mutate(token)
+  final def apply(token: RegexTree): Seq[MutantJS] = mutate(token)
 
   /** Mutate the given token
     * @param token Target token
-    * @return Sequence of strings, which are mutations of the original token
+    * @return Sequence of [[weaponregex.model.mutation.MutantJS]]
     */
-  def mutate(token: RegexTree): Seq[String] = tokenMutator.mutate(token)
+  def mutate(token: RegexTree): Seq[MutantJS] = tokenMutator.mutate(token) map MutantJS
 }

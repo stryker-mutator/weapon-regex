@@ -1,6 +1,6 @@
 package weaponregex.mutator
 
-import weaponregex.model.mutation.TokenMutator
+import weaponregex.model.mutation.{Mutant, TokenMutator}
 import weaponregex.model.regextree._
 
 /** Negate character class
@@ -13,10 +13,10 @@ object CharClassNegation extends TokenMutator {
   override val levels: Seq[Int] = Seq(1)
   override val description: String = "Negate character class"
 
-  override def mutate(token: RegexTree): Seq[String] = (token match {
+  override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case cc: CharacterClass => Seq(cc.copy(isPositive = !cc.isPositive))
     case _                  => Nil
-  }) map (_.build)
+  }) map (_.build.toMutantBeforeChildrenOf(token))
 }
 
 /** Remove a child from character class
@@ -29,10 +29,12 @@ object CharClassChildRemoval extends TokenMutator {
   override val levels: Seq[Int] = Seq(2, 3)
   override val description: String = "Remove a child character class"
 
-  override def mutate(token: RegexTree): Seq[String] = token match {
-    case cc: CharacterClass if cc.children.length > 1      => cc.children map (child => cc.buildWhile(_ ne child))
-    case cc: CharacterClassNaked if cc.children.length > 1 => cc.children map (child => cc.buildWhile(_ ne child))
-    case _                                                 => Nil
+  override def mutate(token: RegexTree): Seq[Mutant] = token match {
+    case cc: CharacterClass if cc.children.length > 1 =>
+      cc.children map (child => cc.buildWhile(_ ne child).toMutantOf(child))
+    case cc: CharacterClassNaked if cc.children.length > 1 =>
+      cc.children map (child => cc.buildWhile(_ ne child).toMutantOf(child))
+    case _ => Nil
   }
 }
 
@@ -46,13 +48,13 @@ object CharClassAnyChar extends TokenMutator {
   override val levels: Seq[Int] = Seq(2, 3)
   override val description: String = "Change character class to match any character [\\w\\W]"
 
-  override def mutate(token: RegexTree): Seq[String] = (token match {
+  override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case cc: CharacterClass =>
       Seq(
         CharacterClass(Seq(PredefinedCharClass("w", cc.location), PredefinedCharClass("W", cc.location)), cc.location)
       )
     case _ => Nil
-  }) map (_.build)
+  }) map (_.build.toMutantOf(token))
 }
 
 /** Modify the range inside the character class by increasing or decreasing once
@@ -73,7 +75,7 @@ object CharClassRangeModification extends TokenMutator {
   // [a-a] -> [a-b]
   // [z-z] -> [y-z]
   // same for numbers
-  override def mutate(token: RegexTree): Seq[String] = (token match {
+  override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case range @ Range(from: Character, to: Character, _) =>
       (from.char, to.char) match {
         case (l, r) if !(l.isDigit && r.isDigit) && !(l.isLetter && r.isLetter) => Nil
@@ -110,7 +112,7 @@ object CharClassRangeModification extends TokenMutator {
           )
       }
     case _ => Nil
-  }) map (_.build)
+  }) map (_.build.toMutantOf(token))
 
   /** Check if the given character is a left boundary character `0`, `a`, or `A`
     * @param char Character to be checked
