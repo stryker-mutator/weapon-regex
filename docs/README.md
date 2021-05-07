@@ -6,20 +6,26 @@
 
 <img src="images/WeaponRegeX_logo.svg" width="50%" alt="Weapon regeX Logo">
 
-With Weapon regeX you can mutate regular expressions which can be used in mutation testing. The
-generated regular expressions cover edge cases and typos. Weapon regeX is available for both
-JavaScript and Scala. The JavaScript version of the library is generated from Scala using [Scala.js](https://www.scala-js.org/).
+Weapon regeX mutates regular expressions for use in mutation testing. It has been designed from the ground up 
+to support [Stryker Mutator](https://github.com/stryker-mutator). Weapon regeX is available for both
+JavaScript and Scala and is used in [Stryker4s](https://github.com/stryker-mutator/stryker4s) and 
+[StrykerJS](https://github.com/stryker-mutator/stryker-js) flavors of Stryker. 
+The JavaScript version of the library is generated from Scala using [Scala.js](https://www.scala-js.org/).
+The generated mutant regular expressions cover human errors, such as edge cases and typos. A list of provided mutators is given below.
+For an introduction to mutation testing, see [Stryker's website](https://stryker-mutator.io/).
+
 
 The current supported versions for Scala are: `2.12` and `2.13`.
 
 # Getting started
+In case you want to incorporate Weapon-regeX into your project.
 
 ## Scala
 
 Add Weapon regeX to your `build.sbt`.
 
 ```scala
-libraryDependencies += "io.stryker-mutator" %% "weapon-regex" % "0.4.2"
+libraryDependencies += "io.stryker-mutator" %% "weapon-regex" % "@VERSION@"
 ```
 
 Mutate!

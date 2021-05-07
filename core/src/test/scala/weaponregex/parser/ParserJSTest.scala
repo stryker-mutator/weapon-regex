@@ -205,7 +205,7 @@ class ParserJSTest extends ParserTest {
     // includes unusual range $-%
     val ranges = Seq("az", "AZ", "09", "$%")
     // Generate pattern from these ranges
-    val pattern = "[" + ranges.map(r => r.head + "-" + r.last).mkString + "]"
+    val pattern = "[" + ranges.map(r => s"${r.head}-${r.last}").mkString + "]"
     val parsedTree = Parser(pattern, parserFlavor).get
 
     assert(clue(parsedTree).isInstanceOf[CharacterClass])
