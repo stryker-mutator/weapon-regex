@@ -25,7 +25,7 @@ In case you want to incorporate Weapon-regeX into your project.
 Add Weapon regeX to your `build.sbt`.
 
 ```scala
-libraryDependencies += "io.stryker-mutator" %% "weapon-regex" % "0.4.2"
+libraryDependencies += "io.stryker-mutator" %% "weapon-regex" % "0.5.1"
 ```
 
 Mutate!
