@@ -6,7 +6,6 @@ import weaponregex.model.regextree.{MetaChar, RegexTree}
 import weaponregex.model.regextree.CharacterClass
 import weaponregex.model.regextree.CharClassIntersection
 import weaponregex.model.regextree.CharacterClassNaked
-import weaponregex.model.regextree.Character
 
 /** Concrete parser for JVM flavor of regex
   * @param pattern The regex pattern to be parsed
