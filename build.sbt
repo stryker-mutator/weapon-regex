@@ -52,7 +52,7 @@ lazy val WeaponRegeX = projectMatrix
     )
   )
   .jsPlatform(
-    scalaVersions = List(Scala213, Scala212),
+    scalaVersions = List(Scala213),
     settings = Seq(
       // Add JS-specific settings here
       scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule))
