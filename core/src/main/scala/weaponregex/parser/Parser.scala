@@ -261,6 +261,8 @@ abstract class Parser(val pattern: String) {
     * @return [[weaponregex.model.regextree.Quantifier]] tree node
     * @example `"a{1}"`
     */
+  // `.filter()` function from fastparse is wrongly mutated by Stryker4s into `.filterNot()` which does not exist in fastparse
+  @SuppressWarnings(Array("stryker4s.mutation.MethodExpression"))
   def quantifierLong[_: P]: P[Quantifier] =
     Indexed(quantifierType(elementaryRE ~ "{" ~ quantifierLongTail))
       .filter {
