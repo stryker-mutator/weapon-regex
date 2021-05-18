@@ -3,7 +3,7 @@ package weaponregex.model.regextree
 import weaponregex.model._
 
 class NodeTest extends munit.FunSuite {
-  val locStub: Location = Location(Position(0, 0), Position(0, 1))
+  val locStub: Location = Location(0, 0)(0, 1)
   val leafStubA: Character = Character('A', locStub)
   val leafStubB: Character = Character('B', locStub)
   val leafStubC: Character = Character('C', locStub)
