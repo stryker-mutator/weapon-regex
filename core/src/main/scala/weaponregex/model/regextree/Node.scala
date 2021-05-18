@@ -14,24 +14,8 @@ abstract class Node(
     override val location: Location,
     override val prefix: String = "",
     override val postfix: String = "",
-    val sep: String = ""
-) extends RegexTree {
-
-  /** Build the node into a String with a child replaced by a string.
-    * @param child Child to be replaced
-    * @param childString Replacement String
-    * @return A String representation of the tree
-    */
-  override def buildWith(child: RegexTree, childString: String): String =
-    children.map(c => if (c eq child) childString else c.build).mkString(prefix, sep, postfix)
-
-  /** Build the node into a String while a predicate holds for a given child.
-    * @param pred Predicate on a child
-    * @return A String representation of the tree
-    */
-  override def buildWhile(pred: RegexTree => Boolean): String =
-    children.filter(pred).map(_.build).mkString(prefix, sep, postfix)
-}
+    override val sep: String = ""
+) extends RegexTree
 
 /** Character class node
   * @param nodes The child nodes contained in the character class
@@ -106,9 +90,7 @@ case class FlagToggleGroup(flagToggle: FlagToggle, override val location: Locati
   * @param location The [[weaponregex.model.Location]] of the node in the regex string
   */
 case class FlagToggle(onFlags: Flags, hasDash: Boolean, offFlags: Flags, override val location: Location)
-    extends Node(Seq(onFlags, offFlags), location) {
-  override lazy val build: String = onFlags.build + (if (hasDash) "-" else "") + offFlags.build
-}
+    extends Node(Seq(onFlags, offFlags), location)
 
 /** A sequence of flags for use in [[weaponregex.model.regextree.FlagToggle]]
   * @param flags The sequence of flag [[weaponregex.model.regextree.Character]]s

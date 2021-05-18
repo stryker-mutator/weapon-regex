@@ -1,6 +1,7 @@
 package weaponregex.model.regextree
 
 import weaponregex.model._
+import weaponregex.`extension`.RegexTreeExtension.RegexTreeStringBuilder
 
 class NodeTest extends munit.FunSuite {
   val locStub: Location = Location(Position(0, 0), Position(0, 1))

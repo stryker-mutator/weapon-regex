@@ -2,6 +2,7 @@ package weaponregex.mutator
 
 import weaponregex.model.mutation.{Mutant, TokenMutator}
 import weaponregex.model.regextree.RegexTree
+import weaponregex.`extension`.RegexTreeExtension.RegexTreeStringBuilder
 
 /** The object that traverses and mutates a given [[weaponregex.model.regextree.RegexTree]]
   */

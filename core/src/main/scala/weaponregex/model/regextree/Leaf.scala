@@ -17,19 +17,11 @@ abstract class Leaf[A](
 
   /** Since leaves have no children, this is always empty
     */
-  override val children: Seq[RegexTree] = Nil
+  final override val children: Seq[RegexTree] = Nil
 
-  /** Builds the leaf node into a String with the defined prefix and postfix
+  /** Since leaves have no children, this is always an empty string
     */
-  override lazy val build: String = prefix + value + postfix
-
-  /** Since leaves have no children, this is always equivalent to [[weaponregex.model.regextree.Leaf.build]]
-    */
-  override def buildWith(child: RegexTree, childString: String): String = build
-
-  /** Since leaves have no children, this is always equivalent to [[weaponregex.model.regextree.Leaf.build]]
-    */
-  override def buildWhile(pred: RegexTree => Boolean): String = build
+  final override val sep: String = ""
 }
 
 /** Character literal leaf node

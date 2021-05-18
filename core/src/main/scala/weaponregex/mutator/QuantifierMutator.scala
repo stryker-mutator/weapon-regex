@@ -2,6 +2,7 @@ package weaponregex.mutator
 
 import weaponregex.model.mutation.{Mutant, TokenMutator}
 import weaponregex.model.regextree._
+import weaponregex.`extension`.RegexTreeExtension.RegexTreeStringBuilder
 
 /** Remove any type of quantifier including `?`, `*`, `+`, and `{n,m}`
   *
