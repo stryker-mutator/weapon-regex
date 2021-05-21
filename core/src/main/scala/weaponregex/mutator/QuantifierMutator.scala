@@ -94,9 +94,14 @@ object QuantifierNMModification extends TokenMutator {
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case q: Quantifier if !q.isExact && q.max != Quantifier.Infinity =>
       (q.min, q.max) match {
-        case (n, m) if n < 0 && m < 0 => Nil
-        case (0, 0)                   => Seq(q.copy(max = 1))
-        case (0, m)                   => Seq(q.copy(min = 1), q.copy(max = m - 1), q.copy(max = m + 1))
+        case (0, 0) =>
+          Seq(q.copy(max = 1))
+        case (0, m) =>
+          Seq(
+            q.copy(min = 1),
+            q.copy(max = m - 1),
+            q.copy(max = m + 1)
+          )
         case (n, m) =>
           Seq(
             q.copy(min = n - 1),
