@@ -176,11 +176,6 @@ class ParserJSTest extends ParserTest {
     treeBuildTest(parsedTree, pattern)
   }
 
-  test("Unparsable: long quantifier with min > max") {
-    val pattern = "a{2,1}"
-    parseErrorTest(pattern)
-  }
-
   test("Unparsable: long-quantifier-like with nothing preceding") {
     val patterns = Seq(
       "{1}",
