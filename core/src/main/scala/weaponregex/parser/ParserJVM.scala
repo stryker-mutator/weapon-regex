@@ -6,7 +6,6 @@ import weaponregex.model.regextree.{MetaChar, RegexTree}
 import weaponregex.model.regextree.CharacterClass
 import weaponregex.model.regextree.CharClassIntersection
 import weaponregex.model.regextree.CharacterClassNaked
-import weaponregex.model.regextree.Character
 
 /** Concrete parser for JVM flavor of regex
   * @param pattern The regex pattern to be parsed
@@ -48,14 +47,10 @@ class ParserJVM private[parser] (pattern: String) extends Parser(pattern) {
     Indexed("""\0""" ~ (CharIn("0-3") ~ CharIn("0-7").rep(exactly = 2) | CharIn("0-7").rep(min = 1, max = 2)).!)
       .map { case (loc, octDigits) => MetaChar("0" + octDigits, loc) }
 
-  /** Parse a single literal character that is allowed to be in a character class
-    * @return [[weaponregex.model.regextree.Character]] tree node
-    * @example `"{"`
-    * @see [[weaponregex.parser.Parser.charClassSpecialChars]]
+  /** Parse special cases of a character literal in a character class
+    * @return The captured character as a string
     */
-  override def charClassCharLiteral[_: P]: P[Character] =
-    Indexed(CharPred(!charClassSpecialChars.contains(_)).! | "&".! ~ !"&")
-      .map { case (loc, c) => Character(c.head, loc) }
+  override def charClassCharLiteralSpecialCases[_: P]: P[String] = P("&".! ~ !"&")
 
   /** Parse a character class content without the surround syntactical symbols, i.e. "naked"
     * @return [[weaponregex.model.regextree.CharacterClassNaked]] tree node

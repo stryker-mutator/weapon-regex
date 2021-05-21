@@ -298,6 +298,11 @@ class ParserJVMTest extends ParserTest {
     treeBuildTest(parsedTree, pattern)
   }
 
+  test("Unparsable: long quantifier with min > max") {
+    val pattern = "a{2,1}"
+    parseErrorTest(pattern)
+  }
+
   test("Unparsable: single `{`") {
     val pattern = "{"
     parseErrorTest(pattern)

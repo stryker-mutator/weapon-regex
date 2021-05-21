@@ -2,7 +2,7 @@
 publish / skip := true
 
 val Scala212 = "2.12.13"
-val Scala213 = "2.13.5"
+val Scala213 = "2.13.6"
 
 inThisBuild(
   List(
@@ -47,8 +47,7 @@ lazy val WeaponRegeX = projectMatrix
     scalaVersions = List(Scala213, Scala212),
     settings = Seq(
       // Add JVM-specific settings here
-      libraryDependencies += "org.scala-js" %% "scalajs-stubs" % "1.0.0" % "provided",
-      jacocoReportSettings := JacocoReportSettings().withThresholds(JacocoThresholds(line = 80))
+      libraryDependencies += "org.scala-js" %% "scalajs-stubs" % "1.0.0" % "provided"
     )
   )
   .jsPlatform(
@@ -63,10 +62,7 @@ lazy val docs = projectMatrix
   .in(file("wr-docs"))
   .dependsOn(WeaponRegeX)
   .settings(
-    mdocOut := file("."),
-    mdocVariables := Map(
-      "VERSION" -> previousStableVersion.value.getOrElse(version.value)
-    )
+    mdocOut := file(".")
   )
   .jvmPlatform(scalaVersions = List(Scala213))
   .enablePlugins(MdocPlugin)
