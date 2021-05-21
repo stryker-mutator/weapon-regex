@@ -20,10 +20,6 @@ To run the Scala tests, execute the following command from the project root:
 ```
 sbt test
 ```
-or (if you want to include code coverage)
-```
-sbt jacoco
-```
 
 ### Code formatting
 We recommend to use the project's default settings for scalafmt, which should format your code on file save. If for some reason you want to check your code for formatting errors with a command you can run:
