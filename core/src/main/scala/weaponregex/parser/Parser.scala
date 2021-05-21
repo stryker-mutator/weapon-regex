@@ -66,13 +66,19 @@ abstract class Parser(val pattern: String) {
     */
   def number[_: P]: P[Int] = P(CharIn("0-9").rep(1).!) map (_.toInt)
 
+  /** Parse special cases of a character literal
+    * @return The captured character as a string
+    */
+  def charLiteralSpecialCases[_: P]: P[String] = Fail
+
   /** Parse a single literal character that is not a regex special character
     * @return [[weaponregex.model.regextree.Character]] tree node
     * @example `"a"`
     * @see [[weaponregex.parser.Parser.specialChars]]
     */
-  def charLiteral[_: P]: P[Character] = Indexed(CharPred(!specialChars.contains(_)).!)
-    .map { case (loc, c) => Character(c.head, loc) }
+  def charLiteral[_: P]: P[Character] =
+    Indexed(CharPred(!specialChars.contains(_)).! | charLiteralSpecialCases)
+      .map { case (loc, c) => Character(c.head, loc) }
 
   /** Intermediate parsing rule for character-related tokens which can parse either `metaCharacter` or `charLiteral`
     * @return [[weaponregex.model.regextree.RegexTree]] (sub)tree
@@ -163,13 +169,19 @@ abstract class Parser(val pattern: String) {
   def range[_: P]: P[Range] = Indexed(charClassCharLiteral ~ "-" ~ charClassCharLiteral)
     .map { case (loc, (from, to)) => Range(from, to, loc) }
 
+  /** Parse special cases of a character literal in a character class
+    * @return The captured character as a string
+    */
+  def charClassCharLiteralSpecialCases[_: P]: P[String] = Fail
+
   /** Parse a single literal character that is allowed to be in a character class
     * @return [[weaponregex.model.regextree.Character]] tree node
     * @example `"{"`
     * @see [[weaponregex.parser.Parser.charClassSpecialChars]]
     */
-  def charClassCharLiteral[_: P]: P[Character] = Indexed(CharPred(!charClassSpecialChars.contains(_)).!)
-    .map { case (loc, c) => Character(c.head, loc) }
+  def charClassCharLiteral[_: P]: P[Character] =
+    Indexed(CharPred(!charClassSpecialChars.contains(_)).! | charClassCharLiteralSpecialCases)
+      .map { case (loc, c) => Character(c.head, loc) }
 
   /** Intermediate parsing rule for character class item tokens which can parse either
     * `charClass`, `preDefinedCharClass`, `metaCharacter`, `range`, `quoteChar`, or `charClassCharLiteral`
@@ -240,13 +252,24 @@ abstract class Parser(val pattern: String) {
       }
     }
 
+  /** Parse the tail part of a long quantifier
+    * @return A tuple of the quantifier minimum and optional maximum part
+    */
+  def quantifierLongTail[_: P]: P[(Int, Option[Option[Int]])] = number ~ ("," ~ number.?).? ~ "}"
+
   /** Parse a (full) quantifier (`{n}`, `{n,}`, `{n,m}`)
     * @return [[weaponregex.model.regextree.Quantifier]] tree node
     * @example `"a{1}"`
     */
+  // `.filter()` function from fastparse is wrongly mutated by Stryker4s into `.filterNot()` which does not exist in fastparse
+  @SuppressWarnings(Array("stryker4s.mutation.MethodExpression"))
   def quantifierLong[_: P]: P[Quantifier] =
-    Indexed(quantifierType(elementaryRE ~ "{" ~ number ~ ("," ~ number.?).? ~ "}"))
-      .map { case (loc, ((expr, num, optionMax), quantifierType)) =>
+    Indexed(quantifierType(elementaryRE ~ "{" ~ quantifierLongTail))
+      .filter {
+        case (_, ((_, (min, Some(Some(max)))), _)) => min <= max
+        case _                                     => true
+      }
+      .map { case (loc, ((expr, (num, optionMax)), quantifierType)) =>
         optionMax match {
           case None            => Quantifier(expr, num, loc, quantifierType)
           case Some(None)      => Quantifier(expr, num, Quantifier.Infinity, loc, quantifierType)

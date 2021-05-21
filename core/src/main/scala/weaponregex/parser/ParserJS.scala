@@ -13,7 +13,7 @@ class ParserJS private[parser] (pattern: String) extends Parser(pattern) {
 
   /** Regex special characters
     */
-  override val specialChars: String = """()[\.^$|?*+"""
+  override val specialChars: String = """()[{\.^$|?*+"""
 
   /** Special characters within a character class
     */
@@ -34,6 +34,11 @@ class ParserJS private[parser] (pattern: String) extends Parser(pattern) {
   /** Minimum number of character class items of a valid character class
     */
   override val minCharClassItem: Int = 0
+
+  /** Parse special cases of a character literal
+    * @return The captured character as a string
+    */
+  override def charLiteralSpecialCases[_: P]: P[String] = P("{".! ~ !quantifierLongTail)
 
   /** Intermediate parsing rule for character class item tokens which can parse either `preDefinedCharClass`, `metaCharacter`, `range`, `quoteChar`, or `charClassCharLiteral`
     * @return [[weaponregex.model.regextree.RegexTree]] (sub)tree
