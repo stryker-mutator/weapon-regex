@@ -22,10 +22,10 @@ In case you want to incorporate Weapon-regeX into your project.
 
 ## Scala
 
-Add Weapon regeX to your `build.sbt`.
+Add Weapon regeX to your `build.sbt` [![Maven Central](https://img.shields.io/maven-central/v/io.stryker-mutator/weapon-regex_2.13.svg?label=Maven%20Central&colorB=brightgreen)](https://search.maven.org/artifact/io.stryker-mutator/sbt-stryker4s):
 
 ```scala
-libraryDependencies += "io.stryker-mutator" %% "weapon-regex" % "@VERSION@"
+libraryDependencies += "io.stryker-mutator" %% "weapon-regex" % weaponRegexVersion
 ```
 
 Mutate!
