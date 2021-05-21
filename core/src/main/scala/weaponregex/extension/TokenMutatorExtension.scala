@@ -3,6 +3,9 @@ package weaponregex.extension
 import weaponregex.model.mutation.TokenMutator
 
 object TokenMutatorExtension {
+
+  /** The extension that filter a given sequence of [[weaponregex.model.mutation.TokenMutator]]
+    */
   implicit class TokenMutatorsFiltering(mutators: Seq[TokenMutator]) {
 
     /** Filter token mutators based on the given mutation level

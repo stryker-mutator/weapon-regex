@@ -1,10 +1,10 @@
 package weaponregex.mutator
 
-import weaponregex.parser.Parser
-import weaponregex.mutator.TreeMutator._
 import weaponregex.model.regextree.RegexTree
+import weaponregex.parser.Parser
+import weaponregex.`extension`.RegexTreeExtension.RegexTreeMutator
 
-class TreeMutatorTest extends munit.FunSuite {
+class RegexTreeMutatorTest extends munit.FunSuite {
 
   val tree: RegexTree = Parser("""^(a*|b+(?=c)|[[c-z]XYZ]{3,}(ABC{4}DEF{5,9}\w)\p{Alpha})$""").get
 

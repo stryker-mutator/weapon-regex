@@ -14,12 +14,10 @@ object BOLRemoval extends TokenMutator {
   override val levels: Seq[Int] = Seq(1, 2, 3)
   override val description: String = "Remove beginning of line character `^`"
 
-  override def mutate(token: RegexTree): Seq[Mutant] = token.children.foldLeft(Seq.empty[Mutant])((mutants, child) =>
-    child match {
-      case _: BOL => mutants :+ token.buildWhile(_ ne child).toMutantOf(child)
-      case _      => mutants
-    }
-  )
+  override def mutate(token: RegexTree): Seq[Mutant] = token.children flatMap {
+    case child: BOL => Seq(token.buildWhile(_ ne child).toMutantOf(child))
+    case _          => Nil
+  }
 }
 
 /** Remove end of line character `$`
@@ -32,12 +30,10 @@ object EOLRemoval extends TokenMutator {
   override val levels: Seq[Int] = Seq(1, 2, 3)
   override val description: String = "Remove end of line character `$`"
 
-  override def mutate(token: RegexTree): Seq[Mutant] = token.children.foldLeft(Seq.empty[Mutant])((mutants, child) =>
-    child match {
-      case _: EOL => mutants :+ token.buildWhile(_ ne child).toMutantOf(child)
-      case _      => mutants
-    }
-  )
+  override def mutate(token: RegexTree): Seq[Mutant] = token.children flatMap {
+    case child: EOL => Seq(token.buildWhile(_ ne child).toMutantOf(child))
+    case _          => Nil
+  }
 }
 
 /** Change beginning of line `^` to beginning of input `\A`
