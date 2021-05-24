@@ -11,26 +11,28 @@ import scala.scalajs.js.annotation._
 @JSExportTopLevel("BuiltinMutators")
 @JSExportAll
 object BuiltinMutatorsJS {
+
+  /** Convert a sequence of [[weaponregex.model.mutation.TokenMutator]] to a JS array of [[weaponregex.model.mutation.TokenMutatorJS]]
+    * @param mutators The token mutators to be converted
+    * @return A JS array of [[weaponregex.model.mutation.TokenMutatorJS]]
+    */
   private def toTokenMutatorJSArray(mutators: Seq[TokenMutator]): js.Array[TokenMutatorJS] =
     (mutators map TokenMutatorJS).toJSArray
 
-  /** Array of all built-in token mutators
+  /** JS Array of all built-in token mutators
     */
   val all: js.Array[TokenMutatorJS] = toTokenMutatorJSArray(BuiltinMutators.all)
 
-  /** Map from mutation level number to token mutators in that level
+  /** JS Map that maps from a token mutator class names to the associating token mutator
     */
-  lazy val asMap: js.Map[Int, js.Array[TokenMutatorJS]] =
-    (BuiltinMutators.asMap map { case (level, mutators) =>
-      level -> toTokenMutatorJSArray(mutators)
-    }).toJSMap
+  @JSExportTopLevel("mutators")
+  val byName: js.Map[String, TokenMutatorJS] =
+    (BuiltinMutators.byName mapValues TokenMutatorJS).toJSMap
 
-  /** Dictionary from mutation level number as a string to token mutators in that level
+  /** JS Map that maps from mutation level number to token mutators in that level
     */
-  lazy val asDict: js.Dictionary[js.Array[TokenMutatorJS]] =
-    (BuiltinMutators.asMap map { case (level, mutators) =>
-      level.toString -> toTokenMutatorJSArray(mutators)
-    }).toJSDictionary
+  lazy val byLevel: js.Map[Int, js.Array[TokenMutatorJS]] =
+    (BuiltinMutators.byLevel mapValues toTokenMutatorJSArray).toJSMap
 
   /** Get all the token mutators in the given mutation level
     * @param mutationLevel Mutation level number

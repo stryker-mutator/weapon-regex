@@ -1,10 +1,18 @@
 package weaponregex.mutator
 
 class BuiltinMutatorsTest extends munit.FunSuite {
-  test("Convert to mutation levels map") {
-    val levelsMap = BuiltinMutators.asMap
+  test("Convert to a map by mutator class name") {
+    val nameMap = BuiltinMutators.byName
+    assertEquals(nameMap.keys.size, BuiltinMutators.all.length)
     BuiltinMutators.all foreach (mutator =>
-      mutator.levels foreach (level => assert(levelsMap(level) contains mutator, clue = (levelsMap(level), mutator)))
+      assertEquals(nameMap(mutator.getClass.getSimpleName.stripSuffix("$")), mutator)
+    )
+  }
+
+  test("Convert to a map by mutation levels") {
+    val levelMap = BuiltinMutators.byLevel
+    BuiltinMutators.all foreach (mutator =>
+      mutator.levels foreach (level => assert(levelMap(level) contains mutator, clue = (levelMap(level), mutator)))
     )
   }
 
