@@ -44,5 +44,5 @@ object BuiltinMutatorsJS {
     * @return Array of all the tokens mutators in that levels, if any
     */
   def atLevels(mutationLevels: js.Array[Int]): js.Array[TokenMutatorJS] =
-    toTokenMutatorJSArray(BuiltinMutators.atLevels(mutationLevels))
+    toTokenMutatorJSArray(BuiltinMutators.atLevels(mutationLevels.toSeq))
 }
