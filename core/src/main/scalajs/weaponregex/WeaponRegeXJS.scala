@@ -14,10 +14,10 @@ import scala.util.{Failure, Success}
   * @note For JavaScript use only
   */
 object WeaponRegeXJS {
-  case class MutationOptions(
-      mutators: js.Array[TokenMutatorJS] = null,
-      mutationLevels: js.Array[Int] = null,
-      flavor: ParserFlavor = ParserFlavorJS
+  class MutationOptions(
+      val mutators: js.Array[TokenMutatorJS] = null,
+      val mutationLevels: js.Array[Int] = null,
+      val flavor: ParserFlavor = ParserFlavorJS
   ) extends js.Object
 
   /** Mutate using the given mutators at some specific mutation levels
@@ -32,7 +32,7 @@ object WeaponRegeXJS {
     * @return A JavaScript Array of [[weaponregex.model.mutation.Mutant]] if can be parsed, or throw an exception otherwise
     */
   @JSExportTopLevel("mutate")
-  def mutate(pattern: String, options: MutationOptions = MutationOptions()): js.Array[MutantJS] = {
+  def mutate(pattern: String, options: MutationOptions = new MutationOptions()): js.Array[MutantJS] = {
     val mutators: Seq[TokenMutator] =
       if (options.hasOwnProperty("mutators") && options.mutators != null)
         options.mutators.toSeq map (_.tokenMutator)

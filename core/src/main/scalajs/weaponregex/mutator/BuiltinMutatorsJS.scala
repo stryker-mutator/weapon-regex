@@ -27,12 +27,12 @@ object BuiltinMutatorsJS {
     */
   @JSExportTopLevel("mutators")
   val byName: js.Map[String, TokenMutatorJS] =
-    (BuiltinMutators.byName mapValues TokenMutatorJS).toJSMap
+    (BuiltinMutators.byName transform ((_, mutator) => TokenMutatorJS(mutator))).toJSMap
 
   /** JS Map that maps from mutation level number to token mutators in that level
     */
   lazy val byLevel: js.Map[Int, js.Array[TokenMutatorJS]] =
-    (BuiltinMutators.byLevel mapValues toTokenMutatorJSArray).toJSMap
+    (BuiltinMutators.byLevel transform ((_, mutators) => toTokenMutatorJSArray(mutators))).toJSMap
 
   /** Get all the token mutators in the given mutation level
     * @param mutationLevel Mutation level number
