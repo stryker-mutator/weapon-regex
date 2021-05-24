@@ -1,7 +1,7 @@
 package weaponregex
 
-import weaponregex.mutator.BuiltinMutators
 import weaponregex.model.mutation.Mutant
+import weaponregex.mutator.BuiltinMutators
 
 class WeaponRegeXTest extends munit.FunSuite {
   test("Can mutate without options") {

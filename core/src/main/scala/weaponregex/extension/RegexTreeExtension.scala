@@ -1,9 +1,9 @@
 package weaponregex.extension
 
+import weaponregex.extension.TokenMutatorExtension.TokenMutatorsFiltering
 import weaponregex.model.mutation.{Mutant, TokenMutator}
 import weaponregex.model.regextree._
 import weaponregex.mutator.BuiltinMutators
-import weaponregex.`extension`.TokenMutatorExtension.TokenMutatorsFiltering
 
 object RegexTreeExtension {
 

@@ -1,6 +1,7 @@
 package weaponregex.mutator
 
 import weaponregex.model.mutation.TokenMutator
+
 import scala.scalajs.js.annotation._
 
 /** The object that manages all built-in token mutators

@@ -1,7 +1,7 @@
 package weaponregex.mutator
 
+import weaponregex.extension.RegexTreeExtension.RegexTreeMutator
 import weaponregex.parser.Parser
-import weaponregex.`extension`.RegexTreeExtension.RegexTreeMutator
 
 class PredefCharClassMutatorTest extends munit.FunSuite {
   test("Negates Predefined Character Class") {

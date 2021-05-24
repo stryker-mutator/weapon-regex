@@ -1,8 +1,8 @@
 package weaponregex.mutator
 
+import weaponregex.extension.RegexTreeExtension.RegexTreeMutator
 import weaponregex.model.regextree.RegexTree
 import weaponregex.parser.Parser
-import weaponregex.`extension`.RegexTreeExtension.RegexTreeMutator
 
 class RegexTreeMutatorTest extends munit.FunSuite {
 

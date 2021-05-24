@@ -1,8 +1,8 @@
 package weaponregex.mutator
 
+import weaponregex.extension.RegexTreeExtension.RegexTreeStringBuilder
 import weaponregex.model.mutation.{Mutant, TokenMutator}
 import weaponregex.model.regextree._
-import weaponregex.`extension`.RegexTreeExtension.RegexTreeStringBuilder
 
 /** Negate character class
   *
