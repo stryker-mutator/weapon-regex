@@ -7,6 +7,14 @@ import scala.util.Failure
 abstract class ParserTest extends munit.FunSuite {
   val parserFlavor: ParserFlavor
 
+  val boundaryMetacharacters: String
+  val charClassPredefCharClasses: String
+  val charClassSpecialChars: String
+  val escapeCharacters: String
+  val hexCharacters: String
+  val octCharacters: String
+  val predefCharClasses: String
+
   def treeBuildTest(tree: RegexTree, pattern: String): Unit = assertEquals(tree.build, pattern)
 
   def parseErrorTest(pattern: String): Unit = {
@@ -111,7 +119,6 @@ abstract class ParserTest extends munit.FunSuite {
     treeBuildTest(parsedTree, pattern)
   }
 
-  val boundaryMetacharacters: String
   test("Parse boundary metacharacters") {
     val pattern = boundaryMetacharacters
     val parsedTree = Parser(pattern, parserFlavor).get
@@ -200,7 +207,6 @@ abstract class ParserTest extends munit.FunSuite {
     treeBuildTest(parsedTree, pattern)
   }
 
-  val charClassPredefCharClasses: String
   test("Parse character class with predefined character classes") {
     val pattern = s"[$charClassPredefCharClasses]"
     val parsedTree = Parser(pattern, parserFlavor).get
@@ -261,7 +267,6 @@ abstract class ParserTest extends munit.FunSuite {
     treeBuildTest(parsedTree, pattern)
   }
 
-  val charClassSpecialChars: String
   test("Parse character class with special characters") {
     val pattern = s"[$charClassSpecialChars]"
     val parsedTree = Parser(pattern, parserFlavor).get
@@ -277,7 +282,6 @@ abstract class ParserTest extends munit.FunSuite {
     treeBuildTest(parsedTree, pattern)
   }
 
-  val escapeCharacters: String
   test("Parse escape characters") {
     val pattern = escapeCharacters
     val parsedTree = Parser(pattern, parserFlavor).get
@@ -310,7 +314,6 @@ abstract class ParserTest extends munit.FunSuite {
     treeBuildTest(parsedTree, pattern)
   }
 
-  val hexCharacters: String
   test("Parse hexadecimal characters") {
     val pattern = hexCharacters
     val parsedTree = Parser(pattern, parserFlavor).get
@@ -326,7 +329,6 @@ abstract class ParserTest extends munit.FunSuite {
     treeBuildTest(parsedTree, pattern)
   }
 
-  val octCharacters: String
   test("Parse octal characters") {
     val pattern = octCharacters
     val parsedTree = Parser(pattern, parserFlavor).get
@@ -342,7 +344,6 @@ abstract class ParserTest extends munit.FunSuite {
     treeBuildTest(parsedTree, pattern)
   }
 
-  val predefCharClasses: String
   test("Parse predefined character class") {
     val pattern = predefCharClasses
     val parsedTree = Parser(pattern, parserFlavor).get
