@@ -9,3 +9,10 @@ import scala.scalajs.js.annotation._
   */
 @JSExportAll
 case class Location(start: Position, end: Position)
+
+/** Companion object for [[weaponregex.model.Location]]
+  */
+object Location {
+  def apply(startLine: Int, startColumn: Int)(endLine: Int, endColumn: Int): Location =
+    Location(Position(startLine, startColumn), Position(endLine, endColumn))
+}
