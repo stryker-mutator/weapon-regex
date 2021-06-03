@@ -62,4 +62,16 @@ object BuiltinMutators {
     * @return Sequence of all the tokens mutators in that levels, if any
     */
   def atLevels(mutationLevels: Seq[Int]): Seq[TokenMutator] = mutationLevels flatMap atLevel
+
+  @deprecated(
+    "This member is deprecated and will be removed in a later version. " +
+      "Use `BuiltinMutators.byLevel` instead."
+  )
+  lazy val levels: Map[Int, Seq[TokenMutator]] = byLevel
+
+  @deprecated(
+    "This member is deprecated and will be removed in a later version. " +
+      "Use `BuiltinMutators.atLevel` instead."
+  )
+  def level(mutationLevel: Int): Seq[TokenMutator] = atLevel(mutationLevel)
 }
