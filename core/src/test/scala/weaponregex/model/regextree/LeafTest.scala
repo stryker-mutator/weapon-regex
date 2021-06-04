@@ -1,5 +1,6 @@
 package weaponregex.model.regextree
 
+import weaponregex.extension.RegexTreeExtension.RegexTreeStringBuilder
 import weaponregex.model._
 
 class LeafTest extends munit.FunSuite {

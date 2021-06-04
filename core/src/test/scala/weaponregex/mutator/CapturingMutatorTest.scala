@@ -1,8 +1,8 @@
 package weaponregex.mutator
 
-import weaponregex.parser.Parser
-import TreeMutator._
+import weaponregex.extension.RegexTreeExtension.RegexTreeMutator
 import weaponregex.model.mutation.Mutant
+import weaponregex.parser.Parser
 
 class CapturingMutatorTest extends munit.FunSuite {
   test("Changes capturing group to non-capturing group") {

@@ -1,10 +1,9 @@
 package weaponregex
 
-import weaponregex.parser.Parser
-import weaponregex.mutator.TreeMutator._
+import weaponregex.extension.RegexTreeExtension.RegexTreeMutator
 import weaponregex.model.mutation._
 import weaponregex.mutator.BuiltinMutators
-import weaponregex.parser.{ParserFlavor, ParserFlavorJS}
+import weaponregex.parser.{Parser, ParserFlavor, ParserFlavorJS}
 
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters._
@@ -15,16 +14,6 @@ import scala.util.{Failure, Success}
   * @note For JavaScript use only
   */
 object WeaponRegeXJS {
-
-  /** JavaScript Dictionary that maps from token mutator class names to the associating token mutators
-    */
-  @JSExportTopLevel("mutators")
-  val allMutators: js.Map[String, TokenMutatorJS] =
-    BuiltinMutators.all
-      .map(mutator => mutator.getClass.getSimpleName.split("\\$$").head -> TokenMutatorJS(mutator))
-      .toMap
-      .toJSMap
-
   class MutationOptions(
       val mutators: js.Array[TokenMutatorJS] = null,
       val mutationLevels: js.Array[Int] = null,

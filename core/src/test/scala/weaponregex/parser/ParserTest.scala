@@ -1,5 +1,6 @@
 package weaponregex.parser
 
+import weaponregex.extension.RegexTreeExtension.RegexTreeStringBuilder
 import weaponregex.model.regextree._
 
 import scala.util.Failure
