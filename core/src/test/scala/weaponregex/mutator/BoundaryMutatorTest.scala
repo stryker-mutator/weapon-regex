@@ -1,7 +1,7 @@
 package weaponregex.mutator
 
+import weaponregex.extension.RegexTreeExtension.RegexTreeMutator
 import weaponregex.parser.Parser
-import TreeMutator._
 
 class BoundaryMutatorTest extends munit.FunSuite {
   test("Removes BOL") {

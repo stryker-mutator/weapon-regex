@@ -1,9 +1,10 @@
 package weaponregex.model.regextree
 
+import weaponregex.extension.RegexTreeExtension.RegexTreeStringBuilder
 import weaponregex.model._
 
 class LeafTest extends munit.FunSuite {
-  var locStub: Location = Location(Position(0, 0), Position(0, 1))
+  var locStub: Location = Location(0, 0)(0, 1)
 
   test("Character build a") {
     val node1 = Character('a', locStub)
@@ -97,7 +98,7 @@ class LeafTest extends munit.FunSuite {
 
   test("RegexTree build") {
     val pattern: String = """^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$"""
-    val loc = Location(Position(0, 0), Position(0, 1))
+    val loc = Location(0, 0)(0, 1)
     val tree: RegexTree = Concat(
       Seq(
         BOL(loc),

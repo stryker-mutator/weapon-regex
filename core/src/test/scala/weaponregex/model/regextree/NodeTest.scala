@@ -1,9 +1,10 @@
 package weaponregex.model.regextree
 
+import weaponregex.extension.RegexTreeExtension.RegexTreeStringBuilder
 import weaponregex.model._
 
 class NodeTest extends munit.FunSuite {
-  val locStub: Location = Location(Position(0, 0), Position(0, 1))
+  val locStub: Location = Location(0, 0)(0, 1)
   val leafStubA: Character = Character('A', locStub)
   val leafStubB: Character = Character('B', locStub)
   val leafStubC: Character = Character('C', locStub)
@@ -56,7 +57,7 @@ class NodeTest extends munit.FunSuite {
 
     val node2 =
       FlagNCGroup(
-        FlagToggle(Flags(Seq(), locStub), hasDash = true, Flags(charSeq, locStub), locStub),
+        FlagToggle(Flags(Nil, locStub), hasDash = true, Flags(charSeq, locStub), locStub),
         leafStubA,
         locStub
       )
@@ -64,7 +65,7 @@ class NodeTest extends munit.FunSuite {
 
     val node3 =
       FlagNCGroup(
-        FlagToggle(Flags(charSeq, locStub), hasDash = false, Flags(Seq(), locStub), locStub),
+        FlagToggle(Flags(charSeq, locStub), hasDash = false, Flags(Nil, locStub), locStub),
         leafStubA,
         locStub
       )
@@ -78,11 +79,11 @@ class NodeTest extends munit.FunSuite {
     assertEquals(node1.build, "(?ABC-ABC)")
 
     val node2 =
-      FlagToggleGroup(FlagToggle(Flags(Seq(), locStub), hasDash = true, Flags(charSeq, locStub), locStub), locStub)
+      FlagToggleGroup(FlagToggle(Flags(Nil, locStub), hasDash = true, Flags(charSeq, locStub), locStub), locStub)
     assertEquals(node2.build, "(?-ABC)")
 
     val node3 =
-      FlagToggleGroup(FlagToggle(Flags(charSeq, locStub), hasDash = false, Flags(Seq(), locStub), locStub), locStub)
+      FlagToggleGroup(FlagToggle(Flags(charSeq, locStub), hasDash = false, Flags(Nil, locStub), locStub), locStub)
     assertEquals(node3.build, "(?ABC)")
   }
 

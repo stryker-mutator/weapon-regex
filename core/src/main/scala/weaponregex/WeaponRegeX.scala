@@ -1,10 +1,9 @@
 package weaponregex
 
-import weaponregex.parser.Parser
-import weaponregex.mutator.TreeMutator._
+import weaponregex.extension.RegexTreeExtension.RegexTreeMutator
 import weaponregex.model.mutation._
 import weaponregex.mutator.BuiltinMutators
-import weaponregex.parser.{ParserFlavor, ParserFlavorJVM}
+import weaponregex.parser.{Parser, ParserFlavor, ParserFlavorJVM}
 
 import scala.scalajs.js.annotation._
 import scala.util.Try

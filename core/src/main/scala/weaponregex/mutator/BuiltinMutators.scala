@@ -1,16 +1,13 @@
 package weaponregex.mutator
 
 import weaponregex.model.mutation.TokenMutator
-import scala.scalajs.js.annotation._
 
 /** The object that manages all built-in token mutators
   */
-@JSExportTopLevel("BuiltinMutators")
 object BuiltinMutators {
 
   /** Sequence of all built-in token mutators
     */
-  @JSExport
   val all: Seq[TokenMutator] = Seq(
     BOLRemoval,
     EOLRemoval,
@@ -36,20 +33,47 @@ object BuiltinMutators {
     LookaroundNegation
   )
 
+  /** Map from mutator class name to the associating token mutator
+    */
+  lazy val byName: Map[String, TokenMutator] =
+    (all map (mutator => mutator.getClass.getSimpleName.stripSuffix("$") -> mutator)).toMap
+
   /** Map from mutation level number to token mutators in that level
     */
-  @JSExport
-  lazy val levels: Map[Int, Seq[TokenMutator]] =
+  lazy val byLevel: Map[Int, Seq[TokenMutator]] =
     all.foldLeft(Map.empty[Int, Seq[TokenMutator]])((levels, mutator) =>
       mutator.levels.foldLeft(levels)((ls, level) => ls + (level -> (ls.getOrElse(level, Nil) :+ mutator)))
     )
 
-  final def apply(mutationLevel: Int): Seq[TokenMutator] = level(mutationLevel)
+  final def apply(className: String): TokenMutator = byName.getOrElse(className, null)
 
-  /** Get all the token mutators given a mutation level number
+  final def apply(mutationLevel: Int): Seq[TokenMutator] = atLevel(mutationLevel)
+
+  final def apply(mutationLevels: Seq[Int]): Seq[TokenMutator] = atLevels(mutationLevels)
+
+  /** Get all the token mutators in the given mutation level
     * @param mutationLevel Mutation level number
     * @return Sequence of all the tokens mutators in that level, if any
     */
-  @JSExport
-  def level(mutationLevel: Int): Seq[TokenMutator] = levels.getOrElse(mutationLevel, Nil)
+  def atLevel(mutationLevel: Int): Seq[TokenMutator] = byLevel.getOrElse(mutationLevel, Nil)
+
+  /** Get all the token mutators in the given mutation levels
+    * @param mutationLevels Mutation level numbers
+    * @return Sequence of all the tokens mutators in that levels, if any
+    */
+  def atLevels(mutationLevels: Seq[Int]): Seq[TokenMutator] = mutationLevels flatMap atLevel
+
+  @deprecated(
+    "This member is deprecated and will be removed in a later version. " +
+      "Use `BuiltinMutators.byLevel` instead.",
+    "v0.6.0"
+  )
+  lazy val levels: Map[Int, Seq[TokenMutator]] = byLevel
+
+  @deprecated(
+    "This member is deprecated and will be removed in a later version. " +
+      "Use `BuiltinMutators.atLevel` instead.",
+    "v0.6.0"
+  )
+  def level(mutationLevel: Int): Seq[TokenMutator] = atLevel(mutationLevel)
 }
