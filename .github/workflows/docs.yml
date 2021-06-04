@@ -15,6 +15,7 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
         # Fetch all tags
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+      - uses: coursier/cache-action@v6.1
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
