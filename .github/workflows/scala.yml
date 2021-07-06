@@ -15,7 +15,7 @@ jobs:
           fetch-depth: 0
         # Fetch all tags
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      - uses: coursier/cache-action@v6.1
+      - uses: coursier/cache-action@v6.2
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: coursier/cache-action@v6.1
+      - uses: coursier/cache-action@v6.2
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
@@ -46,7 +46,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
-      - uses: coursier/cache-action@v6.1
+      - uses: coursier/cache-action@v6.2
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
@@ -59,7 +59,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: coursier/cache-action@v6.1
+      - uses: coursier/cache-action@v6.2
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
@@ -81,7 +81,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: coursier/cache-action@v6.1
+      - uses: coursier/cache-action@v6.2
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
@@ -103,7 +103,7 @@ jobs:
           fetch-depth: 0
         # Fetch all tags
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      - uses: coursier/cache-action@v6.1
+      - uses: coursier/cache-action@v6.2
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
