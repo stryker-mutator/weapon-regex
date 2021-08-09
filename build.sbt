@@ -47,7 +47,7 @@ lazy val WeaponRegeX = projectMatrix
     scalaVersions = List(Scala213, Scala212),
     settings = Seq(
       // Add JVM-specific settings here
-      libraryDependencies += "org.scala-js" %% "scalajs-stubs" % "1.0.0" % "provided"
+      libraryDependencies += "org.scala-js" %% "scalajs-stubs" % "1.1.0" % "provided"
     )
   )
   .jsPlatform(
