@@ -15,10 +15,14 @@ import scala.util.Try
 object WeaponRegeX {
 
   /** Mutate using the given mutators in some specific mutation levels
-    * @param pattern Input regex string
-    * @param mutators Mutators to be used for mutation
-    * @param mutationLevels Target mutation levels. If this is `null`, the `mutators` will not be filtered.
-    * @return A `Success` of a sequence of [[weaponregex.model.mutation.Mutant]] if can be parsed, a `Failure` otherwise
+    * @param pattern
+    *   Input regex string
+    * @param mutators
+    *   Mutators to be used for mutation
+    * @param mutationLevels
+    *   Target mutation levels. If this is `null`, the `mutators` will not be filtered.
+    * @return
+    *   A `Success` of a sequence of [[weaponregex.model.mutation.Mutant]] if can be parsed, a `Failure` otherwise
     */
   def mutate(
       pattern: String,

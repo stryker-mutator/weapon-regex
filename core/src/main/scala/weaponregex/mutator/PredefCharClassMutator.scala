@@ -8,7 +8,8 @@ import weaponregex.model.regextree._
 /** Negate predefined character class
   *
   * ''Mutation level(s):'' 1
-  * @example `\d` ⟶ `\D`
+  * @example
+  *   `\d` ⟶ `\D`
   */
 object PredefCharClassNegation extends TokenMutator {
   override val name = "Predefined Character Class Negation"
@@ -24,7 +25,8 @@ object PredefCharClassNegation extends TokenMutator {
 /** Nullify a predefined character class by removing the `\`
   *
   * ''Mutation level(s):'' 2, 3
-  * @example `\d` ⟶ `d`
+  * @example
+  *   `\d` ⟶ `d`
   */
 object PredefCharClassNullification extends TokenMutator {
   override val name = "Predefined Character Class Nullification"
@@ -40,7 +42,8 @@ object PredefCharClassNullification extends TokenMutator {
 /** "Add the negation of that predefined character class to match any character `[\\w\\W]`"
   *
   * ''Mutation level(s):'' 2, 3
-  * @example `\d` ⟶ `[\d\D]`
+  * @example
+  *   `\d` ⟶ `[\d\D]`
   */
 object PredefCharClassAnyChar extends TokenMutator {
   override val name = "Predefined Character Class to character class with its negation"
@@ -58,7 +61,8 @@ object PredefCharClassAnyChar extends TokenMutator {
 /** Negate POSIX character class
   *
   * ''Mutation level(s):'' 1
-  * @example `\p{Alpha}` ⟶ `\P{Alpha}`
+  * @example
+  *   `\p{Alpha}` ⟶ `\P{Alpha}`
   */
 object POSIXCharClassNegation extends TokenMutator {
   override val name = "POSIX Character Class Negation"

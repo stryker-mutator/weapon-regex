@@ -7,8 +7,10 @@ import scala.scalajs.js.JSConverters._
 import scala.scalajs.js.annotation.JSExport
 
 /** A wrapper class for [[weaponregex.model.mutation.TokenMutator]] for exporting to JavaScript
-  * @param tokenMutator The token mutator to be wrapped
-  * @note For JavaScript use only
+  * @param tokenMutator
+  *   The token mutator to be wrapped
+  * @note
+  *   For JavaScript use only
   */
 case class TokenMutatorJS(tokenMutator: TokenMutator) {
 
@@ -22,20 +24,24 @@ case class TokenMutatorJS(tokenMutator: TokenMutator) {
   @JSExport
   val levels: js.Array[Int] = tokenMutator.levels.toJSArray
 
-  /** A short description  of the mutator
+  /** A short description of the mutator
     */
   @JSExport
   val description: String = tokenMutator.description
 
   /** Apply mutation to the given token
-    * @param token Target token
-    * @return Sequence [[weaponregex.model.mutation.MutantJS]]
+    * @param token
+    *   Target token
+    * @return
+    *   Sequence [[weaponregex.model.mutation.MutantJS]]
     */
   final def apply(token: RegexTree): Seq[MutantJS] = mutate(token)
 
   /** Mutate the given token
-    * @param token Target token
-    * @return Sequence of [[weaponregex.model.mutation.MutantJS]]
+    * @param token
+    *   Target token
+    * @return
+    *   Sequence of [[weaponregex.model.mutation.MutantJS]]
     */
   def mutate(token: RegexTree): Seq[MutantJS] = tokenMutator.mutate(token) map MutantJS
 }
