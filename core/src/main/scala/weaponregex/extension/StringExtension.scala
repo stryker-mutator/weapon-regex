@@ -8,10 +8,14 @@ object StringExtension {
 
     /** Convert an index of into row and column numbers in the given string.
       *
-      * @param index An index
-      * @return A tuple of row and column numbers
+      * @param index
+      *   An index
+      * @return
+      *   A tuple of row and column numbers
       *
-      * @note This function implementation is taken from [[https://github.com/lihaoyi/fastparse/blob/master/fastparse/src/fastparse/ParserInput.scala here]]
+      * @note
+      *   This function implementation is taken from
+      *   [[https://github.com/lihaoyi/fastparse/blob/master/fastparse/src/fastparse/ParserInput.scala here]]
       */
     final def toLineCol(index: Int): (Int, Int) = {
       val lineNumberLookup = Util.lineNumberLookup(string)
@@ -24,8 +28,10 @@ object StringExtension {
     }
 
     /** Convert an index into a [[weaponregex.model.Position]] in the given string.
-      * @param index An index
-      * @return A [[weaponregex.model.Position]]
+      * @param index
+      *   An index
+      * @return
+      *   A [[weaponregex.model.Position]]
       */
     final def positionOf(index: Int): Position = {
       val (line, column) = string toLineCol index
@@ -33,9 +39,12 @@ object StringExtension {
     }
 
     /** Convert a pair of start and end indices into a [[weaponregex.model.Location]] in the given string.
-      * @param start Start index
-      * @param end End index
-      * @return A [[weaponregex.model.Location]]
+      * @param start
+      *   Start index
+      * @param end
+      *   End index
+      * @return
+      *   A [[weaponregex.model.Location]]
       */
     final def locationOf(start: Int, end: Int): Location = Location(string positionOf start, string positionOf end)
   }
@@ -43,7 +52,8 @@ object StringExtension {
   implicit class StringStylingExtension(string: String) {
 
     /** Character-wise toggling the case of a String
-      * @return Case-toggled String
+      * @return
+      *   Case-toggled String
       */
     final def toggleCase: String = string map (char => if (char.isUpper) char.toLower else char.toUpper)
   }

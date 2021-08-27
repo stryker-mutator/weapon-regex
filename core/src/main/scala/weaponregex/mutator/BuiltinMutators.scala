@@ -52,14 +52,18 @@ object BuiltinMutators {
   final def apply(mutationLevels: Seq[Int]): Seq[TokenMutator] = atLevels(mutationLevels)
 
   /** Get all the token mutators in the given mutation level
-    * @param mutationLevel Mutation level number
-    * @return Sequence of all the tokens mutators in that level, if any
+    * @param mutationLevel
+    *   Mutation level number
+    * @return
+    *   Sequence of all the tokens mutators in that level, if any
     */
   def atLevel(mutationLevel: Int): Seq[TokenMutator] = byLevel.getOrElse(mutationLevel, Nil)
 
   /** Get all the token mutators in the given mutation levels
-    * @param mutationLevels Mutation level numbers
-    * @return Sequence of all the tokens mutators in that levels, if any
+    * @param mutationLevels
+    *   Mutation level numbers
+    * @return
+    *   Sequence of all the tokens mutators in that levels, if any
     */
   def atLevels(mutationLevels: Seq[Int]): Seq[TokenMutator] = mutationLevels flatMap atLevel
 

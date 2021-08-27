@@ -11,7 +11,8 @@ import scala.scalajs.js.annotation._
 import scala.util.{Failure, Success}
 
 /** The API facade of Weapon regeX for JavaScript
-  * @note For JavaScript use only
+  * @note
+  *   For JavaScript use only
   */
 object WeaponRegeXJS {
   class MutationOptions(
@@ -21,15 +22,18 @@ object WeaponRegeXJS {
   ) extends js.Object
 
   /** Mutate using the given mutators at some specific mutation levels
-    * @param pattern Input regex string
-    * @param options JavaScript object for Mutation options
+    * @param pattern
+    *   Input regex string
+    * @param options
+    *   JavaScript object for Mutation options
     * {{{
     * {
     *   mutators: [Mutators to be used for mutation],
     *   mutationLevels: [Target mutation levels. If this is `null`, the `mutators` will not be filtered],
     * }
     * }}}
-    * @return A JavaScript Array of [[weaponregex.model.mutation.Mutant]] if can be parsed, or throw an exception otherwise
+    * @return
+    *   A JavaScript Array of [[weaponregex.model.mutation.Mutant]] if can be parsed, or throw an exception otherwise
     */
   @JSExportTopLevel("mutate")
   def mutate(pattern: String, options: MutationOptions = new MutationOptions()): js.Array[MutantJS] = {

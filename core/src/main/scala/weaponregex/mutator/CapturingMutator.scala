@@ -7,7 +7,8 @@ import weaponregex.model.regextree._
 /** Modify capturing group to non-capturing group
   *
   * ''Mutation level(s):'' 2, 3
-  * @example `(abc)` ⟶ `(?:abc)`
+  * @example
+  *   `(abc)` ⟶ `(?:abc)`
   */
 object GroupToNCGroup extends TokenMutator {
   override val name: String = "Capturing group to non-capturing group"
@@ -23,7 +24,8 @@ object GroupToNCGroup extends TokenMutator {
 /** Negate lookaround (lookahead, lookbehind) constructs
   *
   * ''Mutation level(s):'' 1, 2, 3
-  * @example `(?=abc)` ⟶ `(?!abc)`
+  * @example
+  *   `(?=abc)` ⟶ `(?!abc)`
   */
 object LookaroundNegation extends TokenMutator {
   override val name: String = "Lookaround constructs negation"

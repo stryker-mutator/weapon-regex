@@ -7,8 +7,10 @@ import scala.scalajs.js.JSConverters._
 import scala.scalajs.js.annotation._
 
 /** A wrapper class for [[weaponregex.model.mutation.Mutant]] for exporting to JavaScript
-  * @param mutant The mutant to be wrapped
-  * @note For JavaScript use only
+  * @param mutant
+  *   The mutant to be wrapped
+  * @note
+  *   For JavaScript use only
   */
 @JSExportAll
 case class MutantJS(mutant: Mutant) {

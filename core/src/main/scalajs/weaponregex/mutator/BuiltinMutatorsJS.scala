@@ -12,9 +12,12 @@ import scala.scalajs.js.annotation._
 @JSExportAll
 object BuiltinMutatorsJS {
 
-  /** Convert a sequence of [[weaponregex.model.mutation.TokenMutator]] to a JS array of [[weaponregex.model.mutation.TokenMutatorJS]]
-    * @param mutators The token mutators to be converted
-    * @return A JS array of [[weaponregex.model.mutation.TokenMutatorJS]]
+  /** Convert a sequence of [[weaponregex.model.mutation.TokenMutator]] to a JS array of
+    * [[weaponregex.model.mutation.TokenMutatorJS]]
+    * @param mutators
+    *   The token mutators to be converted
+    * @return
+    *   A JS array of [[weaponregex.model.mutation.TokenMutatorJS]]
     */
   private def toTokenMutatorJSArray(mutators: Seq[TokenMutator]): js.Array[TokenMutatorJS] =
     (mutators map TokenMutatorJS).toJSArray
@@ -35,15 +38,19 @@ object BuiltinMutatorsJS {
     (BuiltinMutators.byLevel transform ((_, mutators) => toTokenMutatorJSArray(mutators))).toJSMap
 
   /** Get all the token mutators in the given mutation level
-    * @param mutationLevel Mutation level number
-    * @return Array of all the tokens mutators in that level, if any
+    * @param mutationLevel
+    *   Mutation level number
+    * @return
+    *   Array of all the tokens mutators in that level, if any
     */
   def atLevel(mutationLevel: Int): js.Array[TokenMutatorJS] =
     toTokenMutatorJSArray(BuiltinMutators.atLevel(mutationLevel))
 
   /** Get all the token mutators in the given mutation levels
-    * @param mutationLevels Mutation level numbers
-    * @return Array of all the tokens mutators in that levels, if any
+    * @param mutationLevels
+    *   Mutation level numbers
+    * @return
+    *   Array of all the tokens mutators in that levels, if any
     */
   def atLevels(mutationLevels: js.Array[Int]): js.Array[TokenMutatorJS] =
     toTokenMutatorJSArray(BuiltinMutators.atLevels(mutationLevels.toSeq))
