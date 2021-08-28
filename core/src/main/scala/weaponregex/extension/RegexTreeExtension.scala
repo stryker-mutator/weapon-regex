@@ -20,9 +20,12 @@ object RegexTreeExtension {
     }
 
     /** Build the tree into a String with a child replaced by a string.
-      * @param child Child to be replaced
-      * @param childString Replacement String
-      * @return A String representation of the tree
+      * @param child
+      *   Child to be replaced
+      * @param childString
+      *   Replacement String
+      * @return
+      *   A String representation of the tree
       */
     def buildWith(child: RegexTree, childString: String): String = tree match {
       case _: Leaf[_] => build
@@ -33,8 +36,10 @@ object RegexTreeExtension {
     }
 
     /** Build the tree into a String while a predicate holds for a given child.
-      * @param pred Predicate on a child
-      * @return A String representation of the tree
+      * @param pred
+      *   Predicate on a child
+      * @return
+      *   A String representation of the tree
       */
     def buildWhile(pred: RegexTree => Boolean): String = tree match {
       case _: Leaf[_] => build
@@ -52,9 +57,12 @@ object RegexTreeExtension {
 
     /** Mutate using the given mutators in some specific mutation levels
       *
-      * @param mutators Mutators to be used for mutation
-      * @param mutationLevels Target mutation levels. If this is `null`, the `mutators` will not be filtered.
-      * @return A sequence of [[weaponregex.model.mutation.Mutant]]
+      * @param mutators
+      *   Mutators to be used for mutation
+      * @param mutationLevels
+      *   Target mutation levels. If this is `null`, the `mutators` will not be filtered.
+      * @return
+      *   A sequence of [[weaponregex.model.mutation.Mutant]]
       */
     def mutate(mutators: Seq[TokenMutator] = BuiltinMutators.all, mutationLevels: Seq[Int] = null): Seq[Mutant] = {
       if (mutationLevels != null) return mutate(mutators.atLevels(mutationLevels))

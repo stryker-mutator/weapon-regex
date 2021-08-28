@@ -7,7 +7,8 @@ import weaponregex.model.regextree._
 /** Negate character class
   *
   * ''Mutation level(s):'' 1
-  * @example `[abc]` ⟶ `[^abc]`
+  * @example
+  *   `[abc]` ⟶ `[^abc]`
   */
 object CharClassNegation extends TokenMutator {
   override val name = "Character Class Negation"
@@ -23,7 +24,8 @@ object CharClassNegation extends TokenMutator {
 /** Remove a child from character class
   *
   * ''Mutation level(s):'' 2, 3
-  * @example `[abc]` ⟶ `[ab]`, `[ac]`, `[bc]`
+  * @example
+  *   `[abc]` ⟶ `[ab]`, `[ac]`, `[bc]`
   */
 object CharClassChildRemoval extends TokenMutator {
   override val name: String = "Remove a child from the character class"
@@ -42,7 +44,8 @@ object CharClassChildRemoval extends TokenMutator {
 /** Change character class to match any character [\w\W]
   *
   * ''Mutation level(s):'' 2, 3
-  * @example `[abc]` ⟶ `[\w\W]`
+  * @example
+  *   `[abc]` ⟶ `[\w\W]`
   */
 object CharClassAnyChar extends TokenMutator {
   override val name = "Character Class to character class that parses anything"
@@ -61,7 +64,8 @@ object CharClassAnyChar extends TokenMutator {
 /** Modify the range inside the character class by increasing or decreasing once
   *
   * ''Mutation level(s):'' 3
-  * @example `[b-y]` ⟶ `[a-y]`, `[c-y]`, `[b-x]`, `[b-z]`
+  * @example
+  *   `[b-y]` ⟶ `[a-y]`, `[c-y]`, `[b-x]`, `[b-z]`
   */
 object CharClassRangeModification extends TokenMutator {
   override val name = "Modify the range inside the character class"
@@ -80,8 +84,8 @@ object CharClassRangeModification extends TokenMutator {
     case range @ Range(from: Character, to: Character, _) =>
       (from.char, to.char) match {
         case (l, r) if !(l.isDigit && r.isDigit) && !(l.isLetter && r.isLetter) => Nil
-        case (l, r) if isRightBound(l) && isRightBound(r)                       => Seq(range.copy(from = from.copy(prevChar(l))))
-        case (l, r) if isLeftBound(l) && isLeftBound(r)                         => Seq(range.copy(to = to.copy(nextChar(r))))
+        case (l, r) if isRightBound(l) && isRightBound(r) => Seq(range.copy(from = from.copy(prevChar(l))))
+        case (l, r) if isLeftBound(l) && isLeftBound(r)   => Seq(range.copy(to = to.copy(nextChar(r))))
         case (l, r) if l == r =>
           Seq(
             range.copy(from = from.copy(prevChar(l))),
@@ -116,26 +120,34 @@ object CharClassRangeModification extends TokenMutator {
   }) map (_.build.toMutantOf(token))
 
   /** Check if the given character is a left boundary character `0`, `a`, or `A`
-    * @param char Character to be checked
-    * @return `true` if the given character is a left boundary character, `false` otherwise
+    * @param char
+    *   Character to be checked
+    * @return
+    *   `true` if the given character is a left boundary character, `false` otherwise
     */
   def isLeftBound(char: Char): Boolean = "0aA".contains(char)
 
   /** Check if the given character is a right boundary character `9`, `z`, or `Z`
-    * @param char Character to be checked
-    * @return `true` if the given character is a right boundary character, `false` otherwise
+    * @param char
+    *   Character to be checked
+    * @return
+    *   `true` if the given character is a right boundary character, `false` otherwise
     */
   def isRightBound(char: Char): Boolean = "9zZ".contains(char)
 
   /** Get the character after the given character, based on Scala character ordering
-    * @param char The given character
-    * @return The character after the given character, based on Scala character ordering
+    * @param char
+    *   The given character
+    * @return
+    *   The character after the given character, based on Scala character ordering
     */
   def nextChar(char: Char): Char = (char + 1).toChar
 
   /** Get the character before the given character, based on Scala character ordering
-    * @param char The given character
-    * @return The character before the given character, based on Scala character ordering
+    * @param char
+    *   The given character
+    * @return
+    *   The character before the given character, based on Scala character ordering
     */
   def prevChar(char: Char): Char = (char - 1).toChar
 }
