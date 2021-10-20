@@ -11,4 +11,6 @@ import scala.scalajs.js.annotation._
   *   column number
   */
 @JSExportAll
-case class Position(line: Int, column: Int)
+case class Position(line: Int, column: Int) {
+  def pretty: String = s"$line:$column"
+}
