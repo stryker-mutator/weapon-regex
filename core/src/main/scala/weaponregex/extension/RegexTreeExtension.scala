@@ -11,11 +11,6 @@ object RegexTreeExtension {
     */
   implicit class RegexTreeStringBuilder(tree: RegexTree) {
 
-    protected def separator: String = tree match {
-      case node: Node => node.sep
-      case _: Leaf[_] => ""
-    }
-
     /** Build the tree into a String
       */
     lazy val build: String = tree match {
@@ -36,7 +31,7 @@ object RegexTreeExtension {
       case node: Node =>
         node.children
           .map(c => if (c eq child) childString else c.build)
-          .mkString(tree.prefix, tree.separator, tree.postfix)
+          .mkString(node.prefix, node.sep, tree.postfix)
       case _ => build
     }
 
@@ -51,7 +46,7 @@ object RegexTreeExtension {
         node.children
           .filter(pred)
           .map(_.build)
-          .mkString(tree.prefix, tree.separator, tree.postfix)
+          .mkString(tree.prefix, node.sep, tree.postfix)
       case _ => build
     }
   }
