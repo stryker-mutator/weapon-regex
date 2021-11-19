@@ -2,7 +2,7 @@ package weaponregex.parser
 
 import weaponregex.model.regextree._
 
-class ParserJVMTest extends ParserTest {
+class ParserJVMTest extends munit.FunSuite with ParserTest {
   final val parserFlavor: ParserFlavor = ParserFlavorJVM
 
   val boundaryMetacharacters: String = """\b\B\A\G\z\Z"""
@@ -25,9 +25,8 @@ class ParserJVMTest extends ParserTest {
 
   test("Parse character class with nested character classes") {
     val pattern = "[[a-z][^A-Z0-9][01234]]"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[CharacterClass]
 
-    assert(clue(parsedTree).isInstanceOf[CharacterClass])
     parsedTree.children foreach (child => assert(child.isInstanceOf[CharacterClass], clue = parsedTree.children))
 
     treeBuildTest(parsedTree, pattern)
@@ -36,13 +35,12 @@ class ParserJVMTest extends ParserTest {
   test("Parse character class with simple intersection") {
     val subClasses = Seq("abc", "def", "ghi")
     val pattern = subClasses.mkString("[", "&&", "]")
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Node]
 
     assert(clue(parsedTree).isInstanceOf[CharacterClass])
     assertEquals(parsedTree.children.length, 1)
 
-    val intersection = parsedTree.children.head
-    assert(clue(intersection).isInstanceOf[CharClassIntersection])
+    val intersection = parsedTree.children.head.asInstanceOf[CharClassIntersection]
     assertEquals(intersection.children.length, 3)
     (subClasses zip intersection.children) foreach { case (str, child) =>
       assert(clue(child) match {
@@ -274,9 +272,8 @@ class ParserJVMTest extends ParserTest {
 
   test("Parse long quote with end") {
     val pattern = """stuff\Q$hit\Emorestuff"""
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
 
-    assert(clue(parsedTree).isInstanceOf[Concat])
     assert(clue(parsedTree.children(5)) match {
       case Quote("$hit", true, _) => true
       case _                      => false
@@ -287,9 +284,8 @@ class ParserJVMTest extends ParserTest {
 
   test("Parse long quote without end") {
     val pattern = """stuff\Q$hit"""
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
 
-    assert(clue(parsedTree).isInstanceOf[Concat])
     assert(clue(parsedTree.children(5)) match {
       case Quote("$hit", false, _) => true
       case _                       => false

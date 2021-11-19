@@ -5,7 +5,9 @@ import weaponregex.model.regextree._
 
 import scala.util.Failure
 
-abstract class ParserTest extends munit.FunSuite {
+trait ParserTest {
+  this: munit.FunSuite =>
+
   val parserFlavor: ParserFlavor
 
   val boundaryMetacharacters: String
@@ -29,8 +31,7 @@ abstract class ParserTest extends munit.FunSuite {
 
   test("Parse concat of characters") {
     val pattern = "hello"
-    val parsedTree = Parser(pattern, parserFlavor).get
-    assert(clue(parsedTree).isInstanceOf[Concat])
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
 
     (pattern zip parsedTree.children) foreach { case (char, child) =>
       assert(clue(child) match {
@@ -44,9 +45,8 @@ abstract class ParserTest extends munit.FunSuite {
 
   test("Parse `}` character next to long quantifier") {
     val pattern = "a{1}}"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
 
-    assert(clue(parsedTree).isInstanceOf[Concat])
     assert(parsedTree.children.head.isInstanceOf[Quantifier])
     assert(parsedTree.children.last match {
       case Character('}', _) => true
@@ -58,9 +58,8 @@ abstract class ParserTest extends munit.FunSuite {
 
   test("Parse `]` character next to character class") {
     val pattern = "[abc]]"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
 
-    assert(clue(parsedTree).isInstanceOf[Concat])
     assert(parsedTree.children.head.isInstanceOf[CharacterClass])
     assert(parsedTree.children.last match {
       case Character(']', _) => true
@@ -72,8 +71,7 @@ abstract class ParserTest extends munit.FunSuite {
 
   test("Parse or of characters") {
     val pattern = "h|e|l|l|o"
-    val parsedTree = Parser(pattern, parserFlavor).get
-    assert(clue(parsedTree).isInstanceOf[Or])
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Or]
 
     (pattern.replace("|", "") zip parsedTree.children) foreach { case (char, child) =>
       assert(clue(child) match {
@@ -87,8 +85,7 @@ abstract class ParserTest extends munit.FunSuite {
 
   test("Parse or of characters with null children") {
     val pattern = "|h|e||l|||l|o|"
-    val parsedTree = Parser(pattern, parserFlavor).get
-    assert(clue(parsedTree).isInstanceOf[Or])
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Or]
 
     assert(clue(parsedTree.children) match {
       case Seq(
@@ -112,8 +109,7 @@ abstract class ParserTest extends munit.FunSuite {
 
   test("Parse BOL and EOL") {
     val pattern = "^hello$"
-    val parsedTree = Parser(pattern, parserFlavor).get
-    assert(clue(parsedTree).isInstanceOf[Concat])
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
     assert(clue(parsedTree.children.head).isInstanceOf[BOL])
     assert(clue(parsedTree.children.last).isInstanceOf[EOL])
 
@@ -122,9 +118,8 @@ abstract class ParserTest extends munit.FunSuite {
 
   test("Parse boundary metacharacters") {
     val pattern = boundaryMetacharacters
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
 
-    assert(clue(parsedTree).isInstanceOf[Concat])
     (pattern.replace("""\""", "") zip parsedTree.children) foreach { case (char, child) =>
       assert(clue(child) match {
         case Boundary(str, _) => str.head == char
@@ -143,9 +138,8 @@ abstract class ParserTest extends munit.FunSuite {
         |a
         |a
         |a""".stripMargin
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
 
-    assert(clue(parsedTree).isInstanceOf[Concat])
     ((parsedTree.children filter {
       case Character('a', _) => true
       case _                 => false
@@ -158,9 +152,8 @@ abstract class ParserTest extends munit.FunSuite {
 
   test("Parse positive character class with characters") {
     val pattern = "[abc]"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[CharacterClass]
 
-    assert(clue(parsedTree).isInstanceOf[CharacterClass])
     (pattern.init.tail zip parsedTree.children) foreach { case (char, child) =>
       assert(clue(child) match {
         case Character(c, _) => c == char
@@ -173,7 +166,7 @@ abstract class ParserTest extends munit.FunSuite {
 
   test("Parse negative character class with characters") {
     val pattern = "[^abc]"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Node]
 
     assert(parsedTree match {
       case CharacterClass(_, _, false) => true
@@ -195,9 +188,8 @@ abstract class ParserTest extends munit.FunSuite {
     val ranges = Seq("az", "AZ", "09", "$%")
     // Generate pattern from these ranges
     val pattern = "[" + ranges.map(r => s"${r.head}-${r.last}").mkString + "]"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[CharacterClass]
 
-    assert(clue(parsedTree).isInstanceOf[CharacterClass])
     (ranges zip parsedTree.children) foreach { case (range, child) =>
       assert(clue(child) match {
         case Range(Character(l, _), Character(r, _), _) => l == range.head && r == range.last
@@ -210,9 +202,8 @@ abstract class ParserTest extends munit.FunSuite {
 
   test("Parse character class with predefined character classes") {
     val pattern = s"[$charClassPredefCharClasses]"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[CharacterClass]
 
-    assert(clue(parsedTree).isInstanceOf[CharacterClass])
     (pattern.init.tail.replace("""\""", "") zip parsedTree.children) foreach { case (char, child) =>
       assert(clue(child) match {
         case PredefinedCharClass(charClass, _) => charClass.head == char
@@ -225,9 +216,8 @@ abstract class ParserTest extends munit.FunSuite {
 
   test("Parse character class with POSIX character classes") {
     val pattern = """[\p{Alpha}\P{hello_World_0123}]"""
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[CharacterClass]
 
-    assert(clue(parsedTree).isInstanceOf[CharacterClass])
     assert(clue(parsedTree.children.head) match {
       case POSIXCharClass("Alpha", _, true) => true
       case _                                => false
@@ -254,9 +244,8 @@ abstract class ParserTest extends munit.FunSuite {
 
   test("Parse character class with metacharacters") {
     val pattern = """[\\\t\n\r\f]"""
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[CharacterClass]
 
-    assert(clue(parsedTree).isInstanceOf[CharacterClass])
     // A backslash is added back in to represent the backslash in the pattern
     (("""\""" + pattern.tail.init.replace("""\""", "")) zip parsedTree.children) foreach { case (char, child) =>
       assert(clue(child) match {
@@ -270,9 +259,8 @@ abstract class ParserTest extends munit.FunSuite {
 
   test("Parse character class with special characters") {
     val pattern = s"[$charClassSpecialChars]"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[CharacterClass]
 
-    assert(clue(parsedTree).isInstanceOf[CharacterClass])
     (pattern.tail.init zip parsedTree.children) foreach { case (char, child) =>
       assert(clue(child) match {
         case Character(c, _) => c == char
@@ -285,9 +273,8 @@ abstract class ParserTest extends munit.FunSuite {
 
   test("Parse escape characters") {
     val pattern = escapeCharacters
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
 
-    assert(clue(parsedTree).isInstanceOf[Concat])
     // A backslash is added back in to represent the backslash in the pattern
     (("""\""" + pattern.replace("""\""", "")) zip parsedTree.children) foreach { case (char, child) =>
       assert(clue(child) match {
@@ -302,9 +289,8 @@ abstract class ParserTest extends munit.FunSuite {
   test("Parse control characters") {
     val controlChars: Seq[Char] = ('a' to 'z') ++ ('A' to 'Z')
     val pattern = (controlChars map ("""\c""" + _)).mkString
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
 
-    assert(clue(parsedTree).isInstanceOf[Concat])
     (controlChars zip parsedTree.children) foreach { case (char, child) =>
       assert(clue(child) match {
         case ControlChar(controlChar, _) => controlChar.head == char
@@ -317,9 +303,8 @@ abstract class ParserTest extends munit.FunSuite {
 
   test("Parse hexadecimal characters") {
     val pattern = hexCharacters
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
 
-    assert(clue(parsedTree).isInstanceOf[Concat])
     (pattern.split("""\\""").tail zip parsedTree.children) foreach { case (str, child) =>
       assert(clue(child) match {
         case MetaChar(metaChar, _) => metaChar == str
@@ -332,9 +317,8 @@ abstract class ParserTest extends munit.FunSuite {
 
   test("Parse octal characters") {
     val pattern = octCharacters
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
 
-    assert(clue(parsedTree).isInstanceOf[Concat])
     (pattern.split("""\\""").tail zip parsedTree.children) foreach { case (str, child) =>
       assert(clue(child) match {
         case MetaChar(metaChar, _) => metaChar == str
@@ -347,9 +331,8 @@ abstract class ParserTest extends munit.FunSuite {
 
   test("Parse predefined character class") {
     val pattern = predefCharClasses
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
 
-    assert(clue(parsedTree).isInstanceOf[Concat])
     (pattern.replace("""\""", "") zip parsedTree.children) foreach { case (char, child) =>
       assert(clue(child) match {
         case _: AnyDot                         => char == '.'
@@ -363,9 +346,8 @@ abstract class ParserTest extends munit.FunSuite {
 
   test("Parse POSIX character classes") {
     val pattern = """\p{Alpha}\P{hello_World_0123}"""
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
 
-    assert(clue(parsedTree).isInstanceOf[Concat])
     assert(clue(parsedTree.children.head) match {
       case POSIXCharClass("Alpha", _, true) => true
       case _                                => false
@@ -380,9 +362,8 @@ abstract class ParserTest extends munit.FunSuite {
 
   test("Parse short greedy quantifiers") {
     val pattern = "a*b+c?"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
 
-    assert(clue(parsedTree).isInstanceOf[Concat])
     assert(clue(parsedTree.children(0)).isInstanceOf[ZeroOrMore])
     assert(clue(parsedTree.children(1)).isInstanceOf[OneOrMore])
     assert(clue(parsedTree.children(2)).isInstanceOf[ZeroOrOne])
@@ -401,9 +382,8 @@ abstract class ParserTest extends munit.FunSuite {
 
   test("Parse short reluctant quantifiers") {
     val pattern = "a*?b+?c??"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
 
-    assert(clue(parsedTree).isInstanceOf[Concat])
     assert(clue(parsedTree.children(0)).isInstanceOf[ZeroOrMore])
     assert(clue(parsedTree.children(1)).isInstanceOf[OneOrMore])
     assert(clue(parsedTree.children(2)).isInstanceOf[ZeroOrOne])
@@ -422,9 +402,8 @@ abstract class ParserTest extends munit.FunSuite {
 
   test("Parse short possessive quantifiers") {
     val pattern = "a*+b++c?+"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
 
-    assert(clue(parsedTree).isInstanceOf[Concat])
     assert(clue(parsedTree.children(0)).isInstanceOf[ZeroOrMore])
     assert(clue(parsedTree.children(1)).isInstanceOf[OneOrMore])
     assert(clue(parsedTree.children(2)).isInstanceOf[ZeroOrOne])
@@ -443,9 +422,7 @@ abstract class ParserTest extends munit.FunSuite {
 
   test("Parse long greedy quantifiers") {
     val pattern = "a{1}b{1,}c{1,2}"
-    val parsedTree = Parser(pattern, parserFlavor).get
-
-    assert(clue(parsedTree).isInstanceOf[Concat])
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
 
     assert(parsedTree.children(0) match {
       case Quantifier(Character('a', _), 1, 1, _, GreedyQuantifier, true) => true
@@ -467,9 +444,7 @@ abstract class ParserTest extends munit.FunSuite {
 
   test("Parse long reluctant quantifiers") {
     val pattern = "a{1}?b{1,}?c{1,2}?"
-    val parsedTree = Parser(pattern, parserFlavor).get
-
-    assert(clue(parsedTree).isInstanceOf[Concat])
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
 
     assert(parsedTree.children(0) match {
       case Quantifier(Character('a', _), 1, 1, _, ReluctantQuantifier, true) => true
@@ -491,9 +466,7 @@ abstract class ParserTest extends munit.FunSuite {
 
   test("Parse long possessive quantifiers") {
     val pattern = "a{1}+b{1,}+c{1,2}+"
-    val parsedTree = Parser(pattern, parserFlavor).get
-
-    assert(clue(parsedTree).isInstanceOf[Concat])
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
 
     assert(parsedTree.children(0) match {
       case Quantifier(Character('a', _), 1, 1, _, PossessiveQuantifier, true) => true
@@ -520,9 +493,7 @@ abstract class ParserTest extends munit.FunSuite {
 
   test("Parse capturing group") {
     val pattern = "(hello)(world)"
-    val parsedTree = Parser(pattern, parserFlavor).get
-
-    assert(clue(parsedTree).isInstanceOf[Concat])
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
 
     parsedTree.children foreach (child =>
       assert(
@@ -556,9 +527,8 @@ abstract class ParserTest extends munit.FunSuite {
 
   test("Parse named capturing group") {
     val pattern = "(?<groupName1>hello)(?<GroupName2>world)"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
 
-    assert(clue(parsedTree).isInstanceOf[Concat])
     assert(clue(parsedTree.children.head) match {
       case NamedGroup(_: Concat, name, _) => name == "groupName1"
       case _                              => false
@@ -590,9 +560,7 @@ abstract class ParserTest extends munit.FunSuite {
 
   test("Parse non-capturing group") {
     val pattern = "(?:hello)(?:world)"
-    val parsedTree = Parser(pattern, parserFlavor).get
-
-    assert(clue(parsedTree).isInstanceOf[Concat])
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
 
     parsedTree.children foreach (child =>
       assert(
@@ -686,9 +654,8 @@ abstract class ParserTest extends munit.FunSuite {
 
   test("Parse character quote") {
     val pattern = """stuff\$hit"""
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
 
-    assert(clue(parsedTree).isInstanceOf[Concat])
     assert(clue(parsedTree.children(5)) match {
       case QuoteChar('$', _) => true
       case _                 => false

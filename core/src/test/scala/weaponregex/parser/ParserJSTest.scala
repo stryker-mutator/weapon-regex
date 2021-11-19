@@ -2,7 +2,7 @@ package weaponregex.parser
 
 import weaponregex.model.regextree._
 
-class ParserJSTest extends ParserTest {
+class ParserJSTest extends munit.FunSuite with ParserTest {
   final val parserFlavor: ParserFlavor = ParserFlavorJS
 
   val boundaryMetacharacters: String = """\b\B"""
@@ -18,14 +18,14 @@ class ParserJSTest extends ParserTest {
     val parsedTree = Parser(pattern, parserFlavor).get
 
     assert(clue(parsedTree).isInstanceOf[Concat])
-    parsedTree.children foreach (child => assert(!clue(child).isInstanceOf[Boundary]))
+    parsedTree.asInstanceOf[Node].children foreach (child => assert(!clue(child).isInstanceOf[Boundary]))
 
     treeBuildTest(parsedTree, pattern)
   }
 
   test("Parse empty positive character class with characters") {
     val pattern = "[]"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Node]
 
     assert(clue(parsedTree).isInstanceOf[CharacterClass])
     assert(clue(parsedTree.children).isEmpty)
@@ -35,7 +35,7 @@ class ParserJSTest extends ParserTest {
 
   test("Parse negative character class with characters") {
     val pattern = "[^]"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Node]
 
     assert(parsedTree match {
       case CharacterClass(_, _, false) => true
@@ -48,7 +48,7 @@ class ParserJSTest extends ParserTest {
 
   test("Parse `[` as character inside a character class") {
     val pattern = "[[]"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Node]
 
     assert(clue(parsedTree).isInstanceOf[CharacterClass])
     assert(clue(parsedTree.children.head) match {
@@ -61,7 +61,7 @@ class ParserJSTest extends ParserTest {
 
   test("""Not parse `\a\e` as escape characters""") {
     val pattern = """\a\e"""
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Node]
 
     assert(clue(parsedTree).isInstanceOf[Concat])
     parsedTree.children foreach (child => assert(!clue(child).isInstanceOf[MetaChar]))
@@ -83,7 +83,7 @@ class ParserJSTest extends ParserTest {
 
   test("""Not parse `\h\H\V` as predefined character class""") {
     val pattern = """\h\H\V"""
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Node]
 
     assert(clue(parsedTree).isInstanceOf[Concat])
     parsedTree.children foreach (child => assert(!clue(child).isInstanceOf[PredefinedCharClass]))
@@ -148,7 +148,7 @@ class ParserJSTest extends ParserTest {
 
   test("""Parse `\Q\E` as character quotes""") {
     val pattern = """stuff\Q$hit\Emorestuff"""
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Node]
 
     assert(clue(parsedTree).isInstanceOf[Concat])
     assert(clue(parsedTree.children(5)) match {
@@ -165,7 +165,7 @@ class ParserJSTest extends ParserTest {
 
   test("""Parse `\Q` as a character quote""") {
     val pattern = """stuff\Q$hit"""
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Node]
 
     assert(clue(parsedTree).isInstanceOf[Concat])
     assert(clue(parsedTree.children(5)) match {

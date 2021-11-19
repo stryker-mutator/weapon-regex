@@ -2,32 +2,6 @@ package weaponregex.model.regextree
 
 import weaponregex.model.Location
 
-/** The leaf of the [[weaponregex.model.regextree.RegexTree]] (terminal node) that have no children node
-  * @param value
-  *   The value that the leaf holds
-  * @param location
-  *   The [[weaponregex.model.Location]] of the node in the regex string
-  * @param prefix
-  *   The string that is put in front of the leaf's value when building
-  * @param postfix
-  *   The string that is put after the leaf's value when building
-  */
-abstract class Leaf[A](
-    val value: A,
-    override val location: Location,
-    override val prefix: String = "",
-    override val postfix: String = ""
-) extends RegexTree {
-
-  /** Since leaves have no children, this is always empty
-    */
-  final override val children: Seq[RegexTree] = Nil
-
-  /** Since leaves have no children, this is always an empty string
-    */
-  final override val sep: String = ""
-}
-
 /** Character literal leaf node
   * @param char
   *   The character literal value
