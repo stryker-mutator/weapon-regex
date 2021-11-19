@@ -1,8 +1,10 @@
 package weaponregex.parser
 
+import munit.Location
 import weaponregex.extension.RegexTreeExtension.RegexTreeStringBuilder
 import weaponregex.model.regextree._
 
+import scala.reflect.ClassTag
 import scala.util.Failure
 
 trait ParserTest {
@@ -31,7 +33,7 @@ trait ParserTest {
 
   test("Parse concat of characters") {
     val pattern = "hello"
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
 
     (pattern zip parsedTree.children) foreach { case (char, child) =>
       assert(clue(child) match {
@@ -45,7 +47,7 @@ trait ParserTest {
 
   test("Parse `}` character next to long quantifier") {
     val pattern = "a{1}}"
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
 
     assert(parsedTree.children.head.isInstanceOf[Quantifier])
     assert(parsedTree.children.last match {
@@ -58,7 +60,7 @@ trait ParserTest {
 
   test("Parse `]` character next to character class") {
     val pattern = "[abc]]"
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
 
     assert(parsedTree.children.head.isInstanceOf[CharacterClass])
     assert(parsedTree.children.last match {
@@ -71,7 +73,7 @@ trait ParserTest {
 
   test("Parse or of characters") {
     val pattern = "h|e|l|l|o"
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Or]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Or]
 
     (pattern.replace("|", "") zip parsedTree.children) foreach { case (char, child) =>
       assert(clue(child) match {
@@ -85,7 +87,7 @@ trait ParserTest {
 
   test("Parse or of characters with null children") {
     val pattern = "|h|e||l|||l|o|"
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Or]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Or]
 
     assert(clue(parsedTree.children) match {
       case Seq(
@@ -109,7 +111,7 @@ trait ParserTest {
 
   test("Parse BOL and EOL") {
     val pattern = "^hello$"
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
     assert(clue(parsedTree.children.head).isInstanceOf[BOL])
     assert(clue(parsedTree.children.last).isInstanceOf[EOL])
 
@@ -118,7 +120,7 @@ trait ParserTest {
 
   test("Parse boundary metacharacters") {
     val pattern = boundaryMetacharacters
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
 
     (pattern.replace("""\""", "") zip parsedTree.children) foreach { case (char, child) =>
       assert(clue(child) match {
@@ -138,7 +140,7 @@ trait ParserTest {
         |a
         |a
         |a""".stripMargin
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
 
     ((parsedTree.children filter {
       case Character('a', _) => true
@@ -152,7 +154,7 @@ trait ParserTest {
 
   test("Parse positive character class with characters") {
     val pattern = "[abc]"
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[CharacterClass]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[CharacterClass]
 
     (pattern.init.tail zip parsedTree.children) foreach { case (char, child) =>
       assert(clue(child) match {
@@ -166,7 +168,7 @@ trait ParserTest {
 
   test("Parse negative character class with characters") {
     val pattern = "[^abc]"
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Node]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Node]
 
     assert(parsedTree match {
       case CharacterClass(_, _, false) => true
@@ -188,7 +190,7 @@ trait ParserTest {
     val ranges = Seq("az", "AZ", "09", "$%")
     // Generate pattern from these ranges
     val pattern = "[" + ranges.map(r => s"${r.head}-${r.last}").mkString + "]"
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[CharacterClass]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[CharacterClass]
 
     (ranges zip parsedTree.children) foreach { case (range, child) =>
       assert(clue(child) match {
@@ -202,7 +204,7 @@ trait ParserTest {
 
   test("Parse character class with predefined character classes") {
     val pattern = s"[$charClassPredefCharClasses]"
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[CharacterClass]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[CharacterClass]
 
     (pattern.init.tail.replace("""\""", "") zip parsedTree.children) foreach { case (char, child) =>
       assert(clue(child) match {
@@ -216,7 +218,7 @@ trait ParserTest {
 
   test("Parse character class with POSIX character classes") {
     val pattern = """[\p{Alpha}\P{hello_World_0123}]"""
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[CharacterClass]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[CharacterClass]
 
     assert(clue(parsedTree.children.head) match {
       case POSIXCharClass("Alpha", _, true) => true
@@ -244,7 +246,7 @@ trait ParserTest {
 
   test("Parse character class with metacharacters") {
     val pattern = """[\\\t\n\r\f]"""
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[CharacterClass]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[CharacterClass]
 
     // A backslash is added back in to represent the backslash in the pattern
     (("""\""" + pattern.tail.init.replace("""\""", "")) zip parsedTree.children) foreach { case (char, child) =>
@@ -259,7 +261,7 @@ trait ParserTest {
 
   test("Parse character class with special characters") {
     val pattern = s"[$charClassSpecialChars]"
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[CharacterClass]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[CharacterClass]
 
     (pattern.tail.init zip parsedTree.children) foreach { case (char, child) =>
       assert(clue(child) match {
@@ -273,7 +275,7 @@ trait ParserTest {
 
   test("Parse escape characters") {
     val pattern = escapeCharacters
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
 
     // A backslash is added back in to represent the backslash in the pattern
     (("""\""" + pattern.replace("""\""", "")) zip parsedTree.children) foreach { case (char, child) =>
@@ -289,7 +291,7 @@ trait ParserTest {
   test("Parse control characters") {
     val controlChars: Seq[Char] = ('a' to 'z') ++ ('A' to 'Z')
     val pattern = (controlChars map ("""\c""" + _)).mkString
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
 
     (controlChars zip parsedTree.children) foreach { case (char, child) =>
       assert(clue(child) match {
@@ -303,7 +305,7 @@ trait ParserTest {
 
   test("Parse hexadecimal characters") {
     val pattern = hexCharacters
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
 
     (pattern.split("""\\""").tail zip parsedTree.children) foreach { case (str, child) =>
       assert(clue(child) match {
@@ -317,7 +319,7 @@ trait ParserTest {
 
   test("Parse octal characters") {
     val pattern = octCharacters
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
 
     (pattern.split("""\\""").tail zip parsedTree.children) foreach { case (str, child) =>
       assert(clue(child) match {
@@ -331,7 +333,7 @@ trait ParserTest {
 
   test("Parse predefined character class") {
     val pattern = predefCharClasses
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
 
     (pattern.replace("""\""", "") zip parsedTree.children) foreach { case (char, child) =>
       assert(clue(child) match {
@@ -346,7 +348,7 @@ trait ParserTest {
 
   test("Parse POSIX character classes") {
     val pattern = """\p{Alpha}\P{hello_World_0123}"""
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
 
     assert(clue(parsedTree.children.head) match {
       case POSIXCharClass("Alpha", _, true) => true
@@ -362,7 +364,7 @@ trait ParserTest {
 
   test("Parse short greedy quantifiers") {
     val pattern = "a*b+c?"
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
 
     assert(clue(parsedTree.children(0)).isInstanceOf[ZeroOrMore])
     assert(clue(parsedTree.children(1)).isInstanceOf[OneOrMore])
@@ -382,7 +384,7 @@ trait ParserTest {
 
   test("Parse short reluctant quantifiers") {
     val pattern = "a*?b+?c??"
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
 
     assert(clue(parsedTree.children(0)).isInstanceOf[ZeroOrMore])
     assert(clue(parsedTree.children(1)).isInstanceOf[OneOrMore])
@@ -402,7 +404,7 @@ trait ParserTest {
 
   test("Parse short possessive quantifiers") {
     val pattern = "a*+b++c?+"
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
 
     assert(clue(parsedTree.children(0)).isInstanceOf[ZeroOrMore])
     assert(clue(parsedTree.children(1)).isInstanceOf[OneOrMore])
@@ -422,7 +424,7 @@ trait ParserTest {
 
   test("Parse long greedy quantifiers") {
     val pattern = "a{1}b{1,}c{1,2}"
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
 
     assert(parsedTree.children(0) match {
       case Quantifier(Character('a', _), 1, 1, _, GreedyQuantifier, true) => true
@@ -444,7 +446,7 @@ trait ParserTest {
 
   test("Parse long reluctant quantifiers") {
     val pattern = "a{1}?b{1,}?c{1,2}?"
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
 
     assert(parsedTree.children(0) match {
       case Quantifier(Character('a', _), 1, 1, _, ReluctantQuantifier, true) => true
@@ -466,7 +468,7 @@ trait ParserTest {
 
   test("Parse long possessive quantifiers") {
     val pattern = "a{1}+b{1,}+c{1,2}+"
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
 
     assert(parsedTree.children(0) match {
       case Quantifier(Character('a', _), 1, 1, _, PossessiveQuantifier, true) => true
@@ -493,7 +495,7 @@ trait ParserTest {
 
   test("Parse capturing group") {
     val pattern = "(hello)(world)"
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
 
     parsedTree.children foreach (child =>
       assert(
@@ -527,7 +529,7 @@ trait ParserTest {
 
   test("Parse named capturing group") {
     val pattern = "(?<groupName1>hello)(?<GroupName2>world)"
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
 
     assert(clue(parsedTree.children.head) match {
       case NamedGroup(_: Concat, name, _) => name == "groupName1"
@@ -560,7 +562,7 @@ trait ParserTest {
 
   test("Parse non-capturing group") {
     val pattern = "(?:hello)(?:world)"
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
 
     parsedTree.children foreach (child =>
       assert(
@@ -630,31 +632,27 @@ trait ParserTest {
 
   test("Parse negative lookbehind") {
     val pattern = "(?<!hello)"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Lookaround]
 
-    assert(clue(parsedTree) match {
-      case Lookaround(_: Concat, false, false, _) => true
-      case _                                      => false
-    })
+    assert(parsedTree.expr.isInstanceOf[Concat])
+    assert(!clue(parsedTree).isPositive)
+    assert(!clue(parsedTree).isLookahead)
 
     treeBuildTest(parsedTree, pattern)
   }
 
   test("Parse named reference") {
     val pattern = """\k<name1>"""
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.to[NameReference]
 
-    assert(clue(parsedTree) match {
-      case NameReference("name1", _) => true
-      case _                         => false
-    })
+    assertEquals(parsedTree.name, "name1")
 
     treeBuildTest(parsedTree, pattern)
   }
 
   test("Parse character quote") {
     val pattern = """stuff\$hit"""
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
 
     assert(clue(parsedTree.children(5)) match {
       case QuoteChar('$', _) => true
@@ -672,5 +670,13 @@ trait ParserTest {
   test("Parser failure mid-regex") {
     val pattern = "abc(def"
     parseErrorTest(pattern)
+  }
+
+  implicit class RegexTreeCastExtension(tree: RegexTree) {
+    def to[T <: RegexTree](implicit ct: ClassTag[T], loc: Location): T = tree match {
+      case t: T => t
+      case _ =>
+        fail(s"Expected '${ct.runtimeClass.getSimpleName}', but got '${tree.getClass.getSimpleName}'", clues(tree))
+    }
   }
 }

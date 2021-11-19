@@ -25,7 +25,7 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
 
   test("Parse character class with nested character classes") {
     val pattern = "[[a-z][^A-Z0-9][01234]]"
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[CharacterClass]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[CharacterClass]
 
     parsedTree.children foreach (child => assert(child.isInstanceOf[CharacterClass], clue = parsedTree.children))
 
@@ -35,12 +35,12 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
   test("Parse character class with simple intersection") {
     val subClasses = Seq("abc", "def", "ghi")
     val pattern = subClasses.mkString("[", "&&", "]")
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Node]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Node]
 
     assert(clue(parsedTree).isInstanceOf[CharacterClass])
     assertEquals(parsedTree.children.length, 1)
 
-    val intersection = parsedTree.children.head.asInstanceOf[CharClassIntersection]
+    val intersection = parsedTree.children.head.to[CharClassIntersection]
     assertEquals(intersection.children.length, 3)
     (subClasses zip intersection.children) foreach { case (str, child) =>
       assert(clue(child) match {
@@ -260,19 +260,16 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
 
   test("Parse numbered reference") {
     val pattern = """\123"""
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.to[NumberReference]
 
-    assert(clue(parsedTree) match {
-      case NumberReference(123, _) => true
-      case _                       => false
-    })
+    assertEquals(parsedTree.num, 123)
 
     treeBuildTest(parsedTree, pattern)
   }
 
   test("Parse long quote with end") {
     val pattern = """stuff\Q$hit\Emorestuff"""
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
 
     assert(clue(parsedTree.children(5)) match {
       case Quote("$hit", true, _) => true
@@ -284,7 +281,7 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
 
   test("Parse long quote without end") {
     val pattern = """stuff\Q$hit"""
-    val parsedTree = Parser(pattern, parserFlavor).get.asInstanceOf[Concat]
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
 
     assert(clue(parsedTree.children(5)) match {
       case Quote("$hit", false, _) => true
