@@ -2,26 +2,6 @@ package weaponregex.model.regextree
 
 import weaponregex.model.Location
 
-/** The non-terminal node of the [[weaponregex.model.regextree.RegexTree]] that have at least one child node
-  * @param children
-  *   The children that fall under this node
-  * @param location
-  *   The [[weaponregex.model.Location]] of the node in the regex string
-  * @param prefix
-  *   The string that is put in front of the node's children when building
-  * @param postfix
-  *   The string that is put after the node's children when building
-  * @param sep
-  *   The string that is put in between the node's children when building
-  */
-abstract class Node(
-    override val children: Seq[RegexTree],
-    override val location: Location,
-    override val prefix: String = "",
-    override val postfix: String = "",
-    override val sep: String = ""
-) extends RegexTree
-
 /** Character class node
   * @param nodes
   *   The child nodes contained in the character class
