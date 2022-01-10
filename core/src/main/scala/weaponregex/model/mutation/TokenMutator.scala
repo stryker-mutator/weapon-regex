@@ -2,6 +2,7 @@ package weaponregex.model.mutation
 
 import weaponregex.model.Location
 import weaponregex.model.regextree.RegexTree
+import weaponregex.model.regextree.Node
 
 trait TokenMutator {
 
@@ -70,9 +71,10 @@ trait TokenMutator {
       *   A [[weaponregex.model.mutation.Mutant]]
       */
     def toMutantBeforeChildrenOf(token: RegexTree): Mutant = {
-      val loc: Location =
-        if (token.children.isEmpty) token.location
-        else Location(token.location.start, token.children.head.location.start)
+      val loc: Location = token match {
+        case node: Node if node.children.nonEmpty => Location(token.location.start, node.children.head.location.start)
+        case _                                    => token.location
+      }
       toMutantAt(loc)
     }
 
@@ -87,9 +89,11 @@ trait TokenMutator {
       *   A [[weaponregex.model.mutation.Mutant]]
       */
     def toMutantAfterChildrenOf(token: RegexTree): Mutant = {
-      val loc: Location =
-        if (token.children.isEmpty) token.location
-        else Location(token.children.last.location.end, token.location.end)
+      val loc: Location = token match {
+        case node: Node if node.children.nonEmpty => Location(node.children.last.location.end, token.location.end)
+        case _                                    => token.location
+      }
+
       toMutantAt(loc)
     }
   }

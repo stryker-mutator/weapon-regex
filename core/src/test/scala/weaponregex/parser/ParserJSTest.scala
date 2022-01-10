@@ -2,7 +2,7 @@ package weaponregex.parser
 
 import weaponregex.model.regextree._
 
-class ParserJSTest extends ParserTest {
+class ParserJSTest extends munit.FunSuite with ParserTest {
   final val parserFlavor: ParserFlavor = ParserFlavorJS
 
   val boundaryMetacharacters: String = """\b\B"""
@@ -15,9 +15,8 @@ class ParserJSTest extends ParserTest {
 
   test("""Not parse `\A\G\z\Z` as boundary metacharacters""") {
     val pattern = """\A\G\z\Z"""
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Node]
 
-    assert(clue(parsedTree).isInstanceOf[Concat])
     parsedTree.children foreach (child => assert(!clue(child).isInstanceOf[Boundary]))
 
     treeBuildTest(parsedTree, pattern)
@@ -25,9 +24,8 @@ class ParserJSTest extends ParserTest {
 
   test("Parse empty positive character class with characters") {
     val pattern = "[]"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.to[CharacterClass]
 
-    assert(clue(parsedTree).isInstanceOf[CharacterClass])
     assert(clue(parsedTree.children).isEmpty)
 
     treeBuildTest(parsedTree, pattern)
@@ -35,12 +33,9 @@ class ParserJSTest extends ParserTest {
 
   test("Parse negative character class with characters") {
     val pattern = "[^]"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.to[CharacterClass]
 
-    assert(parsedTree match {
-      case CharacterClass(_, _, false) => true
-      case _                           => false
-    })
+    assert(!parsedTree.isPositive)
     assert(clue(parsedTree.children).isEmpty)
 
     treeBuildTest(parsedTree, pattern)
@@ -48,9 +43,8 @@ class ParserJSTest extends ParserTest {
 
   test("Parse `[` as character inside a character class") {
     val pattern = "[[]"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.to[CharacterClass]
 
-    assert(clue(parsedTree).isInstanceOf[CharacterClass])
     assert(clue(parsedTree.children.head) match {
       case Character('[', _) => true
       case _                 => false
@@ -61,9 +55,8 @@ class ParserJSTest extends ParserTest {
 
   test("""Not parse `\a\e` as escape characters""") {
     val pattern = """\a\e"""
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
 
-    assert(clue(parsedTree).isInstanceOf[Concat])
     parsedTree.children foreach (child => assert(!clue(child).isInstanceOf[MetaChar]))
 
     treeBuildTest(parsedTree, pattern)
@@ -71,7 +64,7 @@ class ParserJSTest extends ParserTest {
 
   test("Parse \\x{20} as quantifier") {
     val pattern = "\\x{20}"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Quantifier]
 
     assert(clue(parsedTree) match {
       case Quantifier(QuoteChar('x', _), 20, 20, _, GreedyQuantifier, true) => true
@@ -83,9 +76,8 @@ class ParserJSTest extends ParserTest {
 
   test("""Not parse `\h\H\V` as predefined character class""") {
     val pattern = """\h\H\V"""
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
 
-    assert(clue(parsedTree).isInstanceOf[Concat])
     parsedTree.children foreach (child => assert(!clue(child).isInstanceOf[PredefinedCharClass]))
 
     treeBuildTest(parsedTree, pattern)
@@ -148,9 +140,8 @@ class ParserJSTest extends ParserTest {
 
   test("""Parse `\Q\E` as character quotes""") {
     val pattern = """stuff\Q$hit\Emorestuff"""
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
 
-    assert(clue(parsedTree).isInstanceOf[Concat])
     assert(clue(parsedTree.children(5)) match {
       case QuoteChar('Q', _) => true
       case _                 => false
@@ -165,9 +156,8 @@ class ParserJSTest extends ParserTest {
 
   test("""Parse `\Q` as a character quote""") {
     val pattern = """stuff\Q$hit"""
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
 
-    assert(clue(parsedTree).isInstanceOf[Concat])
     assert(clue(parsedTree.children(5)) match {
       case QuoteChar('Q', _) => true
       case _                 => false
@@ -187,11 +177,8 @@ class ParserJSTest extends ParserTest {
 
   test("Parse `{`") {
     val pattern = "{"
-    val parsedTree = Parser(pattern, parserFlavor).get
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Character]
 
-    assert(clue(parsedTree) match {
-      case Character('{', _) => true
-      case _                 => false
-    })
+    assertEquals(parsedTree.char, '{')
   }
 }
