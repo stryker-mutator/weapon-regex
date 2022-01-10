@@ -3,7 +3,7 @@ package weaponregex.model.mutation
 import weaponregex.model.regextree.RegexTree
 
 import scala.scalajs.js
-import scala.scalajs.js.JSConverters._
+import scala.scalajs.js.JSConverters.*
 import scala.scalajs.js.annotation.JSExport
 
 /** A wrapper class for [[weaponregex.model.mutation.TokenMutator]] for exporting to JavaScript

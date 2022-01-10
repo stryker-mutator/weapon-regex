@@ -1,9 +1,9 @@
 package weaponregex.parser
 
-import fastparse._
-import NoWhitespace._
-import weaponregex.model._
-import weaponregex.model.regextree._
+import fastparse.*
+import NoWhitespace.*
+import weaponregex.model.*
+import weaponregex.model.regextree.*
 import weaponregex.extension.StringExtension.StringIndexExtension
 
 import scala.util.{Failure, Success, Try}

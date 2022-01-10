@@ -1,6 +1,6 @@
 package weaponregex.parser
 
-import scala.scalajs.js.annotation._
+import scala.scalajs.js.annotation.*
 
 sealed trait ParserFlavor
 

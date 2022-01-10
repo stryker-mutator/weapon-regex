@@ -3,8 +3,8 @@ package weaponregex.mutator
 import weaponregex.model.mutation.{TokenMutator, TokenMutatorJS}
 
 import scala.scalajs.js
-import scala.scalajs.js.JSConverters._
-import scala.scalajs.js.annotation._
+import scala.scalajs.js.JSConverters.*
+import scala.scalajs.js.annotation.*
 
 /** A wrapper class for [[weaponregex.mutator.BuiltinMutators]] for exporting to JavaScript
   */

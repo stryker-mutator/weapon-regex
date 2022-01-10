@@ -3,8 +3,8 @@ package weaponregex.model.mutation
 import weaponregex.model.Location
 
 import scala.scalajs.js
-import scala.scalajs.js.JSConverters._
-import scala.scalajs.js.annotation._
+import scala.scalajs.js.JSConverters.*
+import scala.scalajs.js.annotation.*
 
 /** A wrapper class for [[weaponregex.model.mutation.Mutant]] for exporting to JavaScript
   * @param mutant
