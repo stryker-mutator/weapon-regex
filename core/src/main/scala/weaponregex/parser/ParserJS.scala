@@ -43,7 +43,7 @@ class ParserJS private[parser] (pattern: String) extends Parser(pattern) {
     * @return
     *   The captured character as a string
     */
-  override def charLiteralSpecialCases[_: P]: P[String] = P("{".! ~ !quantifierLongTail)
+  override def charLiteralSpecialCases[A: P]: P[String] = P("{".! ~ !quantifierLongTail)
 
   /** Intermediate parsing rule for character class item tokens which can parse either `preDefinedCharClass`,
     * `metaCharacter`, `range`, `quoteChar`, or `charClassCharLiteral`
@@ -52,7 +52,7 @@ class ParserJS private[parser] (pattern: String) extends Parser(pattern) {
     * @note
     *   Nested character class is a Scala/Java-only regex syntax
     */
-  override def classItem[_: P]: P[RegexTree] = P(
+  override def classItem[A: P]: P[RegexTree] = P(
     preDefinedCharClass | posixCharClass | metaCharacter | range | quoteChar | charClassCharLiteral
   )
 
@@ -60,7 +60,7 @@ class ParserJS private[parser] (pattern: String) extends Parser(pattern) {
     * @return
     *   [[weaponregex.model.regextree.RegexTree]] (sub)tree
     */
-  override def quote[_: P]: P[RegexTree] = quoteChar
+  override def quote[A: P]: P[RegexTree] = quoteChar
 
   /** Parse a character with octal value `\n`, `\nn`, `\mnn` (0 <= m,n <= 9)
     *
@@ -72,19 +72,19 @@ class ParserJS private[parser] (pattern: String) extends Parser(pattern) {
     *   This syntax will correctly match if 0 <= m <= 3, 0 <= n <= 7; but m and/or n outside of this range will still be
     *   parsable.
     */
-  override def charOct[_: P]: P[MetaChar] = Indexed("""\""" ~ CharIn("0-9").rep(min = 1, max = 3).!)
+  override def charOct[A: P]: P[MetaChar] = Indexed("""\""" ~ CharIn("0-9").rep(min = 1, max = 3).!)
     .map { case (loc, octDigits) => MetaChar(octDigits, loc) }
 
   /** Intermediate parsing rule for reference tokens which can parse only `nameReference`
     * @return
     *   [[weaponregex.model.regextree.RegexTree]] (sub)tree
     */
-  override def reference[_: P]: P[RegexTree] = nameReference
+  override def reference[A: P]: P[RegexTree] = nameReference
 
   /** Intermediate parsing rule for meta-character tokens which can parse either `charOct`, `charHex`, `charUnicode` or
     * `escapeChar`
     * @return
     *   [[weaponregex.model.regextree.RegexTree]] (sub)tree
     */
-  override def metaCharacter[_: P]: P[RegexTree] = P(charOct | charHex | charUnicode | escapeChar | controlChar)
+  override def metaCharacter[A: P]: P[RegexTree] = P(charOct | charHex | charUnicode | escapeChar | controlChar)
 }

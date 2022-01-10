@@ -46,7 +46,7 @@ class ParserJVM private[parser] (pattern: String) extends Parser(pattern) {
     * @example
     *   `"\012"`
     */
-  override def charOct[_: P]: P[MetaChar] =
+  override def charOct[A: P]: P[MetaChar] =
     Indexed("""\0""" ~ (CharIn("0-3") ~ CharIn("0-7").rep(exactly = 2) | CharIn("0-7").rep(min = 1, max = 2)).!)
       .map { case (loc, octDigits) => MetaChar("0" + octDigits, loc) }
 
@@ -54,7 +54,7 @@ class ParserJVM private[parser] (pattern: String) extends Parser(pattern) {
     * @return
     *   The captured character as a string
     */
-  override def charClassCharLiteralSpecialCases[_: P]: P[String] = P("&".! ~ !"&")
+  override def charClassCharLiteralSpecialCases[A: P]: P[String] = P("&".! ~ !"&")
 
   /** Parse a character class content without the surround syntactical symbols, i.e. "naked"
     * @return
@@ -62,7 +62,7 @@ class ParserJVM private[parser] (pattern: String) extends Parser(pattern) {
     * @note
     *   This is used only inside the [[weaponregex.parser.ParserJVM.charClassIntersection]]
     */
-  def charClassNaked[_: P]: P[CharacterClassNaked] = Indexed(classItem.rep(minCharClassItem))
+  def charClassNaked[A: P]: P[CharacterClassNaked] = Indexed(classItem.rep(minCharClassItem))
     .map { case (loc, nodes) => CharacterClassNaked(nodes, loc) }
 
   /** Parse a character class intersection used inside a character class.
@@ -72,7 +72,7 @@ class ParserJVM private[parser] (pattern: String) extends Parser(pattern) {
     * @example
     *   `"abc&&[^bc]&&a-z"`
     */
-  def charClassIntersection[_: P]: P[CharClassIntersection] =
+  def charClassIntersection[A: P]: P[CharClassIntersection] =
     Indexed(charClassNaked.rep(2, sep = "&&"))
       .map { case (loc, nodes) => CharClassIntersection(nodes, loc) }
 
@@ -82,7 +82,7 @@ class ParserJVM private[parser] (pattern: String) extends Parser(pattern) {
     * @example
     *   `"[abc]"`
     */
-  override def charClass[_: P]: P[CharacterClass] =
+  override def charClass[A: P]: P[CharacterClass] =
     Indexed("[" ~ "^".!.? ~ (charClassIntersection.rep(exactly = 1) | classItem.rep(minCharClassItem)) ~ "]")
       .map { case (loc, (hat, nodes)) => CharacterClass(nodes, loc, isPositive = hat.isEmpty) }
 
@@ -91,7 +91,7 @@ class ParserJVM private[parser] (pattern: String) extends Parser(pattern) {
     * @return
     *   [[weaponregex.model.regextree.RegexTree]] (sub)tree
     */
-  override def specialConstruct[_: P]: P[RegexTree] = P(
+  override def specialConstruct[A: P]: P[RegexTree] = P(
     namedGroup | nonCapturingGroup | flagToggleGroup | flagNCGroup | lookaround | atomicGroup
   )
 }
