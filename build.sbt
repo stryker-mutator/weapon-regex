@@ -54,9 +54,23 @@ lazy val WeaponRegeX = projectMatrix
     scalaVersions = List(Scala213, Scala212),
     settings = Seq(
       // Add JS-specific settings here
-      scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule))
+      scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule)),
+      scalacOptions += scalaJSSourceUri.value
     )
   )
+
+/** Map sourceURI to github location, taken from
+  * https://github.com/typelevel/cats/blob/7ce35f50ced2ceb5747ec643333e38f0af866c1e/build.sbt#L186-L195
+  */
+lazy val scalaJSSourceUri = Def.task {
+  val tagOrHash =
+    if (isSnapshot.value) git.gitHeadCommit.value.get
+    else "v" + version.value
+  val a = (LocalRootProject / baseDirectory).value.toURI.toString
+  val g = "https://raw.githubusercontent.com/stryker-mutator/weapon-regex/" + tagOrHash
+  val opt = if (scalaVersion.value.startsWith("3.")) "-scalajs-mapSourceURI" else "-P:scalajs:mapSourceURI"
+  s"$opt:$a->$g/"
+}
 
 lazy val docs = projectMatrix
   .in(file("wr-docs"))
