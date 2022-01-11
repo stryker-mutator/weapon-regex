@@ -2,7 +2,7 @@ package weaponregex.extension
 
 import weaponregex.extension.TokenMutatorExtension.TokenMutatorsFiltering
 import weaponregex.model.mutation.{Mutant, TokenMutator}
-import weaponregex.model.regextree._
+import weaponregex.model.regextree.*
 import weaponregex.mutator.BuiltinMutators
 
 object RegexTreeExtension {
@@ -14,7 +14,7 @@ object RegexTreeExtension {
     /** Build the tree into a String
       */
     lazy val build: String = tree match {
-      case leaf: Leaf[_]  => leaf.prefix + leaf.value + leaf.postfix
+      case leaf: Leaf[?]  => leaf.prefix + leaf.value + leaf.postfix
       case ft: FlagToggle => ft.onFlags.build + (if (ft.hasDash) "-" else "") + ft.offFlags.build
       case _              => buildWhile(_ => true)
     }

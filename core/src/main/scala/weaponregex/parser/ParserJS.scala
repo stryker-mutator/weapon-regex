@@ -1,8 +1,8 @@
 package weaponregex.parser
 
-import fastparse._
-import NoWhitespace._
-import weaponregex.model.regextree._
+import fastparse.*
+import NoWhitespace.*
+import weaponregex.model.regextree.*
 
 /** Concrete parser for JS flavor of regex
   * @param pattern

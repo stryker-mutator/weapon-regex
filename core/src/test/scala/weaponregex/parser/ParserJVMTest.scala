@@ -1,6 +1,6 @@
 package weaponregex.parser
 
-import weaponregex.model.regextree._
+import weaponregex.model.regextree.*
 
 class ParserJVMTest extends munit.FunSuite with ParserTest {
   final val parserFlavor: ParserFlavor = ParserFlavorJVM

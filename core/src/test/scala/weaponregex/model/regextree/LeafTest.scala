@@ -1,7 +1,7 @@
 package weaponregex.model.regextree
 
 import weaponregex.extension.RegexTreeExtension.RegexTreeStringBuilder
-import weaponregex.model._
+import weaponregex.model.*
 
 class LeafTest extends munit.FunSuite {
   var locStub: Location = Location(0, 0)(0, 1)

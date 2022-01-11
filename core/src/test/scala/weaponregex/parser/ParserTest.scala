@@ -2,7 +2,7 @@ package weaponregex.parser
 
 import munit.Location
 import weaponregex.extension.RegexTreeExtension.RegexTreeStringBuilder
-import weaponregex.model.regextree._
+import weaponregex.model.regextree.*
 
 import scala.reflect.ClassTag
 import scala.util.Failure

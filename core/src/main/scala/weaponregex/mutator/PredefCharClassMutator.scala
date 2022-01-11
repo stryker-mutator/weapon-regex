@@ -3,7 +3,7 @@ package weaponregex.mutator
 import weaponregex.extension.RegexTreeExtension.RegexTreeStringBuilder
 import weaponregex.extension.StringExtension.StringStylingExtension
 import weaponregex.model.mutation.{Mutant, TokenMutator}
-import weaponregex.model.regextree._
+import weaponregex.model.regextree.*
 
 /** Negate predefined character class
   *

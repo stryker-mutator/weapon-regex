@@ -175,7 +175,7 @@ case object PossessiveQuantifier extends QuantifierType("+")
   *   This class constructor is private, instances must be created using the companion
   *   [[weaponregex.model.regextree.Quantifier]] object
   */
-case class Quantifier private (
+case class Quantifier protected[weaponregex] (
     expr: RegexTree,
     min: Int,
     max: Int,

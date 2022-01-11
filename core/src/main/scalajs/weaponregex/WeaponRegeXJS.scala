@@ -1,13 +1,13 @@
 package weaponregex
 
 import weaponregex.extension.RegexTreeExtension.RegexTreeMutator
-import weaponregex.model.mutation._
+import weaponregex.model.mutation.*
 import weaponregex.mutator.BuiltinMutators
 import weaponregex.parser.{Parser, ParserFlavor, ParserFlavorJS}
 
 import scala.scalajs.js
-import scala.scalajs.js.JSConverters._
-import scala.scalajs.js.annotation._
+import scala.scalajs.js.JSConverters.*
+import scala.scalajs.js.annotation.*
 import scala.util.{Failure, Success}
 
 /** The API facade of Weapon regeX for JavaScript
