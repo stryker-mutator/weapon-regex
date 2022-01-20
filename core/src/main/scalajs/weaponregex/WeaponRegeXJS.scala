@@ -26,12 +26,12 @@ object WeaponRegeXJS {
     *   Input regex string
     * @param options
     *   JavaScript object for Mutation options
-    * {{{
+    *   {{{
     * {
     *   mutators: [Mutators to be used for mutation],
     *   mutationLevels: [Target mutation levels. If this is `null`, the `mutators` will not be filtered],
     * }
-    * }}}
+    *   }}}
     * @return
     *   A JavaScript Array of [[weaponregex.model.mutation.Mutant]] if can be parsed, or throw an exception otherwise
     */
