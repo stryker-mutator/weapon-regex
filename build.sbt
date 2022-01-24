@@ -38,7 +38,6 @@ lazy val WeaponRegeX = projectMatrix
     name := "weapon-regex",
     libraryDependencies += "com.lihaoyi" %%% "fastparse" % "2.3.3",
     libraryDependencies += "org.scalameta" %%% "munit" % "0.7.29" % Test,
-    testFrameworks += new TestFramework("munit.Framework"),
     // Fatal warnings only in CI
     scalacOptions --= (if (sys.env.exists { case (k, v) => k == "CI" && v == "true" }) Nil
                        else Seq("-Xfatal-warnings")),
