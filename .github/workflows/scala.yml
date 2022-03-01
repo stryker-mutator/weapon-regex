@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           # Fetch all commits, used by sbt-dynver plugin to determine version
           fetch-depth: 0
@@ -27,7 +27,7 @@ jobs:
   formatting:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: coursier/cache-action@v6.3
       - name: Set up JDK
         uses: actions/setup-java@v2
@@ -45,7 +45,7 @@ jobs:
         os: ['ubuntu-latest', 'windows-latest']
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: coursier/cache-action@v6.3
       - name: Set up JDK
         uses: actions/setup-java@v2
@@ -58,7 +58,7 @@ jobs:
   test-js:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: coursier/cache-action@v6.3
       - name: Set up JDK
         uses: actions/setup-java@v2
@@ -80,7 +80,7 @@ jobs:
   mutation-testing:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: coursier/cache-action@v6.3
       - name: Set up JDK
         uses: actions/setup-java@v2
@@ -97,7 +97,7 @@ jobs:
     if: "github.ref == 'refs/heads/main' || startsWith(github.event.ref, 'refs/tags/')"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           # Fetch all commits, used by sbt-dynver plugin to determine version
           fetch-depth: 0
