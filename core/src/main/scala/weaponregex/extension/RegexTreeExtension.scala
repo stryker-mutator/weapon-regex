@@ -2,7 +2,7 @@ package weaponregex.extension
 
 import weaponregex.extension.TokenMutatorExtension.TokenMutatorsFiltering
 import weaponregex.model.mutation.{Mutant, TokenMutator}
-import weaponregex.model.regextree._
+import weaponregex.model.regextree.*
 import weaponregex.mutator.BuiltinMutators
 
 object RegexTreeExtension {
@@ -14,7 +14,7 @@ object RegexTreeExtension {
     /** Build the tree into a String
       */
     lazy val build: String = tree match {
-      case leaf: Leaf[_]  => leaf.prefix + leaf.value + leaf.postfix
+      case leaf: Leaf[?]  => leaf.prefix + leaf.value + leaf.postfix
       case ft: FlagToggle => ft.onFlags.build + (if (ft.hasDash) "-" else "") + ft.offFlags.build
       case _              => buildWhile(_ => true)
     }
@@ -28,11 +28,11 @@ object RegexTreeExtension {
       *   A String representation of the tree
       */
     def buildWith(child: RegexTree, childString: String): String = tree match {
-      case _: Leaf[_] => build
-      case _ =>
-        tree.children
+      case node: Node =>
+        node.children
           .map(c => if (c eq child) childString else c.build)
-          .mkString(tree.prefix, tree.sep, tree.postfix)
+          .mkString(node.prefix, node.sep, tree.postfix)
+      case _ => build
     }
 
     /** Build the tree into a String while a predicate holds for a given child.
@@ -42,12 +42,12 @@ object RegexTreeExtension {
       *   A String representation of the tree
       */
     def buildWhile(pred: RegexTree => Boolean): String = tree match {
-      case _: Leaf[_] => build
-      case _ =>
-        tree.children
+      case node: Node =>
+        node.children
           .filter(pred)
           .map(_.build)
-          .mkString(tree.prefix, tree.sep, tree.postfix)
+          .mkString(tree.prefix, node.sep, tree.postfix)
+      case _ => build
     }
   }
 
@@ -68,9 +68,13 @@ object RegexTreeExtension {
       if (mutationLevels != null) return mutate(mutators.atLevels(mutationLevels))
 
       val rootMutants: Seq[Mutant] = mutators flatMap (_(tree))
-      val childrenMutants: Seq[Mutant] = tree.children flatMap (child =>
-        child.mutate(mutators) map (mutant => mutant.copy(pattern = tree.buildWith(child, mutant.pattern)))
-      )
+      val childrenMutants: Seq[Mutant] = tree match {
+        case node: Node =>
+          node.children.flatMap { child =>
+            child.mutate(mutators).map(mutant => mutant.copy(pattern = tree.buildWith(child, mutant.pattern)))
+          }
+        case _ => Seq.empty
+      }
       rootMutants ++ childrenMutants
     }
   }

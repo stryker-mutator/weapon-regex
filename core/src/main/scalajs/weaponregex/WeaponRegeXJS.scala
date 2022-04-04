@@ -1,13 +1,13 @@
 package weaponregex
 
 import weaponregex.extension.RegexTreeExtension.RegexTreeMutator
-import weaponregex.model.mutation._
+import weaponregex.model.mutation.*
 import weaponregex.mutator.BuiltinMutators
 import weaponregex.parser.{Parser, ParserFlavor, ParserFlavorJS}
 
 import scala.scalajs.js
-import scala.scalajs.js.JSConverters._
-import scala.scalajs.js.annotation._
+import scala.scalajs.js.JSConverters.*
+import scala.scalajs.js.annotation.*
 import scala.util.{Failure, Success}
 
 /** The API facade of Weapon regeX for JavaScript
@@ -26,12 +26,12 @@ object WeaponRegeXJS {
     *   Input regex string
     * @param options
     *   JavaScript object for Mutation options
-    * {{{
+    *   {{{
     * {
     *   mutators: [Mutators to be used for mutation],
     *   mutationLevels: [Target mutation levels. If this is `null`, the `mutators` will not be filtered],
     * }
-    * }}}
+    *   }}}
     * @return
     *   A JavaScript Array of [[weaponregex.model.mutation.Mutant]] if can be parsed, or throw an exception otherwise
     */

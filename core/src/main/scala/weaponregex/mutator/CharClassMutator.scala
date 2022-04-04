@@ -3,7 +3,7 @@ package weaponregex.mutator
 import weaponregex.extension.RegexTreeExtension.RegexTreeStringBuilder
 import weaponregex.model.Location
 import weaponregex.model.mutation.{Mutant, TokenMutator}
-import weaponregex.model.regextree._
+import weaponregex.model.regextree.*
 
 /** Negate character class
   *
@@ -34,7 +34,7 @@ object CharClassChildRemoval extends TokenMutator {
   override val levels: Seq[Int] = Seq(2, 3)
 
   override def mutate(token: RegexTree): Seq[Mutant] = {
-    def _mutate(token: RegexTree): Seq[Mutant] = token.children map (child =>
+    def _mutate(token: Node): Seq[Mutant] = token.children map (child =>
       token
         .buildWhile(_ ne child)
         .toMutantOf(
@@ -138,7 +138,7 @@ object CharClassRangeModification extends TokenMutator {
               _mutate(range, isLeft = false, isIncrease = false),
               _mutate(range, isLeft = false, isIncrease = true)
             )
-          case (l, r) =>
+          case (_, _) =>
             Seq(
               _mutate(range, isLeft = true, isIncrease = false),
               _mutate(range, isLeft = true, isIncrease = true),

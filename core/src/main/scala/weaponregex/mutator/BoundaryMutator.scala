@@ -3,7 +3,7 @@ package weaponregex.mutator
 import weaponregex.extension.RegexTreeExtension.RegexTreeStringBuilder
 import weaponregex.model.Location
 import weaponregex.model.mutation.{Mutant, TokenMutator}
-import weaponregex.model.regextree._
+import weaponregex.model.regextree.*
 
 /** Remove beginning of line character `^`
   *
@@ -17,9 +17,13 @@ object BOLRemoval extends TokenMutator {
   override def description(original: String, mutated: String, location: Location): String =
     "Remove beginning of line character `^` at " + location.pretty
 
-  override def mutate(token: RegexTree): Seq[Mutant] = token.children flatMap {
-    case child: BOL => Seq(token.buildWhile(_ ne child).toMutantOf(child))
-    case _          => Nil
+  override def mutate(token: RegexTree): Seq[Mutant] = token match {
+    case node: Node =>
+      node.children flatMap {
+        case child: BOL => Seq(token.buildWhile(_ ne child).toMutantOf(child))
+        case _          => Nil
+      }
+    case _ => Nil
   }
 }
 
@@ -35,9 +39,13 @@ object EOLRemoval extends TokenMutator {
   override def description(original: String, mutated: String, location: Location): String =
     "Remove end of line character `$` at " + location.pretty
 
-  override def mutate(token: RegexTree): Seq[Mutant] = token.children flatMap {
-    case child: EOL => Seq(token.buildWhile(_ ne child).toMutantOf(child))
-    case _          => Nil
+  override def mutate(token: RegexTree): Seq[Mutant] = token match {
+    case node: Node =>
+      node.children flatMap {
+        case child: EOL => Seq(token.buildWhile(_ ne child).toMutantOf(child))
+        case _          => Nil
+      }
+    case _ => Nil
   }
 }
 

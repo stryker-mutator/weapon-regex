@@ -1,7 +1,7 @@
 package weaponregex.extension
 
 import fastparse.internal.Util
-import weaponregex.model._
+import weaponregex.model.*
 
 object StringExtension {
   implicit class StringIndexExtension(string: String) {
