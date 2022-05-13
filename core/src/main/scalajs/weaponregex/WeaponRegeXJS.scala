@@ -36,7 +36,7 @@ object WeaponRegeXJS {
     *   A JavaScript Array of [[weaponregex.model.mutation.Mutant]] if can be parsed, or throw an exception otherwise
     */
   @JSExportTopLevel("mutate")
-  def mutate(pattern: String, options: MutationOptions = new MutationOptions()): js.Array[MutantJS] = {
+  def mutate(pattern: String, options: MutationOptions = new MutationOptions): js.Array[MutantJS] = {
     val mutators: Seq[TokenMutator] =
       if (options.hasOwnProperty("mutators") && options.mutators != null)
         options.mutators.toSeq map (_.tokenMutator)

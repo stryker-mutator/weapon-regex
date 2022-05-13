@@ -42,10 +42,10 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
 
     val intersection = parsedTree.children.head.to[CharClassIntersection]
     assertEquals(intersection.children.length, 3)
-    (subClasses zip intersection.children) foreach { case (str, child) =>
+    subClasses zip intersection.children foreach { case (str, child) =>
       assert(clue(child) match {
         case CharacterClassNaked(nodes, _) =>
-          (str zip nodes) forall {
+          str zip nodes forall {
             case (char, Character(c, _)) => c == char
             case _                       => false
           }
