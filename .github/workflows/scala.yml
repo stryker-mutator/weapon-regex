@@ -19,8 +19,8 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          distribution: adopt
-          java-version: 11
+          distribution: temurin
+          java-version: 17
       - name: Compile code
         run: sbt "compile; docs/mdoc --check"
 
@@ -32,8 +32,8 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          distribution: adopt
-          java-version: 11
+          distribution: temurin
+          java-version: 17
       - name: Check formatting
         run: sbt scalafmtCheckAll
 
@@ -50,8 +50,8 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          distribution: adopt
-          java-version: 11
+          distribution: temurin
+          java-version: 17
       - name: Test
         run: sbt test
 
@@ -63,11 +63,11 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          distribution: adopt
-          java-version: 11
+          distribution: temurin
+          java-version: 17
       - uses: actions/setup-node@v3
         with:
-          node-version: 14
+          node-version: 16
       - name: Generate JS
         run: sbt fastLinkJS
       - name: Npm setup
@@ -85,8 +85,8 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          distribution: adopt
-          java-version: 11
+          distribution: temurin
+          java-version: 17
       - name: Run stryker
         run: sbt 'project WeaponRegeX; stryker'
         env:
@@ -107,8 +107,8 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          distribution: adopt
-          java-version: 11
+          distribution: temurin
+          java-version: 17
       - run: git fetch --tags
       - name: Set NPM Env
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
