@@ -291,6 +291,11 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
     treeBuildTest(parsedTree, pattern)
   }
 
+  test("Parse non-hexadecimal value \\x{GG}") {
+    val pattern = "\\x{GG}"
+    parseErrorTest(pattern)
+  }
+
   test("Unparsable: single `{`") {
     val pattern = "{"
     parseErrorTest(pattern)
