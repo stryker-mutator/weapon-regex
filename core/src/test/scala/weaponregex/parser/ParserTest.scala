@@ -22,14 +22,16 @@ trait ParserTest {
 
   def treeBuildTest(tree: RegexTree, pattern: String): Unit = assertEquals(tree.build, pattern)
 
-  def parseErrorTest(pattern: String): Unit = {
-    val parsedTree = Parser(pattern, parserFlavor)
+  def parseErrorTest(pattern: String, flags: String): Unit = {
+    val parsedTree = Parser(pattern, flags, parserFlavor)
 
     assert(clue(parsedTree) match {
       case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
       case _                                    => false
     })
   }
+
+  def parseErrorTest(pattern: String): Unit = parseErrorTest(pattern, "")
 
   test("Parse concat of characters") {
     val pattern = "hello"
@@ -216,22 +218,6 @@ trait ParserTest {
     treeBuildTest(parsedTree, pattern)
   }
 
-  test("Parse character class with POSIX character classes") {
-    val pattern = """[\p{Alpha}\P{hello_World_0123}]"""
-    val parsedTree = Parser(pattern, parserFlavor).get.to[CharacterClass]
-
-    assert(clue(parsedTree.children.head) match {
-      case POSIXCharClass("Alpha", _, true) => true
-      case _                                => false
-    })
-    assert(clue(parsedTree.children.last) match {
-      case POSIXCharClass("hello_World_0123", _, false) => true
-      case _                                            => false
-    })
-
-    treeBuildTest(parsedTree, pattern)
-  }
-
   test("Parse character class with quotes") {
     val pattern = """[\]]"""
     val parsedTree = Parser(pattern, parserFlavor).get
@@ -342,22 +328,6 @@ trait ParserTest {
         case _                                 => false
       })
     }
-
-    treeBuildTest(parsedTree, pattern)
-  }
-
-  test("Parse POSIX character classes") {
-    val pattern = """\p{Alpha}\P{hello_World_0123}"""
-    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
-
-    assert(clue(parsedTree.children.head) match {
-      case POSIXCharClass("Alpha", _, true) => true
-      case _                                => false
-    })
-    assert(clue(parsedTree.children.last) match {
-      case POSIXCharClass("hello_World_0123", _, false) => true
-      case _                                            => false
-    })
 
     treeBuildTest(parsedTree, pattern)
   }

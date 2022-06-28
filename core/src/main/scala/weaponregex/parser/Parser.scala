@@ -12,26 +12,41 @@ import scala.util.{Failure, Success, Try}
   */
 object Parser {
 
+  /** Apply the parser to parse the given pattern and flags
+    * @param pattern
+    *   The regex pattern to be parsed
+    * @param flags
+    *   The regex flags to be used
+    * @return
+    *   A `Success` of parsed [[weaponregex.model.regextree.RegexTree]] if can be parsed, a `Failure` otherwise
+    */
+  def apply(pattern: String, flags: String, flavor: ParserFlavor): Try[RegexTree] =
+    flavor match {
+      case ParserFlavorJVM => new ParserJVM(pattern).parse
+      case ParserFlavorJS  => new ParserJS(pattern, flags).parse
+      case _               => Failure(new RuntimeException("[Error] Parser: Unsupported regex flavor"))
+    }
+
   /** Apply the parser to parse the given pattern
     * @param pattern
     *   The regex pattern to be parsed
     * @return
     *   A `Success` of parsed [[weaponregex.model.regextree.RegexTree]] if can be parsed, a `Failure` otherwise
     */
-  def apply(pattern: String, flavor: ParserFlavor = ParserFlavorJVM): Try[RegexTree] = flavor match {
-    case ParserFlavorJVM => new ParserJVM(pattern).parse
-    case ParserFlavorJS  => new ParserJS(pattern).parse
-    case _               => Failure(new RuntimeException("[Error] Parser: Unsupported regex flavor"))
-  }
+  def apply(pattern: String, flavor: ParserFlavor = ParserFlavorJVM): Try[RegexTree] = apply(pattern, "", flavor)
 }
 
 /** The based abstract parser
   * @param pattern
   *   The regex pattern to be parsed
+  * @param flags
+  *   The regex flags to be used
   * @note
   *   The parsing rules methods inside this class is created based on the defined grammar
   */
-abstract class Parser(val pattern: String) {
+abstract class Parser(val pattern: String, val flags: String) {
+
+  def this(pattern: String) = this(pattern, "")
 
   /** Regex special characters
     */
@@ -56,6 +71,12 @@ abstract class Parser(val pattern: String) {
   /** Minimum number of character class items of a valid character class
     */
   val minCharClassItem: Int
+
+  /** The escape character used with a code point
+    * @example
+    *   `\ x{h..h}` or `\ u{h..h}`
+    */
+  val codePointEscChar: String
 
   /** A higher order parser that add [[weaponregex.model.Location]] index information of the parse of the given parser
     * @param p
@@ -138,7 +159,7 @@ abstract class Parser(val pattern: String) {
     * @return
     *   [[weaponregex.model.regextree.RegexTree]] (sub)tree
     */
-  def metaCharacter[A: P]: P[RegexTree] = P(charOct | charHex | charUnicode | charHexBrace | escapeChar | controlChar)
+  def metaCharacter[A: P]: P[RegexTree] = P(charOct | charHex | charUnicode | charCodePoint | escapeChar | controlChar)
 
   /** Parse an escape meta-character
     * @return
@@ -190,15 +211,17 @@ abstract class Parser(val pattern: String) {
   def charUnicode[A: P]: P[MetaChar] = Indexed("\\u" ~ CharIn("0-9a-zA-Z").rep(exactly = 4).!)
     .map { case (loc, hexDigits) => MetaChar("u" + hexDigits, loc) }
 
-  /** Parse a character with hexadecimal value with braces `\x{h...h}` (Character.MIN_CODE_POINT <= 0xh...h <=
-    * Character.MAX_CODE_POINT)
+  /** Parse a character with a code point `\x{h...h}`, where Character.MIN_CODE_POINT <= 0xh...h <=
+    * Character.MAX_CODE_POINT and x is [[weaponregex.parser.Parser.codePointEscChar]]
     * @return
     *   [[weaponregex.model.regextree.MetaChar]] tree node
     * @example
-    *   `"\x{0123}"`
+    *   `"\ x{0123}"` or `"\ u{0123}"`
+    * @see
+    *   [[weaponregex.parser.Parser.codePointEscChar]]
     */
-  def charHexBrace[A: P]: P[MetaChar] = Indexed("""\x{""" ~ CharIn("0-9a-zA-Z").rep(1).! ~ "}")
-    .map { case (loc, hexDigits) => MetaChar("x{" + hexDigits + "}", loc) }
+  def charCodePoint[A: P]: P[MetaChar] = Indexed(s"\\$codePointEscChar{" ~ CharIn("0-9a-zA-Z").rep(1).! ~ "}")
+    .map { case (loc, hexDigits) => MetaChar(codePointEscChar + "{" + hexDigits + "}", loc) }
 
   /** Parse a character range inside a character class
     * @return

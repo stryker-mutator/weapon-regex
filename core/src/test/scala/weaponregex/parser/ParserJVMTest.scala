@@ -9,7 +9,7 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
   val charClassPredefCharClasses: String = """\d\D\h\H\s\S\v\V\w\W"""
   val charClassSpecialChars: String = "(){}.^$|?*+&"
   val escapeCharacters: String = """\\\t\n\r\f\a\e"""
-  val hexCharacters: String = "\\x20\\u0020\\x{000020}"
+  val hexCharacters: String = "\\x20\\x{000020}\\u0020"
   val octCharacters: String = """\01\012\0123"""
   val predefCharClasses: String = "." + charClassPredefCharClasses
 
@@ -114,6 +114,38 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
       "[a&&&&a]"
     )
     patterns foreach parseErrorTest
+  }
+
+  test("Parse character class with POSIX character classes") {
+    val pattern = """[\p{Alpha}\P{hello_World_0123}]"""
+    val parsedTree = Parser(pattern, parserFlavor).get.to[CharacterClass]
+
+    assert(clue(parsedTree.children.head) match {
+      case POSIXCharClass("Alpha", _, true) => true
+      case _                                => false
+    })
+    assert(clue(parsedTree.children.last) match {
+      case POSIXCharClass("hello_World_0123", _, false) => true
+      case _                                            => false
+    })
+
+    treeBuildTest(parsedTree, pattern)
+  }
+
+  test("Parse POSIX character classes") {
+    val pattern = """\p{Alpha}\P{hello_World_0123}"""
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
+
+    assert(clue(parsedTree.children.head) match {
+      case POSIXCharClass("Alpha", _, true) => true
+      case _                                => false
+    })
+    assert(clue(parsedTree.children.last) match {
+      case POSIXCharClass("hello_World_0123", _, false) => true
+      case _                                            => false
+    })
+
+    treeBuildTest(parsedTree, pattern)
   }
 
   test("Parse flag toggle group i-i") {

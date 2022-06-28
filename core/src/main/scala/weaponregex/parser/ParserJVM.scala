@@ -39,6 +39,12 @@ class ParserJVM private[parser] (pattern: String) extends Parser(pattern) {
     */
   override val minCharClassItem: Int = 1
 
+  /** The escape character used with a code point
+    * @example
+    *   `\ x{h..h}` or `\ u{h..h}`
+    */
+  override val codePointEscChar: String = "x"
+
   /** Parse a character with octal value `\0n`, `\0nn`, `\0mnn` (0 <= m <= 3, 0 <= n <= 7)
     *
     * @return
