@@ -62,6 +62,24 @@ class ParserJSTest extends munit.FunSuite with ParserTest {
     treeBuildTest(parsedTree, pattern)
   }
 
+  test("Parse non-hexadecimal value `\\xGG`") {
+    val pattern = "\\xGG"
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
+
+    assertEquals(parsedTree.children.length, 3)
+
+    treeBuildTest(parsedTree, pattern)
+  }
+
+  test("Parse non-unicode value `\\uGGGG`") {
+    val pattern = "\\uGGGG"
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
+
+    assertEquals(parsedTree.children.length, 5)
+
+    treeBuildTest(parsedTree, pattern)
+  }
+
   test("Parse `\\u20` as character quotation without the Unicode flag") {
     val pattern = "\\u20"
     val parsedTree = Parser(pattern, "", parserFlavor).get.to[Concat]
@@ -93,18 +111,6 @@ class ParserJSTest extends munit.FunSuite with ParserTest {
     assert(clue(parsedTree) match {
       case Quantifier(QuoteChar('x', _), 20, 20, _, GreedyQuantifier, true) => true
       case _                                                                => false
-    })
-
-    treeBuildTest(parsedTree, pattern)
-  }
-
-  test("Parse `\\u20` as a character quotation without the Unicode flag") {
-    val pattern = "\\u20"
-    val parsedTree = Parser(pattern, "", parserFlavor).get.to[Concat]
-
-    assert(clue(parsedTree.children.head) match {
-      case QuoteChar('u', _) => true
-      case _                 => false
     })
 
     treeBuildTest(parsedTree, pattern)
@@ -304,7 +310,7 @@ class ParserJSTest extends munit.FunSuite with ParserTest {
       "{1,}",
       "{1,2}"
     )
-    patterns map parseErrorTest
+    patterns.foreach(parseErrorTest(_))
   }
 
   test("Parse `{`") {

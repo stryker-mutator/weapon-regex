@@ -22,7 +22,7 @@ trait ParserTest {
 
   def treeBuildTest(tree: RegexTree, pattern: String): Unit = assertEquals(tree.build, pattern)
 
-  def parseErrorTest(pattern: String, flags: String): Unit = {
+  def parseErrorTest(pattern: String, flags: String = ""): Unit = {
     val parsedTree = Parser(pattern, flags, parserFlavor)
 
     assert(clue(parsedTree) match {
@@ -30,8 +30,6 @@ trait ParserTest {
       case _                                    => false
     })
   }
-
-  def parseErrorTest(pattern: String): Unit = parseErrorTest(pattern, "")
 
   test("Parse concat of characters") {
     val pattern = "hello"

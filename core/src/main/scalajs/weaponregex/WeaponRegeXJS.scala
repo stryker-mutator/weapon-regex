@@ -73,6 +73,7 @@ object WeaponRegeXJS {
     * @return
     *   A JavaScript Array of [[weaponregex.model.mutation.Mutant]] if can be parsed, or throw an exception otherwise
     */
+  @deprecated("Use `mutate(pattern, flags, options)` instead. This will be removed in the future.", "0.7.x")
   @JSExportTopLevel("mutate")
   def mutate(pattern: String, options: MutationOptions = new MutationOptions): js.Array[MutantJS] =
     mutate(pattern, "", options)

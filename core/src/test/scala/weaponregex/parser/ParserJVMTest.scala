@@ -113,7 +113,16 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
       "[a&&&&]",
       "[a&&&&a]"
     )
-    patterns foreach parseErrorTest
+    patterns.foreach(parseErrorTest(_))
+  }
+
+  test("Unparsable: non-hexadecimal values") {
+    val patterns = Seq(
+      "\\xGG",
+      "\\x{GG}",
+      "\\uGGGG"
+    )
+    patterns.foreach(parseErrorTest(_))
   }
 
   test("Parse character class with POSIX character classes") {

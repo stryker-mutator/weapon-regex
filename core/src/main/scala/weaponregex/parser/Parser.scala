@@ -159,7 +159,9 @@ abstract class Parser(val pattern: String, val flags: String) {
     * @return
     *   [[weaponregex.model.regextree.RegexTree]] (sub)tree
     */
-  def metaCharacter[A: P]: P[RegexTree] = P(charOct | charHex | charUnicode | charCodePoint | escapeChar | controlChar)
+  def metaCharacter[A: P]: P[RegexTree] = P(
+    charOct | charHex | charUnicode | charCodePoint | hexEscCharConsumer | escapeChar | controlChar
+  )
 
   /** Parse an escape meta-character
     * @return
@@ -193,13 +195,21 @@ abstract class Parser(val pattern: String, val flags: String) {
     */
   def charOct[A: P]: P[MetaChar]
 
+  /** Parse a single hexadecimal digit
+    * @return
+    *   the parsed hexadecimal digit as a `String`
+    * @example
+    *   `"F"`
+    */
+  def hexDigit[A: P]: P[String] = P(CharIn("0-9a-fA-F").!)
+
   /** Parse a character with hexadecimal value `\xhh`
     * @return
     *   [[weaponregex.model.regextree.MetaChar]] tree node
     * @example
     *   `"\x01"`
     */
-  def charHex[A: P]: P[MetaChar] = Indexed("""\x""" ~ CharIn("0-9a-zA-Z").rep(exactly = 2).!)
+  def charHex[A: P]: P[MetaChar] = Indexed("""\x""" ~ hexDigit.rep(exactly = 2).!)
     .map { case (loc, hexDigits) => MetaChar("x" + hexDigits, loc) }
 
   /** Parse a unicode character `\ uhhhh`
@@ -208,7 +218,7 @@ abstract class Parser(val pattern: String, val flags: String) {
     * @example
     *   `"\ u0020"`
     */
-  def charUnicode[A: P]: P[MetaChar] = Indexed("\\u" ~ CharIn("0-9a-zA-Z").rep(exactly = 4).!)
+  def charUnicode[A: P]: P[MetaChar] = Indexed("\\u" ~ hexDigit.rep(exactly = 4).!)
     .map { case (loc, hexDigits) => MetaChar("u" + hexDigits, loc) }
 
   /** Parse a character with a code point `\x{h...h}`, where Character.MIN_CODE_POINT <= 0xh...h <=
@@ -220,8 +230,18 @@ abstract class Parser(val pattern: String, val flags: String) {
     * @see
     *   [[weaponregex.parser.Parser.codePointEscChar]]
     */
-  def charCodePoint[A: P]: P[MetaChar] = Indexed(s"\\$codePointEscChar{" ~ CharIn("0-9a-zA-Z").rep(1).! ~ "}")
-    .map { case (loc, hexDigits) => MetaChar(codePointEscChar + "{" + hexDigits + "}", loc) }
+  def charCodePoint[A: P]: P[MetaChar] = Indexed(s"\\$codePointEscChar" ~ ("{" ~ hexDigit.rep(1) ~ "}").!)
+    .map { case (loc, tail) => MetaChar(codePointEscChar + tail, loc) }
+
+  /** Used to consume a hexadecimal escape character `\ x` or `\ u` when all other hex related cases are checked and
+    * failed to prevent back tracking.
+    * @return
+    *   a `null` dummy
+    */
+  def hexEscCharConsumer[A: P]: P[RegexTree] = {
+    P("\\" ~ CharIn("xu"))./
+    null
+  }
 
   /** Parse a character range inside a character class
     * @return
