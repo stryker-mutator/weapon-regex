@@ -60,9 +60,9 @@ lazy val WeaponRegeX = projectMatrix
         .withESFeatures(ESFeatures.Defaults.withESVersion(ESVersion.ES2020))),
       scalacOptions += scalaJSSourceUri.value,
       genDev := writePackageJson(packageJsonDev.value),
-      packageJsonDev := genPackage(fastOptJS).value,
+      packageJsonDev := genPackage("fastopt").value,
       genProd := writePackageJson(packageJsonProd.value),
-      packageJsonProd := genPackage(fullOptJS).value
+      packageJsonProd := genPackage("opt").value
     )
   )
 
@@ -95,13 +95,13 @@ lazy val packageJsonProd = settingKey[String]("package.json for release")
 
 def writePackageJson(pkg: String) = IO.write(file("package.json"), pkg)
 
-def genPackage(main: TaskKey[Attributed[File]]) = Def.setting {
+def genPackage(opt: String) = Def.setting {
   s"""{
      |  "name": "${name.value}",
      |  "type": "module",
      |  "version": "${version.value}",
      |  "description": "${description.value}",
-     |  "main": "${(Compile / main / artifactPath).value.relativeTo(file(".")).get}",
+     |  "main": "${(target.value / s"${name.value}-${opt}" / "main.js").relativeTo(file(".")).get}",
      |  "repository": {
      |    "type": "git",
      |    "url": "${homepage.value.get}"

@@ -2,7 +2,7 @@ import scala.sys.process.Process
 
 commands ++= List(
   Command.command("WeaponRegeXPublishSigned")(
-    "fullLinkJS" :: "+publishSigned" :: "WeaponRegeXJS/genProd" :: "publishNpmLatest" :: _
+    "fullLinkJS" :: "+publishSigned" :: "writePackageJson" :: "publishNpmLatest" :: _
   )
 )
 

@@ -1,7 +1,7 @@
 import {
   mutate,
   mutators,
-} from '../../core/target/js-2.13/weapon-regex-fastopt.js';
+} from '../../core/target/js-2.13/weapon-regex-fastopt/main.js';
 import assert from 'assert';
 
 describe('Weapon regeX', () => {
