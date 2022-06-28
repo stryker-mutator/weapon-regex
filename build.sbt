@@ -1,3 +1,5 @@
+import org.scalajs.linker.interface.{ESFeatures, ESVersion}
+
 // Skip publish root
 publish / skip := true
 
@@ -8,7 +10,7 @@ inThisBuild(
   List(
     organization := "io.stryker-mutator",
     homepage := Some(url("https://github.com/stryker-mutator/weapon-regex")),
-    licenses := List("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
+    licenses := List(License.Apache2),
     developers := List(
       Developer(
         id = "nhat",
@@ -54,8 +56,13 @@ lazy val WeaponRegeX = projectMatrix
     scalaVersions = List(Scala213, Scala212),
     settings = Seq(
       // Add JS-specific settings here
-      scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule)),
-      scalacOptions += scalaJSSourceUri.value
+      scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.ESModule)
+        .withESFeatures(ESFeatures.Defaults.withESVersion(ESVersion.ES2020))),
+      scalacOptions += scalaJSSourceUri.value,
+      genDev := writePackageJson(packageJsonDev.value),
+      packageJsonDev := genPackage(fastOptJS).value,
+      genProd := writePackageJson(packageJsonProd.value),
+      packageJsonProd := genPackage(fullOptJS).value
     )
   )
 
@@ -80,3 +87,34 @@ lazy val docs = projectMatrix
   )
   .jvmPlatform(scalaVersions = List(Scala213))
   .enablePlugins(MdocPlugin)
+
+lazy val genDev = taskKey[Unit]("generate package.json for dev")
+lazy val genProd = taskKey[Unit]("generate package.json for release")
+lazy val packageJsonDev = settingKey[String]("package.json for dev")
+lazy val packageJsonProd = settingKey[String]("package.json for release")
+
+def writePackageJson(pkg: String) = IO.write(file("package.json"), pkg)
+
+def genPackage(main: TaskKey[Attributed[File]]) = Def.setting {
+  s"""{
+     |  "name": "${name.value}",
+     |  "type": "module",
+     |  "version": "${version.value}",
+     |  "description": "${description.value}",
+     |  "main": "${(Compile / main / artifactPath).value.relativeTo(file(".")).get}",
+     |  "repository": {
+     |    "type": "git",
+     |    "url": "${homepage.value.get}"
+     |  },
+     |  "keywords": [
+     |    "regex",
+     |    "regexp",
+     |    "regular expression",
+     |    "mutate",
+     |    "mutation",
+     |    "mutator"
+     |  ],
+     |  "license": "${licenses.value.head._1}"
+     |}
+     |""".stripMargin,
+}
