@@ -178,7 +178,7 @@ abstract class Parser(val pattern: String) {
     * @example
     *   `"\x01"`
     */
-  def charHex[A: P]: P[MetaChar] = Indexed("""\x""" ~ CharIn("0-9a-zA-Z").rep(exactly = 2).!)
+  def charHex[A: P]: P[MetaChar] = Indexed("""\x""" ~ CharIn("0-9a-fA-F").rep(exactly = 2).!)
     .map { case (loc, hexDigits) => MetaChar("x" + hexDigits, loc) }
 
   /** Parse a unicode character `\ uhhhh`
@@ -187,7 +187,7 @@ abstract class Parser(val pattern: String) {
     * @example
     *   `"\ u0020"`
     */
-  def charUnicode[A: P]: P[MetaChar] = Indexed("\\u" ~ CharIn("0-9a-zA-Z").rep(exactly = 4).!)
+  def charUnicode[A: P]: P[MetaChar] = Indexed("\\u" ~ CharIn("0-9a-fA-F").rep(exactly = 4).!)
     .map { case (loc, hexDigits) => MetaChar("u" + hexDigits, loc) }
 
   /** Parse a character with hexadecimal value with braces `\x{h...h}` (Character.MIN_CODE_POINT <= 0xh...h <=
@@ -197,7 +197,7 @@ abstract class Parser(val pattern: String) {
     * @example
     *   `"\x{0123}"`
     */
-  def charHexBrace[A: P]: P[MetaChar] = Indexed("""\x{""" ~ CharIn("0-9a-zA-Z").rep(1).! ~ "}")
+  def charHexBrace[A: P]: P[MetaChar] = Indexed("""\x{""" ~ CharIn("0-9a-fA-F").rep(1).! ~ "}")
     .map { case (loc, hexDigits) => MetaChar("x{" + hexDigits + "}", loc) }
 
   /** Parse a character range inside a character class
