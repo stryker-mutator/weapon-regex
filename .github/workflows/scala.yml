@@ -69,7 +69,7 @@ jobs:
         with:
           node-version: 16
       - name: Generate JS
-        run: sbt "fastLinkJS; genDev"
+        run: sbt fastLinkJS
       - name: Npm setup
         run: npm ci
         working-directory: node

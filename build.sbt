@@ -9,6 +9,7 @@ val Scala213 = "2.13.8"
 inThisBuild(
   List(
     organization := "io.stryker-mutator",
+    description := "Weapon regeX mutates regular expressions for use in mutation testing.",
     homepage := Some(url("https://github.com/stryker-mutator/weapon-regex")),
     licenses := List(License.Apache2),
     developers := List(
@@ -58,11 +59,7 @@ lazy val WeaponRegeX = projectMatrix
       // Add JS-specific settings here
       scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.ESModule)
         .withESFeatures(ESFeatures.Defaults.withESVersion(ESVersion.ES2020))),
-      scalacOptions += scalaJSSourceUri.value,
-      genDev := writePackageJson(packageJsonDev.value),
-      packageJsonDev := genPackage("fastopt").value,
-      genProd := writePackageJson(packageJsonProd.value),
-      packageJsonProd := genPackage("opt").value
+      scalacOptions += scalaJSSourceUri.value
     )
   )
 
@@ -87,34 +84,3 @@ lazy val docs = projectMatrix
   )
   .jvmPlatform(scalaVersions = List(Scala213))
   .enablePlugins(MdocPlugin)
-
-lazy val genDev = taskKey[Unit]("generate package.json for dev")
-lazy val genProd = taskKey[Unit]("generate package.json for release")
-lazy val packageJsonDev = settingKey[String]("package.json for dev")
-lazy val packageJsonProd = settingKey[String]("package.json for release")
-
-def writePackageJson(pkg: String) = IO.write(file("package.json"), pkg)
-
-def genPackage(opt: String) = Def.setting {
-  s"""{
-     |  "name": "${name.value}",
-     |  "type": "module",
-     |  "version": "${version.value}",
-     |  "description": "${description.value}",
-     |  "main": "${(target.value / s"${name.value}-${opt}" / "main.js").relativeTo(file(".")).get}",
-     |  "repository": {
-     |    "type": "git",
-     |    "url": "${homepage.value.get}"
-     |  },
-     |  "keywords": [
-     |    "regex",
-     |    "regexp",
-     |    "regular expression",
-     |    "mutate",
-     |    "mutation",
-     |    "mutator"
-     |  ],
-     |  "license": "${licenses.value.head._1}"
-     |}
-     |""".stripMargin,
-}

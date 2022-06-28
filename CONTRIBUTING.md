@@ -34,7 +34,7 @@ sbt scalafmt
 ### JS integration tests
 To run the JS integration tests you first need to generate a new JS version of Weapon regeX with the following command:
 ```
-sbt "fastLinkJS; genDev"
+sbt fastLinkJS
 ```
 Then, change directory to the `node` directory and run the test with these commands:
 ```
