@@ -7,8 +7,17 @@ export interface Position {
   column: number;
 }
 
-export const ParserFlavorJS: object;
-export const ParserFlavorJVM: object;
+// Classes with markers so the union type works properly
+class ParserFlavorJSClass {
+  private __marker: 'js';
+}
+class ParserFlavorJVMClass {
+  private __marker: 'jvm';
+}
+
+export const ParserFlavorJS: ParserFlavorJSClass;
+export const ParserFlavorJVM: ParserFlavorJVMClass;
+
 export type ParserFlavor = typeof ParserFlavorJS | typeof ParserFlavorJVM;
 
 export interface TokenMutator {
