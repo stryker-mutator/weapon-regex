@@ -672,6 +672,24 @@ trait ParserTest {
     parseErrorTest(pattern)
   }
 
+  test("Parse non-hexadecimal value \\xGG") {
+    val pattern = "\\xGG"
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
+
+    assertEquals(parsedTree.children.length, 3)
+
+    treeBuildTest(parsedTree, pattern)
+  }
+
+  test("Parse non-unicode value \\uGGGG") {
+    val pattern = "\\uGGGG"
+    val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
+
+    assertEquals(parsedTree.children.length, 5)
+
+    treeBuildTest(parsedTree, pattern)
+  }
+
   implicit class RegexTreeCastExtension(tree: RegexTree) {
     def to[T <: RegexTree](implicit ct: ClassTag[T], loc: Location): T = tree match {
       case t: T => t
