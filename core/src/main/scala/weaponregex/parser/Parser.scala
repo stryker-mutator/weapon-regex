@@ -22,9 +22,12 @@ object Parser {
     */
   def apply(pattern: String, flags: String, flavor: ParserFlavor): Try[RegexTree] =
     flavor match {
-      case ParserFlavorJVM => new ParserJVM(pattern).parse
-      case ParserFlavorJS  => new ParserJS(pattern, flags).parse
-      case _               => Failure(new RuntimeException("[Error] Parser: Unsupported regex flavor"))
+      case ParserFlavorJVM =>
+        if (flags.nonEmpty)
+          println("[Warning] Parser: JVM regex flavor does not support string flags. Flags will be ignored.")
+        new ParserJVM(pattern).parse
+      case ParserFlavorJS => new ParserJS(pattern, flags).parse
+      case _              => Failure(new RuntimeException("[Error] Parser: Unsupported regex flavor"))
     }
 
   /** Apply the parser to parse the given pattern
@@ -39,14 +42,10 @@ object Parser {
 /** The based abstract parser
   * @param pattern
   *   The regex pattern to be parsed
-  * @param flags
-  *   The regex flags to be used
   * @note
   *   The parsing rules methods inside this class is created based on the defined grammar
   */
-abstract class Parser(val pattern: String, val flags: String) {
-
-  def this(pattern: String) = this(pattern, "")
+abstract class Parser(val pattern: String) {
 
   /** Regex special characters
     */

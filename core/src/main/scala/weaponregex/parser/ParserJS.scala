@@ -14,9 +14,12 @@ import weaponregex.model.regextree.*
   *   object
   * @see
   *   [[https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions/Cheatsheet]]
+  * @see
+  *   [[https://tc39.es/ecma262/multipage/text-processing.html#sec-patterns]]
   */
-class ParserJS private[parser] (pattern: String, flags: String) extends Parser(pattern, flags) {
+class ParserJS private[parser] (pattern: String, val flags: String) extends Parser(pattern) {
 
+  /** Whether the flags contain the `u` flag for Unicode mode */
   private val unicodeMode: Boolean = flags.contains("u")
 
   /** Concrete parser for JS flavor of regex
