@@ -125,6 +125,11 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
     patterns.foreach(parseErrorTest(_))
   }
 
+  test("Unparsable: out-of-range code point hexadecimal values") {
+    val pattern = "\\x{110000}" // 10FFFF + 1
+    parseErrorTest(pattern)
+  }
+
   test("Parse character class with POSIX character classes") {
     val pattern = """[\p{Alpha}\P{hello_World_0123}]"""
     val parsedTree = Parser(pattern, parserFlavor).get.to[CharacterClass]

@@ -62,7 +62,7 @@ class ParserJSTest extends munit.FunSuite with ParserTest {
     treeBuildTest(parsedTree, pattern)
   }
 
-  test("Parse non-hexadecimal value `\\xGG`") {
+  test("Parse non-hexadecimal value `\\xGG`  without the Unicode flag") {
     val pattern = "\\xGG"
     val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
 
@@ -71,7 +71,7 @@ class ParserJSTest extends munit.FunSuite with ParserTest {
     treeBuildTest(parsedTree, pattern)
   }
 
-  test("Parse non-unicode value `\\uGGGG`") {
+  test("Parse non-unicode value `\\uGGGG` without the Unicode flag") {
     val pattern = "\\uGGGG"
     val parsedTree = Parser(pattern, parserFlavor).get.to[Concat]
 
@@ -116,6 +116,18 @@ class ParserJSTest extends munit.FunSuite with ParserTest {
     treeBuildTest(parsedTree, pattern)
   }
 
+  test("Parse `\\u{FFFFFF}` as character quotation without the Unicode flag") {
+    val pattern = "\\u{FFFFFF}"
+    val parsedTree = Parser(pattern, "", parserFlavor).get.to[Concat]
+
+    assert(clue(parsedTree.children.head) match {
+      case QuoteChar('u', _) => true
+      case _                 => false
+    })
+
+    treeBuildTest(parsedTree, pattern)
+  }
+
   test("Parse `\\u{20}` as Unicode character with the Unicode flag") {
     val pattern = "\\u{20}"
     val parsedTree = Parser(pattern, "u", parserFlavor).get.to[MetaChar]
@@ -132,6 +144,11 @@ class ParserJSTest extends munit.FunSuite with ParserTest {
 
   test("Unparsable: `\\u20` with the Unicode flag") {
     val pattern = "\\u20"
+    parseErrorTest(pattern, "u")
+  }
+
+  test("Unparsable: out-of-range code point hexadecimal values with the Unicode flag") {
+    val pattern = "\\u{110000}" // 10FFFF + 1
     parseErrorTest(pattern, "u")
   }
 

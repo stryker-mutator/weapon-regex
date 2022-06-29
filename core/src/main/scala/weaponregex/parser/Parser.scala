@@ -230,8 +230,15 @@ abstract class Parser(val pattern: String, val flags: String) {
     * @see
     *   [[weaponregex.parser.Parser.codePointEscChar]]
     */
-  def charCodePoint[A: P]: P[MetaChar] = Indexed(s"\\$codePointEscChar" ~ ("{" ~ hexDigit.rep(1) ~ "}").!)
-    .map { case (loc, tail) => MetaChar(codePointEscChar + tail, loc) }
+  def charCodePoint[A: P]: P[MetaChar] =
+    Indexed(s"\\$codePointEscChar" ~ "{" ~ hexDigit.rep(1).! ~ "}")
+      .map {
+        case (loc, hexDigits) if java.lang.Character.isValidCodePoint(Integer.parseInt(hexDigits, 16)) =>
+          MetaChar(s"$codePointEscChar{$hexDigits}", loc)
+        case _ =>
+          Fail
+          null
+      }
 
   /** Used to consume a hexadecimal escape character `\ x` or `\ u` when all other hex related cases are checked and
     * failed to prevent back tracking.
