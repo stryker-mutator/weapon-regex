@@ -2,6 +2,7 @@ package weaponregex.parser
 
 import fastparse.*
 import NoWhitespace.*
+import weaponregex.constant.ErrorMessage
 import weaponregex.model.*
 import weaponregex.model.regextree.*
 import weaponregex.extension.StringExtension.StringIndexExtension
@@ -23,11 +24,10 @@ object Parser {
   def apply(pattern: String, flags: String, flavor: ParserFlavor): Try[RegexTree] =
     flavor match {
       case ParserFlavorJVM =>
-        if (flags.nonEmpty)
-          println("[Warning] Parser: JVM regex flavor does not support string flags. Flags will be ignored.")
-        new ParserJVM(pattern).parse
+        if (flags.nonEmpty) Failure(new RuntimeException(ErrorMessage.jvmWithStringFlags))
+        else new ParserJVM(pattern).parse
       case ParserFlavorJS => new ParserJS(pattern, flags).parse
-      case _              => Failure(new RuntimeException("[Error] Parser: Unsupported regex flavor"))
+      case _              => Failure(new RuntimeException(ErrorMessage.unsupportedFlavor))
     }
 
   /** Apply the parser to parse the given pattern
@@ -632,6 +632,6 @@ abstract class Parser(val pattern: String) {
     */
   def parse: Try[RegexTree] = fastparse.parse(pattern, entry(_)) match {
     case Parsed.Success(regexTree: RegexTree, _) => Success(regexTree)
-    case f: Parsed.Failure                       => Failure(new RuntimeException("[Error] Parser: " + f.msg))
+    case f: Parsed.Failure => Failure(new RuntimeException(ErrorMessage.parserErrorHeader + f.msg))
   }
 }

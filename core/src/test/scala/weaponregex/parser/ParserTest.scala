@@ -1,6 +1,7 @@
 package weaponregex.parser
 
 import munit.Location
+import weaponregex.constant.ErrorMessage
 import weaponregex.extension.RegexTreeExtension.RegexTreeStringBuilder
 import weaponregex.model.regextree.*
 
@@ -26,7 +27,7 @@ trait ParserTest {
     val parsedTree = Parser(pattern, flags, parserFlavor)
 
     assert(clue(parsedTree) match {
-      case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
+      case Failure(exception: RuntimeException) => exception.getMessage.startsWith(ErrorMessage.parserErrorHeader)
       case _                                    => false
     })
   }
