@@ -344,6 +344,6 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
 
   test("Unparsable: JVM flavor with String flags") {
     val pattern = "abc"
-    parseErrorTest(pattern, "u")
+    parseErrorTest(pattern, Some("u"))
   }
 }

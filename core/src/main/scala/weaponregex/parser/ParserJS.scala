@@ -17,7 +17,7 @@ import weaponregex.model.regextree.*
   * @see
   *   [[https://tc39.es/ecma262/multipage/text-processing.html#sec-patterns]]
   */
-class ParserJS private[parser] (pattern: String, val flags: String = "") extends Parser(pattern) {
+class ParserJS private[parser] (pattern: String, val flags: Option[String] = None) extends Parser(pattern) {
 
   /** Whether the flags contain the `u` flag for Unicode mode */
   private val unicodeMode: Boolean = flags.contains("u")

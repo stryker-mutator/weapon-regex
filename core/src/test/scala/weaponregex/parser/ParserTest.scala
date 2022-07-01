@@ -23,7 +23,7 @@ trait ParserTest {
 
   def treeBuildTest(tree: RegexTree, pattern: String): Unit = assertEquals(tree.build, pattern)
 
-  def parseErrorTest(pattern: String, flags: String = ""): Unit = {
+  def parseErrorTest(pattern: String, flags: Option[String] = None): Unit = {
     val parsedTree = Parser(pattern, flags, parserFlavor)
 
     assert(clue(parsedTree) match {

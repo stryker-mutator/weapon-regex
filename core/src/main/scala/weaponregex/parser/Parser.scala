@@ -21,13 +21,13 @@ object Parser {
     * @return
     *   A `Success` of parsed [[weaponregex.model.regextree.RegexTree]] if can be parsed, a `Failure` otherwise
     */
-  def apply(pattern: String, flags: String, flavor: ParserFlavor): Try[RegexTree] =
+  def apply(pattern: String, flags: Option[String], flavor: ParserFlavor): Try[RegexTree] =
     flavor match {
       case ParserFlavorJVM =>
-        if (flags.nonEmpty) Failure(new RuntimeException(ErrorMessage.jvmWithStringFlags))
+        if (flags.isDefined) Failure(new IllegalArgumentException(ErrorMessage.jvmWithStringFlags))
         else new ParserJVM(pattern).parse
       case ParserFlavorJS => new ParserJS(pattern, flags).parse
-      case _              => Failure(new RuntimeException(ErrorMessage.unsupportedFlavor))
+      case _              => Failure(new IllegalArgumentException(ErrorMessage.unsupportedFlavor))
     }
 
   /** Apply the parser to parse the given pattern
@@ -36,7 +36,7 @@ object Parser {
     * @return
     *   A `Success` of parsed [[weaponregex.model.regextree.RegexTree]] if can be parsed, a `Failure` otherwise
     */
-  def apply(pattern: String, flavor: ParserFlavor = ParserFlavorJVM): Try[RegexTree] = apply(pattern, "", flavor)
+  def apply(pattern: String, flavor: ParserFlavor = ParserFlavorJVM): Try[RegexTree] = apply(pattern, None, flavor)
 }
 
 /** The based abstract parser
