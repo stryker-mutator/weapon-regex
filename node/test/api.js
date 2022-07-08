@@ -28,6 +28,35 @@ describe('Weapon regeX', () => {
       assert.strictEqual(mutants.length, 1);
     });
 
+    it('Can mutate with JS regex flavor', () => {
+      const mutants = wrx.mutate('\\x{20}', {
+        flavor: wrx.ParserFlavorJS,
+      });
+      assert.strictEqual(mutants.length, 4);
+    });
+
+    it('Can mutate with JVM regex flavor', () => {
+      const mutants = wrx.mutate('\\x{20}', {
+        flavor: wrx.ParserFlavorJVM,
+      });
+      assert.strictEqual(mutants.length, 0);
+    });
+
+    it('Can mutate with flags', () => {
+      const mutants = wrx.mutate('\\u{20}', 'u', {});
+      assert.strictEqual(mutants.length, 0);
+    });
+
+    it('Can mutate with `undefined` as flags', () => {
+      const mutants = wrx.mutate('\\u{20}', undefined, {});
+      assert.strictEqual(mutants.length, 4);
+    });
+
+    it('Can mutate with `null` as flags', () => {
+      const mutants = wrx.mutate('\\u{20}', null, {});
+      assert.strictEqual(mutants.length, 4);
+    });
+
     it('Returns an empty array if there are no mutants', () => {
       const mutants = wrx.mutate('a');
       assert.deepStrictEqual(mutants, []);
