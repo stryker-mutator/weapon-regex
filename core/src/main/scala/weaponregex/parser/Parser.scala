@@ -221,13 +221,13 @@ abstract class Parser(val pattern: String) {
     .map { case (loc, hexDigits) => MetaChar("u" + hexDigits, loc) }
 
   /** Parse a character with a code point `\x{h...h}`, where Character.MIN_CODE_POINT <= 0xh...h <=
-    * Character.MAX_CODE_POINT and x is [[weaponregex.parser.Parser.codePointEscChar]]
+    * Character.MAX_CODE_POINT and x is [[weaponregex.parser.Parser#codePointEscChar]]
     * @return
     *   [[weaponregex.model.regextree.MetaChar]] tree node
     * @example
     *   `"\ x{0123}"` or `"\ u{0123}"`
     * @see
-    *   [[weaponregex.parser.Parser.codePointEscChar]]
+    *   [[weaponregex.parser.Parser#codePointEscChar]]
     */
   def charCodePoint[A: P]: P[MetaChar] =
     Indexed(s"\\$codePointEscChar" ~ "{" ~ hexDigit.rep(1).! ~ "}")
