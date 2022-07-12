@@ -69,7 +69,7 @@ class ParserJS private[parser] (pattern: String, val flags: Option[String] = Non
     if (unicodeMode) P(preDefinedCharClass | posixCharClass | metaCharacter | range | quoteChar | charClassCharLiteral)
     else P(preDefinedCharClass | metaCharacter | range | quoteChar | charClassCharLiteral)
 
-  /** Parse a quoted character (any character). If [[weaponregex.parser.ParserJS#unicodeMode]] is true, only the
+  /** Parse a quoted character (any character). If [[weaponregex.parser.ParserJS unicodeMode]] is true, only the
     * following characters are allowed: `^ $ \ . * + ? ( ) [ ] { } |` or `/`
     * @return
     *   [[weaponregex.model.regextree.QuoteChar]]

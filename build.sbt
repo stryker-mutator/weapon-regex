@@ -31,7 +31,8 @@ inThisBuild(
         email = "",
         url = url("https://github.com/wijtserekker")
       )
-    )
+    ),
+    versionScheme := Some(VersionScheme.SemVerSpec)
   )
 )
 

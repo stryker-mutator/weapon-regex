@@ -67,8 +67,35 @@ export interface Mutant {
  *   }}}
  * @return
  *   A JavaScript Array of [[weaponregex.model.mutation.Mutant]] if can be parsed, or throw an exception otherwise
+ * @deprecated Use `mutate(pattern, flags, options)` instead. This will be removed in the future.". @since 0.7.x
  */
-export function mutate(pattern: string, options?: MutationOptions): Mutant[];
+export function mutate(pattern: string, options: MutationOptions): Mutant[];
+
+/** Mutate using the given mutators at some specific mutation levels
+ * @param pattern
+ *   Input regex string
+ * @param flags
+ *   Regex flags or `undefined`
+ * @param options
+ *   JavaScript object for Mutation options
+ *   {{{
+ * {
+ *   mutators: [Mutators to be used for mutation],
+ *   mutationLevels: [Target mutation levels. If this is `null`, the `mutators` will not be filtered],
+ * }
+ *   }}}
+ * @return
+ *   A JavaScript Array of [[weaponregex.model.mutation.Mutant]] if can be parsed, or throw an exception otherwise
+ */
+export function mutate(pattern: string, flags: string | undefined, options: MutationOptions): Mutant[];
+
+/** Mutate using the given mutators at some specific mutation levels
+ * @param pattern
+ *   Input regex string
+ * @return
+ *   A JavaScript Array of [[weaponregex.model.mutation.Mutant]] if can be parsed, or throw an exception otherwise
+ */
+export function mutate(pattern: string): Mutant[];
 
 /** JS Map that maps from a token mutator class names to the associating token mutator
  */

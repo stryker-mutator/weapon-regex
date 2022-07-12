@@ -1,6 +1,8 @@
 import {
   mutate,
   mutators,
+  ParserFlavorJS,
+  ParserFlavorJVM,
 } from '../../core/target/js-2.13/weapon-regex-fastopt/main.js';
 import assert from 'assert';
 
@@ -32,31 +34,31 @@ describe('Weapon regeX', () => {
     });
 
     it('Can mutate with JS regex flavor', () => {
-      const mutants = wrx.mutate('\\x{20}', {
-        flavor: wrx.ParserFlavorJS,
+      const mutants = mutate('\\x{20}', {
+        flavor: ParserFlavorJS,
       });
       assert.strictEqual(mutants.length, 4);
     });
 
     it('Can mutate with JVM regex flavor', () => {
-      const mutants = wrx.mutate('\\x{20}', {
-        flavor: wrx.ParserFlavorJVM,
+      const mutants = mutate('\\x{20}', {
+        flavor: ParserFlavorJVM,
       });
       assert.strictEqual(mutants.length, 0);
     });
 
     it('Can mutate with flags', () => {
-      const mutants = wrx.mutate('\\u{20}', 'u', {});
+      const mutants = mutate('\\u{20}', 'u', {});
       assert.strictEqual(mutants.length, 0);
     });
 
     it('Can mutate with `undefined` as flags', () => {
-      const mutants = wrx.mutate('\\u{20}', undefined, {});
+      const mutants = mutate('\\u{20}', undefined, {});
       assert.strictEqual(mutants.length, 4);
     });
 
     it('Can mutate with `null` as flags', () => {
-      const mutants = wrx.mutate('\\u{20}', null, {});
+      const mutants = mutate('\\u{20}', null, {});
       assert.strictEqual(mutants.length, 4);
     });
 
