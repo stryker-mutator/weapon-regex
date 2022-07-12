@@ -1,5 +1,6 @@
 package weaponregex
 
+import weaponregex.constant.ErrorMessage
 import weaponregex.model.mutation.Mutant
 import weaponregex.mutator.BuiltinMutators
 
@@ -65,7 +66,7 @@ class WeaponRegeXTest extends munit.FunSuite {
 
     import scala.util.Failure
     assert(clue(mutations) match {
-      case Failure(exception: RuntimeException) => exception.getMessage.startsWith("[Error] Parser:")
+      case Failure(exception: RuntimeException) => exception.getMessage.startsWith(ErrorMessage.parserErrorHeader)
       case _                                    => false
     })
   }
