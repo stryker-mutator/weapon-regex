@@ -1,70 +1,75 @@
-const wrx = require('../../core/target/js-2.13/weapon-regex-fastopt/main');
-const assert = require('assert');
+import {
+  mutate,
+  mutators,
+  ParserFlavorJS,
+  ParserFlavorJVM,
+} from '../../core/target/js-2.13/weapon-regex-fastopt/main.js';
+import assert from 'assert';
 
 describe('Weapon regeX', () => {
   describe('#mutate()', () => {
     it('Can mutate without options', () => {
-      const mutants = wrx.mutate('^a');
+      const mutants = mutate('^a');
       assert.strictEqual(mutants.length, 2);
     });
 
     it('Can mutate with only mutators as option', () => {
-      const mutants = wrx.mutate('^a', {
-        mutators: Array.from(wrx.mutators.values()),
+      const mutants = mutate('^a', {
+        mutators: Array.from(mutators.values()),
       });
       assert.strictEqual(mutants.length, 2);
     });
 
     it('Can mutate with only levels as option', () => {
-      const mutants = wrx.mutate('^a', { mutationLevels: [1] });
+      const mutants = mutate('^a', { mutationLevels: [1] });
       assert.strictEqual(mutants.length, 1);
     });
 
     it('Can mutate with both levels and mutators as options', () => {
-      const mutants = wrx.mutate('^a', {
-        mutators: Array.from(wrx.mutators.values()),
+      const mutants = mutate('^a', {
+        mutators: Array.from(mutators.values()),
         mutationLevels: [1],
       });
       assert.strictEqual(mutants.length, 1);
     });
 
     it('Can mutate with JS regex flavor', () => {
-      const mutants = wrx.mutate('\\x{20}', {
-        flavor: wrx.ParserFlavorJS,
+      const mutants = mutate('\\x{20}', {
+        flavor: ParserFlavorJS,
       });
       assert.strictEqual(mutants.length, 4);
     });
 
     it('Can mutate with JVM regex flavor', () => {
-      const mutants = wrx.mutate('\\x{20}', {
-        flavor: wrx.ParserFlavorJVM,
+      const mutants = mutate('\\x{20}', {
+        flavor: ParserFlavorJVM,
       });
       assert.strictEqual(mutants.length, 0);
     });
 
     it('Can mutate with flags', () => {
-      const mutants = wrx.mutate('\\u{20}', 'u', {});
+      const mutants = mutate('\\u{20}', 'u', {});
       assert.strictEqual(mutants.length, 0);
     });
 
     it('Can mutate with `undefined` as flags', () => {
-      const mutants = wrx.mutate('\\u{20}', undefined, {});
+      const mutants = mutate('\\u{20}', undefined, {});
       assert.strictEqual(mutants.length, 4);
     });
 
     it('Can mutate with `null` as flags', () => {
-      const mutants = wrx.mutate('\\u{20}', null, {});
+      const mutants = mutate('\\u{20}', null, {});
       assert.strictEqual(mutants.length, 4);
     });
 
     it('Returns an empty array if there are no mutants', () => {
-      const mutants = wrx.mutate('a');
+      const mutants = mutate('a');
       assert.deepStrictEqual(mutants, []);
     });
 
     it('Catch an exception if the RegEx is invalid', () => {
       assert.throws(
-        () => wrx.mutate('*(a|$]'),
+        () => mutate('*(a|$]'),
         (e) => e.message.startsWith('[Error] Parser: ')
       );
     });
@@ -72,14 +77,14 @@ describe('Weapon regeX', () => {
 
   describe('Mutant', () => {
     it('Contains the replacement pattern', () => {
-      const mutants = wrx.mutate('^a', { mutationLevels: [1] });
+      const mutants = mutate('^a', { mutationLevels: [1] });
 
       assert.strictEqual(mutants.length, 1);
       assert.strictEqual(mutants[0].pattern, 'a');
     });
 
     it('Contains the mutator name', () => {
-      const mutants = wrx.mutate('^a', { mutationLevels: [1] });
+      const mutants = mutate('^a', { mutationLevels: [1] });
 
       assert.strictEqual(mutants.length, 1);
       assert.strictEqual(
@@ -89,7 +94,7 @@ describe('Weapon regeX', () => {
     });
 
     it('Contains the location of the mutation', () => {
-      const mutants = wrx.mutate('^a', { mutationLevels: [1] });
+      const mutants = mutate('^a', { mutationLevels: [1] });
 
       assert.strictEqual(mutants.length, 1);
       assert.strictEqual(mutants[0].location.start.line, 0);
@@ -99,14 +104,14 @@ describe('Weapon regeX', () => {
     });
 
     it('Contains the level of the mutator', () => {
-      const mutants = wrx.mutate('^a', { mutationLevels: [1] });
+      const mutants = mutate('^a', { mutationLevels: [1] });
 
       assert.strictEqual(mutants.length, 1);
       assert.deepStrictEqual(mutants[0].levels, [1, 2, 3]);
     });
 
     it('Contains the mutator description', () => {
-      const mutants = wrx.mutate('^a', { mutationLevels: [1] });
+      const mutants = mutate('^a', { mutationLevels: [1] });
 
       assert.strictEqual(mutants.length, 1);
       assert.strictEqual(
@@ -118,10 +123,10 @@ describe('Weapon regeX', () => {
 
   describe('mutators', () => {
     it('Is a map from String to mutator object', () => {
-      Array.from(wrx.mutators.keys()).forEach((key) => {
+      Array.from(mutators.keys()).forEach((key) => {
         assert.strictEqual(typeof key, 'string');
       });
-      Array.from(wrx.mutators.values()).forEach((value) => {
+      Array.from(mutators.values()).forEach((value) => {
         assert.strictEqual(typeof value, 'object');
         assert.strictEqual(typeof value.name, 'string');
         assert(Array.isArray(value.levels));

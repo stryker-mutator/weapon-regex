@@ -1,3 +1,5 @@
+import org.scalajs.linker.interface.{ESFeatures, ESVersion}
+
 // Skip publish root
 publish / skip := true
 
@@ -7,8 +9,9 @@ val Scala213 = "2.13.8"
 inThisBuild(
   List(
     organization := "io.stryker-mutator",
+    description := "Weapon regeX mutates regular expressions for use in mutation testing.",
     homepage := Some(url("https://github.com/stryker-mutator/weapon-regex")),
-    licenses := List("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
+    licenses := List(License.Apache2),
     developers := List(
       Developer(
         id = "nhat",
@@ -28,7 +31,8 @@ inThisBuild(
         email = "",
         url = url("https://github.com/wijtserekker")
       )
-    )
+    ),
+    versionScheme := Some(VersionScheme.SemVerSpec)
   )
 )
 
@@ -54,7 +58,8 @@ lazy val WeaponRegeX = projectMatrix
     scalaVersions = List(Scala213, Scala212),
     settings = Seq(
       // Add JS-specific settings here
-      scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule)),
+      scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.ESModule)
+        .withESFeatures(ESFeatures.Defaults.withESVersion(ESVersion.ES2020))),
       scalacOptions += scalaJSSourceUri.value
     )
   )

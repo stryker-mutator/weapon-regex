@@ -1,0 +1,19 @@
+{
+  "name": "weapon-regex",
+  "type": "module",
+  "description": "Weapon regeX mutates regular expressions for use in mutation testing.",
+  "main": "./index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stryker-mutator/weapon-regex"
+  },
+  "keywords": [
+    "regex",
+    "regexp",
+    "regular expression",
+    "mutate",
+    "mutation",
+    "mutator"
+  ],
+  "license": "Apache-2.0"
+}

@@ -31,9 +31,10 @@ writePackageJson := IO.write(file("package.json"), generatePackageJson.value)
 lazy val generatePackageJson = taskKey[String]("Generate package.json")
 generatePackageJson := s"""{
                           |  "name": "${name.value}",
+                          |  "type": "module",
                           |  "version": "${version.value}",
                           |  "description": "${description.value}",
-                          |  "main": "core/target/js-2.13/weapon-regex-opt/main.js",
+                          |  "main": "./index.js",
                           |  "repository": {
                           |    "type": "git",
                           |    "url": "${homepage.value.get}"
@@ -46,6 +47,6 @@ generatePackageJson := s"""{
                           |    "mutation",
                           |    "mutator"
                           |  ],
-                          |  "license": "Apache-2.0"
+                          |  "license": "${licenses.value.head._1}"
                           |}
                           |""".stripMargin
