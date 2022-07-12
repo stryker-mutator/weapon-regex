@@ -68,7 +68,7 @@ npm install weapon-regex
 Mutate!
 
 ```javascript
-const wrx = require('weapon-regex');
+import wrx from 'weapon-regex';
 
 let mutants = wrx.mutate('^abc(d+|[xyz])$');
 
@@ -76,6 +76,8 @@ mutants.forEach((mutant) => {
   console.log(mutant.pattern);
 });
 ```
+
+Note: as of 1.0.0 weapon-regex uses ES Modules.
 
 [![Try it!](https://img.shields.io/static/v1?label=RunKit&message=Try%20it!&color=F55FA6&logo=runkit)](https://npm.runkit.com/weapon-regex)
 
@@ -115,13 +117,12 @@ This function will return a `Success` with `Seq[Mutant]` if it can be parsed, or
 
 ## JavaScript
 
-The `mutate` function can be called with an options object to control which mutators and which parser flavor should be
-used in the mutation process:
+The `mutate` function can be called with regular expression flags and an options object to control which mutators and which parser flavor should be used in the mutation process:
 
 ```js
-const wrx = require('weapon-regex');
+import wrx from 'weapon-regex';
 
-let mutants = wrx.mutate('^abc(d+|[xyz])$', {
+let mutants = wrx.mutate('^abc(d+|[xyz])$', "u", {
   mutators: Array.from(wrx.mutators.values()),
   mutationLevels: [1, 2, 3],
   flavor: ParserFlavorJS
@@ -130,7 +131,7 @@ let mutants = wrx.mutate('^abc(d+|[xyz])$', {
 
 Both options can be omitted, and have the same functionality as the options described in the Scala
 API section. By default in JS the JS parser flavor is used. You can get a map of mutators from the `mutators` attribute of the library. It is
-a map from string (mutator name) to a mutator object.
+a `Map<string, Mutator>` from string (mutator name) to a mutator object.
 
 This function will return a JavaScript Array of `Mutant` if it can be parsed, or throw an exception otherwise.
 

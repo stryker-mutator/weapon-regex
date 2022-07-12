@@ -8,10 +8,10 @@ export interface Position {
 }
 
 // Classes with markers so the union type works properly
-class ParserFlavorJSClass {
+declare class ParserFlavorJSClass {
   private __marker: 'js';
 }
-class ParserFlavorJVMClass {
+declare class ParserFlavorJVMClass {
   private __marker: 'jvm';
 }
 
