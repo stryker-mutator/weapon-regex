@@ -17,7 +17,8 @@ object WeaponRegeX {
     * @param mutationLevels
     *   Target mutation levels. If this is `null`, the `mutators` will not be filtered.
     * @return
-    *   A `Right` of a sequence of [[weaponregex.model.mutation.Mutant]] if can be parsed, a `Left` with the error message otherwise
+    *   A `Right` of a sequence of [[weaponregex.model.mutation.Mutant]] if can be parsed, a `Left` with the error
+    *   message otherwise
     */
   def mutate(
       pattern: String,

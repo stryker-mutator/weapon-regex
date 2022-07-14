@@ -17,7 +17,8 @@ object Parser {
     * @param flags
     *   The regex flags to be used
     * @return
-    *   A `Right` of parsed [[weaponregex.model.regextree.RegexTree]] if can be parsed, a `Left` with the error message otherwise
+    *   A `Right` of parsed [[weaponregex.model.regextree.RegexTree]] if can be parsed, a `Left` with the error message
+    *   otherwise
     */
   def apply(pattern: String, flags: Option[String], flavor: ParserFlavor): Either[String, RegexTree] =
     flavor match {
@@ -32,7 +33,8 @@ object Parser {
     * @param pattern
     *   The regex pattern to be parsed
     * @return
-    *   A `Right` of parsed [[weaponregex.model.regextree.RegexTree]] if can be parsed, a `Left` with the error message otherwise
+    *   A `Right` of parsed [[weaponregex.model.regextree.RegexTree]] if can be parsed, a `Left` with the error message
+    *   otherwise
     */
   def apply(pattern: String, flavor: ParserFlavor = ParserFlavorJVM): Either[String, RegexTree] =
     apply(pattern, None, flavor)
@@ -627,7 +629,8 @@ abstract class Parser(val pattern: String) {
 
   /** Parse the given regex pattern
     * @return
-    *   A `Right` of parsed [[weaponregex.model.regextree.RegexTree]] if can be parsed, a `Left` with the error message otherwise
+    *   A `Right` of parsed [[weaponregex.model.regextree.RegexTree]] if can be parsed, a `Left` with the error message
+    *   otherwise
     */
   def parse: Either[String, RegexTree] = fastparse.parse(pattern, entry(_)) match {
     case Parsed.Success(regexTree: RegexTree, _) => Right(regexTree)
