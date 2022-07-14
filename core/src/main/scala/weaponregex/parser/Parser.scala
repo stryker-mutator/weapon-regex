@@ -7,8 +7,6 @@ import weaponregex.model.*
 import weaponregex.model.regextree.*
 import weaponregex.extension.StringExtension.StringIndexExtension
 
-import scala.util.{Failure, Success, Try}
-
 /** Companion object for [[weaponregex.parser.Parser]] class that instantiates flavor-specific parsers instances
   */
 object Parser {
@@ -19,24 +17,25 @@ object Parser {
     * @param flags
     *   The regex flags to be used
     * @return
-    *   A `Success` of parsed [[weaponregex.model.regextree.RegexTree]] if can be parsed, a `Failure` otherwise
+    *   A `Right` of parsed [[weaponregex.model.regextree.RegexTree]] if can be parsed, a `Left` with the error message otherwise
     */
-  def apply(pattern: String, flags: Option[String], flavor: ParserFlavor): Try[RegexTree] =
+  def apply(pattern: String, flags: Option[String], flavor: ParserFlavor): Either[String, RegexTree] =
     flavor match {
       case ParserFlavorJVM =>
-        if (flags.isDefined) Failure(new IllegalArgumentException(ErrorMessage.jvmWithStringFlags))
+        if (flags.isDefined) Left(ErrorMessage.jvmWithStringFlags)
         else new ParserJVM(pattern).parse
       case ParserFlavorJS => new ParserJS(pattern, flags).parse
-      case _              => Failure(new IllegalArgumentException(ErrorMessage.unsupportedFlavor))
+      case _              => Left(ErrorMessage.unsupportedFlavor)
     }
 
   /** Apply the parser to parse the given pattern
     * @param pattern
     *   The regex pattern to be parsed
     * @return
-    *   A `Success` of parsed [[weaponregex.model.regextree.RegexTree]] if can be parsed, a `Failure` otherwise
+    *   A `Right` of parsed [[weaponregex.model.regextree.RegexTree]] if can be parsed, a `Left` with the error message otherwise
     */
-  def apply(pattern: String, flavor: ParserFlavor = ParserFlavorJVM): Try[RegexTree] = apply(pattern, None, flavor)
+  def apply(pattern: String, flavor: ParserFlavor = ParserFlavorJVM): Either[String, RegexTree] =
+    apply(pattern, None, flavor)
 }
 
 /** The based abstract parser
@@ -628,10 +627,10 @@ abstract class Parser(val pattern: String) {
 
   /** Parse the given regex pattern
     * @return
-    *   A `Success` of parsed [[weaponregex.model.regextree.RegexTree]] if can be parsed, a `Failure` otherwise
+    *   A `Right` of parsed [[weaponregex.model.regextree.RegexTree]] if can be parsed, a `Left` with the error message otherwise
     */
-  def parse: Try[RegexTree] = fastparse.parse(pattern, entry(_)) match {
-    case Parsed.Success(regexTree: RegexTree, _) => Success(regexTree)
-    case f: Parsed.Failure => Failure(new RuntimeException(ErrorMessage.parserErrorHeader + f.msg))
+  def parse: Either[String, RegexTree] = fastparse.parse(pattern, entry(_)) match {
+    case Parsed.Success(regexTree: RegexTree, _) => Right(regexTree)
+    case f: Parsed.Failure                       => Left(ErrorMessage.parserErrorHeader + f.msg)
   }
 }

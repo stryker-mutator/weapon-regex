@@ -64,10 +64,9 @@ class WeaponRegeXTest extends munit.FunSuite {
   test("Returns when Parser failed") {
     val mutations = WeaponRegeX.mutate("(")
 
-    import scala.util.Failure
     assert(clue(mutations) match {
-      case Failure(exception: RuntimeException) => exception.getMessage.startsWith(ErrorMessage.parserErrorHeader)
-      case _                                    => false
+      case Left(msg) => msg.startsWith(ErrorMessage.parserErrorHeader)
+      case _         => false
     })
   }
 }

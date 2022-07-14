@@ -6,7 +6,7 @@ import weaponregex.parser.Parser
 class BoundaryMutatorTest extends munit.FunSuite {
   test("Removes BOL") {
     val pattern = "^abc^def^"
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(BOLRemoval)) map (_.pattern)
 
@@ -22,7 +22,7 @@ class BoundaryMutatorTest extends munit.FunSuite {
 
   test("Does not remove escaped BOL") {
     val pattern = "\\^abc"
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(BOLRemoval)) map (_.pattern)
     assertEquals(clue(mutants), Nil)
@@ -30,7 +30,7 @@ class BoundaryMutatorTest extends munit.FunSuite {
 
   test("Removes EOL") {
     val pattern = "$abc$def$"
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(EOLRemoval)) map (_.pattern)
 
@@ -46,7 +46,7 @@ class BoundaryMutatorTest extends munit.FunSuite {
 
   test("Does not remove escaped EOL") {
     val pattern = "abc\\$"
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(EOLRemoval)) map (_.pattern)
     assertEquals(clue(mutants), Nil)
@@ -54,7 +54,7 @@ class BoundaryMutatorTest extends munit.FunSuite {
 
   test("Changes BOL to BOI") {
     val pattern = "^abc^def^ghi\\^"
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(BOL2BOI)) map (_.pattern)
 
@@ -70,7 +70,7 @@ class BoundaryMutatorTest extends munit.FunSuite {
 
   test("Does not change escaped BOL") {
     val pattern = "\\^abc"
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(BOL2BOI)) map (_.pattern)
     assertEquals(clue(mutants), Nil)
@@ -78,7 +78,7 @@ class BoundaryMutatorTest extends munit.FunSuite {
 
   test("Changes EOL to EOI") {
     val pattern = "$abc$def$ghi\\$"
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(EOL2EOI)) map (_.pattern)
 
@@ -94,7 +94,7 @@ class BoundaryMutatorTest extends munit.FunSuite {
 
   test("Does not change escaped EOL") {
     val pattern = "abc\\$"
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(EOL2EOI)) map (_.pattern)
     assertEquals(clue(mutants), Nil)

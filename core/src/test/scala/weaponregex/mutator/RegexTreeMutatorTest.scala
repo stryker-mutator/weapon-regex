@@ -6,7 +6,8 @@ import weaponregex.parser.Parser
 
 class RegexTreeMutatorTest extends munit.FunSuite {
 
-  val tree: RegexTree = Parser("""^(a*|b+(?=c)|[[c-z]XYZ]{3,}(ABC{4}DEF{5,9}\w)\p{Alpha})$""").get
+  val tree: RegexTree =
+    Parser("""^(a*|b+(?=c)|[[c-z]XYZ]{3,}(ABC{4}DEF{5,9}\w)\p{Alpha})$""").getOrElse(fail("Failed to parse"))
 
   test("Filters mutators with level 1") {
     val levels = Seq(1)

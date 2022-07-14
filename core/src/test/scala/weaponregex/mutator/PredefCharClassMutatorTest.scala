@@ -6,7 +6,7 @@ import weaponregex.parser.Parser
 class PredefCharClassMutatorTest extends munit.FunSuite {
   test("Negates Predefined Character Class") {
     val pattern = """\w\W\d\D\s\S"""
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(PredefCharClassNegation)) map (_.pattern)
 
@@ -25,7 +25,7 @@ class PredefCharClassMutatorTest extends munit.FunSuite {
 
   test("Does not mutate (negate) similar characters") {
     val pattern = "wWdDsS"
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(PredefCharClassNegation)) map (_.pattern)
     assertEquals(clue(mutants), Nil)
@@ -33,7 +33,7 @@ class PredefCharClassMutatorTest extends munit.FunSuite {
 
   test("Nullifies Predefined Character Class") {
     val pattern = """\w\W\d\D\s\S"""
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(PredefCharClassNullification)) map (_.pattern)
 
@@ -52,7 +52,7 @@ class PredefCharClassMutatorTest extends munit.FunSuite {
 
   test("Does not mutate (nullify) similar characters") {
     val pattern = "wWdDsS"
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(PredefCharClassNullification)) map (_.pattern)
     assertEquals(clue(mutants), Nil)
@@ -60,7 +60,7 @@ class PredefCharClassMutatorTest extends munit.FunSuite {
 
   test("Changes Predefined Character Class to Any Char") {
     val pattern = """\w\W\d\D\s\S"""
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(PredefCharClassAnyChar)) map (_.pattern)
 
@@ -79,7 +79,7 @@ class PredefCharClassMutatorTest extends munit.FunSuite {
 
   test("Does not mutate (change) similar characters") {
     val pattern = "wWdDsS"
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(PredefCharClassAnyChar)) map (_.pattern)
     assertEquals(clue(mutants), Nil)
@@ -87,7 +87,7 @@ class PredefCharClassMutatorTest extends munit.FunSuite {
 
   test("Negates POSIX Character Class") {
     val pattern = """\p{Alpha}\P{Alpha}"""
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(POSIXCharClassNegation)) map (_.pattern)
 

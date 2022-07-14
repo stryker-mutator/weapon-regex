@@ -6,7 +6,7 @@ import weaponregex.parser.Parser
 class QuantifierMutatorTest extends munit.FunSuite {
   test("Removes greedy quantifier") {
     val pattern = "a?b*c+d{1}e{1,}f{1,2}g"
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(QuantifierRemoval)) map (_.pattern)
 
@@ -25,7 +25,7 @@ class QuantifierMutatorTest extends munit.FunSuite {
 
   test("Does not remove escaped greedy quantifiers") {
     val pattern = """a\?b\*c\+d\{1\}e\{1,\}f\{1,2\}g"""
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(QuantifierRemoval)) map (_.pattern)
     assertEquals(clue(mutants), Nil)
@@ -33,7 +33,7 @@ class QuantifierMutatorTest extends munit.FunSuite {
 
   test("Removes reluctant quantifier") {
     val pattern = "a??b*?c+?d{1}?e{1,}?f{1,2}?g"
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(QuantifierRemoval)) map (_.pattern)
 
@@ -52,7 +52,7 @@ class QuantifierMutatorTest extends munit.FunSuite {
 
   test("Does not remove escaped greedy quantifiers") {
     val pattern = """a\?\?b\*\?c\+\?d\{1\}\?e\{1,\}\?f\{1,2\}\?g"""
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(QuantifierRemoval)) map (_.pattern)
     assertEquals(clue(mutants), Nil)
@@ -60,7 +60,7 @@ class QuantifierMutatorTest extends munit.FunSuite {
 
   test("Removes possessive quantifier") {
     val pattern = "a?+b*+c++d{1}+e{1,}+f{1,2}+"
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(QuantifierRemoval)) map (_.pattern)
 
@@ -79,7 +79,7 @@ class QuantifierMutatorTest extends munit.FunSuite {
 
   test("Does not remove escaped possessive quantifiers") {
     val pattern = """a\?\+b\*\+c\+\+d\{1\}\+e\{1,\}\+f\{1,2\}\+g"""
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(QuantifierRemoval)) map (_.pattern)
     assertEquals(clue(mutants), Nil)
@@ -87,7 +87,7 @@ class QuantifierMutatorTest extends munit.FunSuite {
 
   test("Changes quantifier {n}") {
     val pattern = "a{1}"
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(QuantifierNChange)) map (_.pattern)
 
@@ -102,7 +102,7 @@ class QuantifierMutatorTest extends munit.FunSuite {
 
   test("Modifies quantifier {n,}") {
     val pattern = "a{0,}b{1,}"
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(QuantifierNOrMoreModification)) map (_.pattern)
 
@@ -118,7 +118,7 @@ class QuantifierMutatorTest extends munit.FunSuite {
 
   test("QuantifierNOrMoreModification Does not mutate quantifier {n} and {n,m}") {
     val pattern = "a{3}b{4,9}"
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(QuantifierNOrMoreModification)) map (_.pattern)
 
@@ -127,7 +127,7 @@ class QuantifierMutatorTest extends munit.FunSuite {
 
   test("Changes quantifier {n,}") {
     val pattern = "a{1,}"
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(QuantifierNOrMoreChange)) map (_.pattern)
 
@@ -139,7 +139,7 @@ class QuantifierMutatorTest extends munit.FunSuite {
 
   test("QuantifierNOrMoreChange Does not mutate quantifier {n} and {n,m}") {
     val pattern = "a{3}b{4,9}"
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(QuantifierNOrMoreChange)) map (_.pattern)
 
@@ -148,7 +148,7 @@ class QuantifierMutatorTest extends munit.FunSuite {
 
   test("Modifies quantifier {n,m}") {
     val pattern = "a{0,0}b{0,1}c{1,2}"
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(QuantifierNMModification)) map (_.pattern)
 
@@ -169,7 +169,7 @@ class QuantifierMutatorTest extends munit.FunSuite {
 
   test("QuantifierNMModification Does not mutate quantifier {n} and {n,}") {
     val pattern = "a{3}b{4,}"
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(QuantifierNMModification)) map (_.pattern)
 
@@ -178,7 +178,7 @@ class QuantifierMutatorTest extends munit.FunSuite {
 
   test("Modifies short quantifier") {
     val pattern = "a?b*c+"
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(QuantifierShortModification)) map (_.pattern)
 
@@ -197,7 +197,7 @@ class QuantifierMutatorTest extends munit.FunSuite {
 
   test("Changes short quantifier") {
     val pattern = "a*b+"
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(QuantifierShortChange)) map (_.pattern)
 
@@ -212,7 +212,7 @@ class QuantifierMutatorTest extends munit.FunSuite {
 
   test("Adds reluctant to greedy quantifier") {
     val pattern = "a?b*c+d{1}e{1,}f{1,2}"
-    val parsedTree = Parser(pattern).get
+    val parsedTree = Parser(pattern).getOrElse(fail("Failed to parse"))
 
     val mutants: Seq[String] = parsedTree.mutate(Seq(QuantifierReluctantAddition)) map (_.pattern)
 
