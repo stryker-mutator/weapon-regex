@@ -54,11 +54,10 @@ class WeaponRegeXTest extends munit.FunSuite {
     assertEquals(mutations, Nil)
   }
 
-  test("Returns an empty sequence if the regex is invalid") {
-    val mutations = WeaponRegeX.mutate("*(a|$]").fold(fail(_), identity)
+  test("Returns a Left with error message if the regex is invalid") {
+    val mutations = WeaponRegeX.mutate("*(a|$]")
 
-    assert(mutations.isInstanceOf[Seq[Mutant]])
-    assertEquals(mutations, Nil)
+    assertEquals(mutations, Left("[Error] Parser: Position 1:1, found \"*(a|$]\""))
   }
 
   test("Returns when Parser failed") {
