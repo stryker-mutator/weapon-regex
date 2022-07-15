@@ -1,5 +1,6 @@
 package weaponregex.parser
 
+import weaponregex.extension.EitherExtension.LeftStringEitherTest
 import weaponregex.model.regextree.*
 
 class ParserJVMTest extends munit.FunSuite with ParserTest {
@@ -25,7 +26,7 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
 
   test("Parse character class with nested character classes") {
     val pattern = "[[a-z][^A-Z0-9][01234]]"
-    val parsedTree = Parser(pattern, parserFlavor).fold(fail(_), identity).to[CharacterClass]
+    val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[CharacterClass]
 
     parsedTree.children foreach (child => assert(child.isInstanceOf[CharacterClass], clue = parsedTree.children))
 
@@ -35,7 +36,7 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
   test("Parse character class with simple intersection") {
     val subClasses = Seq("abc", "def", "ghi")
     val pattern = subClasses.mkString("[", "&&", "]")
-    val parsedTree = Parser(pattern, parserFlavor).fold(fail(_), identity).to[Node]
+    val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Node]
 
     assert(clue(parsedTree).isInstanceOf[CharacterClass])
     assertEquals(parsedTree.children.length, 1)
@@ -58,7 +59,7 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
 
   test("Parse character class with complex intersection") {
     val pattern = """[a-z&&&[a&&b]]"""
-    val parsedTree = Parser(pattern, parserFlavor).fold(fail(_), identity)
+    val parsedTree = Parser(pattern, parserFlavor).getOrFail
 
     assert(clue(parsedTree) match {
       case CharacterClass(
@@ -132,7 +133,7 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
 
   test("Parse character class with POSIX character classes") {
     val pattern = """[\p{Alpha}\P{hello_World_0123}]"""
-    val parsedTree = Parser(pattern, parserFlavor).fold(fail(_), identity).to[CharacterClass]
+    val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[CharacterClass]
 
     assert(clue(parsedTree.children.head) match {
       case POSIXCharClass("Alpha", _, true) => true
@@ -148,7 +149,7 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
 
   test("Parse POSIX character classes") {
     val pattern = """\p{Alpha}\P{hello_World_0123}"""
-    val parsedTree = Parser(pattern, parserFlavor).fold(fail(_), identity).to[Concat]
+    val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Concat]
 
     assert(clue(parsedTree.children.head) match {
       case POSIXCharClass("Alpha", _, true) => true
@@ -164,7 +165,7 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
 
   test("Parse flag toggle group i-i") {
     val pattern = "(?idmsuxU-idmsuxU)"
-    val parsedTree = Parser(pattern, parserFlavor).fold(fail(_), identity)
+    val parsedTree = Parser(pattern, parserFlavor).getOrFail
 
     assert(clue(parsedTree) match {
       case FlagToggleGroup(FlagToggle(onFlags, true, offFlags, _), _) =>
@@ -177,7 +178,7 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
 
   test("Parse flag toggle group i-") {
     val pattern = "(?idmsuxU-)"
-    val parsedTree = Parser(pattern, parserFlavor).fold(fail(_), identity)
+    val parsedTree = Parser(pattern, parserFlavor).getOrFail
 
     assert(clue(parsedTree) match {
       case FlagToggleGroup(FlagToggle(onFlags, true, offFlags, _), _) =>
@@ -190,7 +191,7 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
 
   test("Parse flag toggle group -i") {
     val pattern = "(?-idmsuxU)"
-    val parsedTree = Parser(pattern, parserFlavor).fold(fail(_), identity)
+    val parsedTree = Parser(pattern, parserFlavor).getOrFail
 
     assert(clue(parsedTree) match {
       case FlagToggleGroup(FlagToggle(onFlags, true, offFlags, _), _) =>
@@ -203,7 +204,7 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
 
   test("Parse flag toggle group -") {
     val pattern = "(?-)"
-    val parsedTree = Parser(pattern, parserFlavor).fold(fail(_), identity)
+    val parsedTree = Parser(pattern, parserFlavor).getOrFail
 
     assert(clue(parsedTree) match {
       case FlagToggleGroup(FlagToggle(onFlags, true, offFlags, _), _) =>
@@ -216,7 +217,7 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
 
   test("Parse flag toggle group i") {
     val pattern = "(?idmsuxU)"
-    val parsedTree = Parser(pattern, parserFlavor).fold(fail(_), identity)
+    val parsedTree = Parser(pattern, parserFlavor).getOrFail
 
     assert(clue(parsedTree) match {
       case FlagToggleGroup(FlagToggle(onFlags, false, offFlags, _), _) =>
@@ -229,7 +230,7 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
 
   test("Parse non-capturing group with flags i-i") {
     val pattern = "(?idmsux-idmsux:hello)"
-    val parsedTree = Parser(pattern, parserFlavor).fold(fail(_), identity)
+    val parsedTree = Parser(pattern, parserFlavor).getOrFail
 
     assert(clue(parsedTree) match {
       case FlagNCGroup(FlagToggle(onFlags, true, offFlags, _), _: Concat, _) =>
@@ -242,7 +243,7 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
 
   test("Parse non-capturing group with flags i-") {
     val pattern = "(?idmsux-:hello)"
-    val parsedTree = Parser(pattern, parserFlavor).fold(fail(_), identity)
+    val parsedTree = Parser(pattern, parserFlavor).getOrFail
 
     assert(clue(parsedTree) match {
       case FlagNCGroup(FlagToggle(onFlags, true, offFlags, _), _: Concat, _) =>
@@ -255,7 +256,7 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
 
   test("Parse non-capturing group with flags -i") {
     val pattern = "(?-idmsux:hello)"
-    val parsedTree = Parser(pattern, parserFlavor).fold(fail(_), identity)
+    val parsedTree = Parser(pattern, parserFlavor).getOrFail
 
     assert(clue(parsedTree) match {
       case FlagNCGroup(FlagToggle(onFlags, true, offFlags, _), _: Concat, _) =>
@@ -268,7 +269,7 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
 
   test("Parse non-capturing group with flags -") {
     val pattern = "(?-:hello)"
-    val parsedTree = Parser(pattern, parserFlavor).fold(fail(_), identity)
+    val parsedTree = Parser(pattern, parserFlavor).getOrFail
 
     assert(clue(parsedTree) match {
       case FlagNCGroup(FlagToggle(onFlags, true, offFlags, _), _: Concat, _) =>
@@ -281,7 +282,7 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
 
   test("Parse non-capturing group with flags i") {
     val pattern = "(?idmsux:hello)"
-    val parsedTree = Parser(pattern, parserFlavor).fold(fail(_), identity)
+    val parsedTree = Parser(pattern, parserFlavor).getOrFail
 
     assert(clue(parsedTree) match {
       case FlagNCGroup(FlagToggle(onFlags, false, offFlags, _), _: Concat, _) =>
@@ -294,7 +295,7 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
 
   test("Parse independent non-capturing group") {
     val pattern = "(?>hello)"
-    val parsedTree = Parser(pattern, parserFlavor).fold(fail(_), identity)
+    val parsedTree = Parser(pattern, parserFlavor).getOrFail
 
     assert(clue(parsedTree) match {
       case AtomicGroup(_: Concat, _) => true
@@ -306,7 +307,7 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
 
   test("Parse numbered reference") {
     val pattern = """\123"""
-    val parsedTree = Parser(pattern, parserFlavor).fold(fail(_), identity).to[NumberReference]
+    val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[NumberReference]
 
     assertEquals(parsedTree.num, 123)
 
@@ -315,7 +316,7 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
 
   test("Parse long quote with end") {
     val pattern = """stuff\Q$hit\Emorestuff"""
-    val parsedTree = Parser(pattern, parserFlavor).fold(fail(_), identity).to[Concat]
+    val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Concat]
 
     assert(clue(parsedTree.children(5)) match {
       case Quote("$hit", true, _) => true
@@ -327,7 +328,7 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
 
   test("Parse long quote without end") {
     val pattern = """stuff\Q$hit"""
-    val parsedTree = Parser(pattern, parserFlavor).fold(fail(_), identity).to[Concat]
+    val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Concat]
 
     assert(clue(parsedTree.children(5)) match {
       case Quote("$hit", false, _) => true
