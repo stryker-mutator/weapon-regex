@@ -57,12 +57,6 @@ class WeaponRegeXTest extends munit.FunSuite {
   test("Returns a Left with error message if the regex is invalid") {
     val mutations = WeaponRegeX.mutate("*(a|$]")
 
-    assertEquals(mutations, Left("[Error] Parser: Position 1:1, found \"*(a|$]\""))
-  }
-
-  test("Returns when Parser failed") {
-    val mutations = WeaponRegeX.mutate("(")
-
     assert(clue(mutations) match {
       case Left(msg) => msg.startsWith(ErrorMessage.parserErrorHeader)
       case _         => false
