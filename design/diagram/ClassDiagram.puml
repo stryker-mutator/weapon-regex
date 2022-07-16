@@ -71,7 +71,7 @@ package "weaponregex" {
 WeaponRegeX -- ParserObject :> use
 WeaponRegeX -- TreeMutator :> use
 class WeaponRegeX {
-    + mutate(pattern : String, mutators : Seq[TokenMutator] = BuiltinMutators.all, mutationLevels : Seq[Int] = null ) : Try[Seq[Mutant]]
+    + mutate(pattern : String, mutators : Seq[TokenMutator] = BuiltinMutators.all, mutationLevels : Seq[Int] = null ) : Either[String, Seq[Mutant]]
 }
 
 WeaponRegeXJS -l- WeaponRegeX :> wrap
@@ -178,14 +178,14 @@ abstract class Parser {
     + pattern : String
     __
     .. production rule methods ..
-    + parse() : Try[RegexTree]
+    + parse() : Either[String, RegexTree]
 }
 
 ParserObject <..> Parser : companion
 ParserObject -- ParserJVM :> create
 ParserObject -- ParserJS :> create
 class ParserObject {
-    + apply(pattern : String, flavor: ParserFlavor) : Try[RegexTree]
+    + apply(pattern : String, flags: Option[String], flavor: ParserFlavor) : Either[String, RegexTree]
 }
 
 ' ===================== TreeMutator =====================

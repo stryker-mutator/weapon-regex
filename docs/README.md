@@ -6,18 +6,18 @@
 
 <img src="images/WeaponRegeX_logo.svg" width="50%" alt="Weapon regeX Logo">
 
-Weapon regeX mutates regular expressions for use in mutation testing. It has been designed from the ground up 
+Weapon regeX mutates regular expressions for use in mutation testing. It has been designed from the ground up
 to support [Stryker Mutator](https://github.com/stryker-mutator). Weapon regeX is available for both
-JavaScript and Scala and is used in [Stryker4s](https://github.com/stryker-mutator/stryker4s) and 
-[StrykerJS](https://github.com/stryker-mutator/stryker-js) flavors of Stryker. 
+JavaScript and Scala and is used in [Stryker4s](https://github.com/stryker-mutator/stryker4s) and
+[StrykerJS](https://github.com/stryker-mutator/stryker-js) flavors of Stryker.
 The JavaScript version of the library is generated from Scala using [Scala.js](https://www.scala-js.org/).
 The generated mutant regular expressions cover human errors, such as edge cases and typos. A list of provided mutators is given below.
 For an introduction to mutation testing, see [Stryker's website](https://stryker-mutator.io/).
 
-
 The current supported versions for Scala are: `2.12` and `2.13`.
 
 # Getting started
+
 In case you want to incorporate Weapon-regeX into your project.
 
 ## Scala
@@ -32,11 +32,10 @@ Mutate!
 
 ```scala mdoc
 import weaponregex.WeaponRegeX
-import scala.util.{Try, Success, Failure}
 
 WeaponRegeX.mutate("^abc(d+|[xyz])$") match {
-  case Success(mutants) => mutants map (_.pattern)
-  case Failure(e)       => throw e
+  case Right(mutants) => mutants map (_.pattern)
+  case Left(e)       => throw new RuntimeException(e)
 }
 ```
 
@@ -80,7 +79,7 @@ def mutate(
   mutators: Seq[TokenMutator] = BuiltinMutators.all,
   mutationLevels: Seq[Int] = null,
   flavor: ParserFlavor = ParserFlavorJVM
-): Try[Seq[Mutant]] = ???
+): Either[String, Seq[Mutant]] = ???
 
 WeaponRegeX.mutate _
 ```
@@ -92,10 +91,10 @@ depending on the `mutationLevels` argument.
 A list of `mutationLevels` can also be passed to the function. The mutators will be filtered
 based on the levels in the list. If omitted, no filtering takes place.
 
-The `flavor` argument allows setting the parser flavor that will be used to parse the pattern. 
+The `flavor` argument allows setting the parser flavor that will be used to parse the pattern.
 Currently, we support a `ParserFlavorJVM` and `ParserFlavorJS`. By default in Scala the JVM flavor is used.
 
-This function will return a `Success` with `Seq[Mutant]` if it can be parsed, or a `Failure` otherwise.
+This function will return a `Right` with `Seq[Mutant]` if it can be parsed, or a `Left` with the error message otherwise.
 
 ## JavaScript
 
@@ -104,10 +103,10 @@ The `mutate` function can be called with regular expression flags and an options
 ```js
 import wrx from 'weapon-regex';
 
-let mutants = wrx.mutate('^abc(d+|[xyz])$', "u", {
+let mutants = wrx.mutate('^abc(d+|[xyz])$', 'u', {
   mutators: Array.from(wrx.mutators.values()),
   mutationLevels: [1, 2, 3],
-  flavor: ParserFlavorJS
+  flavor: ParserFlavorJS,
 });
 ```
 
@@ -121,30 +120,30 @@ This function will return a JavaScript Array of `Mutant` if it can be parsed, or
 
 All the supported mutators and at which mutation level they appear are shown in the table below.
 
-| Name                                                            |  1  |  2  |  3  |
+| Name                                                            | 1   | 2   | 3   |
 | --------------------------------------------------------------- | --- | --- | --- |
-| [BOLRemoval](#bolremoval)                                       |  ✅  |  ✅  |  ✅  |
-| [EOLRemoval](#eolremoval)                                       |  ✅  |  ✅  |  ✅  |
-| [BOL2BOI](#bol2boi)                                             |     |  ✅  |  ✅  |
-| [EOL2EOI](#eol2eoi)                                             |     |  ✅  |  ✅  |
-| [CharClassNegation](#charclassnegation)                         |  ✅  |
-| [CharClassChildRemoval](#charclasschildremoval)                 |     |  ✅  |  ✅  |
-| [CharClassAnyChar](#charclassanychar)                           |     |  ✅  |  ✅  |
-| [CharClassRangeModification](#charclassrangemodification)       |     |     |  ✅  |
-| [PredefCharClassNegation](#predefcharclassnegation)             |  ✅  |
-| [PredefCharClassNullification](#predefcharclassnullification)   |     |  ✅  |  ✅  |
-| [PredefCharClassAnyChar](#predefcharclassanychar)               |     |  ✅  |  ✅  |
-| [POSIXCharClassNegation](#posixcharclassnegation)               |  ✅  |
-| [QuantifierRemoval](#quantifierremoval)                         |  ✅  |
-| [QuantifierNChange](#quantifiernchange)                         |     |  ✅  |  ✅  |
-| [QuantifierNOrMoreModification](#quantifiernormoremodification) |     |  ✅  |  ✅  |
-| [QuantifierNOrMoreChange](#quantifiernormorechange)             |     |  ✅  |  ✅  |
-| [QuantifierNMModification](#quantifiernmmodification)           |     |  ✅  |  ✅  |
-| [QuantifierShortModification](#quantifiershortmodification)     |     |  ✅  |  ✅  |
-| [QuantifierShortChange](#quantifiershortchange)                 |     |  ✅  |  ✅  |
-| [QuantifierReluctantAddition](#quantifierreluctantaddition)     |     |     |  ✅  |
-| [GroupToNCGroup](#grouptoncgroup)                               |     |  ✅  |  ✅  |
-| [LookaroundNegation](#lookaroundnegation)                       |  ✅  |  ✅  |  ✅  |
+| [BOLRemoval](#bolremoval)                                       | ✅  | ✅  | ✅  |
+| [EOLRemoval](#eolremoval)                                       | ✅  | ✅  | ✅  |
+| [BOL2BOI](#bol2boi)                                             |     | ✅  | ✅  |
+| [EOL2EOI](#eol2eoi)                                             |     | ✅  | ✅  |
+| [CharClassNegation](#charclassnegation)                         | ✅  |
+| [CharClassChildRemoval](#charclasschildremoval)                 |     | ✅  | ✅  |
+| [CharClassAnyChar](#charclassanychar)                           |     | ✅  | ✅  |
+| [CharClassRangeModification](#charclassrangemodification)       |     |     | ✅  |
+| [PredefCharClassNegation](#predefcharclassnegation)             | ✅  |
+| [PredefCharClassNullification](#predefcharclassnullification)   |     | ✅  | ✅  |
+| [PredefCharClassAnyChar](#predefcharclassanychar)               |     | ✅  | ✅  |
+| [POSIXCharClassNegation](#posixcharclassnegation)               | ✅  |
+| [QuantifierRemoval](#quantifierremoval)                         | ✅  |
+| [QuantifierNChange](#quantifiernchange)                         |     | ✅  | ✅  |
+| [QuantifierNOrMoreModification](#quantifiernormoremodification) |     | ✅  | ✅  |
+| [QuantifierNOrMoreChange](#quantifiernormorechange)             |     | ✅  | ✅  |
+| [QuantifierNMModification](#quantifiernmmodification)           |     | ✅  | ✅  |
+| [QuantifierShortModification](#quantifiershortmodification)     |     | ✅  | ✅  |
+| [QuantifierShortChange](#quantifiershortchange)                 |     | ✅  | ✅  |
+| [QuantifierReluctantAddition](#quantifierreluctantaddition)     |     |     | ✅  |
+| [GroupToNCGroup](#grouptoncgroup)                               |     | ✅  | ✅  |
+| [LookaroundNegation](#lookaroundnegation)                       | ✅  | ✅  | ✅  |
 
 ## Boundary Mutators
 
@@ -425,13 +424,12 @@ Change a normal group to a non-capturing group.
 
 Flips the sign of a lookaround (lookahead, lookbehind) construct.
 
-| Original    | Mutated    |
-| ----------- | ---------- |
-| `(?=abc)`   | `(?!abc)`  |
-| `(?!abc)`   | `(?=abc)`  |
-| `(?<=abc)`  | `(?<!abc)` |
-| `(?<!abc)`  | `(?<=abc)` |
-
+| Original   | Mutated    |
+| ---------- | ---------- |
+| `(?=abc)`  | `(?!abc)`  |
+| `(?!abc)`  | `(?=abc)`  |
+| `(?<=abc)` | `(?<!abc)` |
+| `(?<!abc)` | `(?<=abc)` |
 
 [Back to table 🔝](#supported-mutators)
 
