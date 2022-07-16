@@ -8,7 +8,6 @@ import weaponregex.parser.{Parser, ParserFlavor, ParserFlavorJS}
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters.*
 import scala.scalajs.js.annotation.*
-import scala.util.{Failure, Success}
 
 /** The API facade of Weapon regeX for JavaScript
   * @note
@@ -54,8 +53,8 @@ object WeaponRegeXJS {
       else ParserFlavorJS
 
     Parser(pattern, flags.toOption, flavor) match {
-      case Success(tree)                 => (tree.mutate(mutators, mutationLevels) map MutantJS).toJSArray
-      case Failure(throwable: Throwable) => throw throwable
+      case Right(tree) => (tree.mutate(mutators, mutationLevels) map MutantJS).toJSArray
+      case Left(msg)   => throw new RuntimeException(msg)
     }
   }
 
