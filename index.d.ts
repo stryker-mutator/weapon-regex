@@ -35,11 +35,11 @@ export interface MutationOptions {
 export interface Mutant {
   /** The replacement pattern
    */
-  pattern: String;
+  pattern: string;
 
   /** Name of the mutation
    */
-  name: String;
+  name: string;
 
   /** [[weaponregex.model.Location]] in the original string where the mutation occurred
    */
@@ -51,7 +51,7 @@ export interface Mutant {
 
   /** Description on the mutation
    */
-  description: String;
+  description: string;
 }
 
 /** Mutate using the given mutators at some specific mutation levels
