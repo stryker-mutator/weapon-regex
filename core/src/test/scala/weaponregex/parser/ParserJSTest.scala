@@ -131,7 +131,7 @@ class ParserJSTest extends munit.FunSuite with ParserTest {
 
   test("Parse `\\u{20}` as Unicode character with the Unicode flag") {
     val pattern = "\\u{20}"
-    val parsedTree = Parser(pattern, Some("u"), parserFlavor).getOrFail.to[MetaChar]
+    val parsedTree = Parser(pattern, Some("ug"), parserFlavor).getOrFail.to[MetaChar]
 
     assertEquals(parsedTree.metaChar, "u{20}")
 
