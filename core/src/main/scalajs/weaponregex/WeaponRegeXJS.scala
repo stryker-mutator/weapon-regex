@@ -52,7 +52,9 @@ object WeaponRegeXJS {
       if (options.hasOwnProperty("flavor") && options.flavor != null) options.flavor
       else ParserFlavorJS
 
-    Parser(pattern, flags.toOption, flavor) match {
+    val flagsOpt = flags.toOption.filterNot(_ == null).filterNot(_.isEmpty)
+
+    Parser(pattern, flagsOpt, flavor) match {
       case Right(tree) => (tree.mutate(mutators, mutationLevels) map MutantJS).toJSArray
       case Left(msg)   => throw new RuntimeException(msg)
     }
