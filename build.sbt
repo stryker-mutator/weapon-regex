@@ -1,4 +1,5 @@
 import org.scalajs.linker.interface.{ESFeatures, ESVersion}
+import _root_.io.github.davidgregory084.{DevMode, ScalacOption}
 
 // Skip publish root
 publish / skip := true
@@ -32,7 +33,11 @@ inThisBuild(
         url = url("https://github.com/wijtserekker")
       )
     ),
-    versionScheme := Some(VersionScheme.SemVerSpec)
+    versionScheme := Some(VersionScheme.SemVerSpec),
+    // Fatal warnings only in CI
+    tpolecatCiModeEnvVar := "CI",
+    tpolecatReleaseModeEnvVar := "CI_RELEASE",
+    tpolecatDefaultOptionsMode := DevMode
   )
 )
 
@@ -42,10 +47,7 @@ lazy val WeaponRegeX = projectMatrix
     name := "weapon-regex",
     libraryDependencies += "com.lihaoyi" %%% "fastparse" % "2.3.3",
     libraryDependencies += "org.scalameta" %%% "munit" % "0.7.29" % Test,
-    // Fatal warnings only in CI
-    scalacOptions --= (if (sys.env.exists { case (k, v) => k == "CI" && v == "true" }) Nil
-                       else Seq("-Xfatal-warnings")),
-    scalacOptions += "-Xsource:3"
+    tpolecatScalacOptions += ScalacOption("-Xsource:3", _.major == 2)
   )
   .jvmPlatform(
     scalaVersions = List(Scala213, Scala212),
@@ -67,7 +69,7 @@ lazy val WeaponRegeX = projectMatrix
 /** Map sourceURI to github location, taken from
   * https://github.com/typelevel/cats/blob/7ce35f50ced2ceb5747ec643333e38f0af866c1e/build.sbt#L186-L195
   */
-lazy val scalaJSSourceUri = Def.task {
+lazy val scalaJSSourceUri = Def.setting {
   val tagOrHash =
     if (isSnapshot.value) git.gitHeadCommit.value.get
     else "v" + version.value
