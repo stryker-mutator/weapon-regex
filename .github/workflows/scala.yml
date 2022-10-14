@@ -15,12 +15,12 @@ jobs:
           fetch-depth: 0
         # Fetch all tags
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      - uses: coursier/cache-action@v6.3
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: 17
+          cache: 'sbt'
       - name: Compile code
         run: sbt "compile; docs/mdoc --check"
 
@@ -28,12 +28,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: coursier/cache-action@v6.3
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: 17
+          cache: 'sbt'
       - name: Check formatting
         run: sbt scalafmtCheckAll
 
@@ -46,12 +46,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
-      - uses: coursier/cache-action@v6.3
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: 17
+          cache: 'sbt'
       - name: Test
         run: sbt test
 
@@ -59,15 +59,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: coursier/cache-action@v6.3
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: 17
+          cache: 'sbt'
       - uses: actions/setup-node@v3
         with:
           node-version: 16
+          cache: 'npm'
+          cache-dependency-path: node/package-lock.json
       - name: Generate JS
         run: sbt fastLinkJS
       - name: Npm setup
@@ -81,12 +83,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: coursier/cache-action@v6.3
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: 17
+          cache: 'sbt'
       - name: Run stryker
         run: sbt 'project WeaponRegeX; stryker'
         env:
@@ -103,12 +105,12 @@ jobs:
           fetch-depth: 0
         # Fetch all tags
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      - uses: coursier/cache-action@v6.3
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: 17
+          cache: 'sbt'
       - run: git fetch --tags
       - name: Set NPM Env
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
