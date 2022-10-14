@@ -2,6 +2,7 @@ package weaponregex.mutator
 
 import weaponregex.extension.RegexTreeExtension.RegexTreeStringBuilder
 import weaponregex.extension.StringExtension.StringStylingExtension
+import weaponregex.model.Location
 import weaponregex.model.mutation.{Mutant, TokenMutator}
 import weaponregex.model.regextree.*
 
@@ -50,6 +51,9 @@ object PredefCharClassAnyChar extends TokenMutator {
   override val levels: Seq[Int] = Seq(2, 3)
   override val description: String =
     "Add the negation of a predefined character class to match any character"
+
+  override def describeMutation(token: RegexTree, location: Location): String =
+    s"Add the negation of a predefined character class at ${location.start} to match any character"
 
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case pdcc: PredefinedCharClass =>

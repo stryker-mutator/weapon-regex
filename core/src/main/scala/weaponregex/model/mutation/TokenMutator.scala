@@ -18,6 +18,18 @@ trait TokenMutator {
     */
   def description: String
 
+  /** Provide a description for a specific mutation based on a given token and location. By default, it is the same as
+    * the description of the mutator with the addition of the start position from the given location.
+    *
+    * @param token
+    *   The token to be mutated
+    * @param location
+    *   The location of the mutation
+    * @return
+    *   A description of the mutation
+    */
+  def describeMutation(token: RegexTree, location: Location): String = s"$description at ${location.start}"
+
   /** Apply mutation to the given token
     * @param token
     *   Target token
@@ -45,10 +57,12 @@ trait TokenMutator {
       * [[weaponregex.model.Location]]
       * @param location
       *   [[weaponregex.model.Location]] of the mutation
+      * @param description
+      *   A description of the mutation. By default, it is the same as the description of the mutator.
       * @return
       *   A [[weaponregex.model.mutation.Mutant]]
       */
-    def toMutantAt(location: Location): Mutant =
+    def toMutantAt(location: Location, description: String = description): Mutant =
       Mutant(pattern, name, location, levels, description)
 
     /** Convert a mutated pattern string into a [[weaponregex.model.mutation.Mutant]] with the
@@ -58,7 +72,8 @@ trait TokenMutator {
       * @return
       *   A [[weaponregex.model.mutation.Mutant]]
       */
-    def toMutantOf(token: RegexTree): Mutant = toMutantAt(token.location)
+    def toMutantOf(token: RegexTree): Mutant =
+      toMutantAt(token.location, describeMutation(token, token.location))
 
     /** Convert a mutated pattern string into a [[weaponregex.model.mutation.Mutant]] with the
       * [[weaponregex.model.Location]] starts from the start of the provided token and ends at the start of the token's
@@ -75,7 +90,7 @@ trait TokenMutator {
         case node: Node if node.children.nonEmpty => Location(token.location.start, node.children.head.location.start)
         case _                                    => token.location
       }
-      toMutantAt(loc)
+      toMutantAt(loc, describeMutation(token, loc))
     }
 
     /** Convert a mutated pattern string into a [[weaponregex.model.mutation.Mutant]] with the
@@ -94,7 +109,7 @@ trait TokenMutator {
         case _                                    => token.location
       }
 
-      toMutantAt(loc)
+      toMutantAt(loc, describeMutation(token, loc))
     }
   }
 }

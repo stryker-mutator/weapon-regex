@@ -1,6 +1,7 @@
 package weaponregex.mutator
 
 import weaponregex.extension.RegexTreeExtension.RegexTreeStringBuilder
+import weaponregex.model.Location
 import weaponregex.model.mutation.{Mutant, TokenMutator}
 import weaponregex.model.regextree.*
 
@@ -32,6 +33,9 @@ object CharClassChildRemoval extends TokenMutator {
   override val levels: Seq[Int] = Seq(2, 3)
   override val description: String = "Remove a child from a character class"
 
+  override def describeMutation(token: RegexTree, location: Location): String =
+    s"Remove the child ${token.getClass.getSimpleName} at $location from the character class"
+
   override def mutate(token: RegexTree): Seq[Mutant] = token match {
     case cc: CharacterClass if cc.children.length > 1 =>
       cc.children map (child => cc.buildWhile(_ ne child).toMutantOf(child))
@@ -52,6 +56,9 @@ object CharClassAnyChar extends TokenMutator {
   override val levels: Seq[Int] = Seq(2, 3)
   override val description: String = "Change a character class to a [\\w\\W] that matches any character"
 
+  override def describeMutation(token: RegexTree, location: Location): String =
+    s"Change a character class at ${location.start} to a [\\w\\W] that matches any character"
+
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case cc: CharacterClass =>
       Seq(
@@ -71,6 +78,9 @@ object CharClassRangeModification extends TokenMutator {
   override val name = "Character class range modification"
   override val levels: Seq[Int] = Seq(3)
   override val description: String = "Modify the range inside a character class by increasing or decreasing once"
+
+  override def describeMutation(token: RegexTree, location: Location): String =
+    s"Modify the range inside a character class at ${location.start} by increasing or decreasing once"
 
   // [b-y] -> [a-y] or [c-y] or [b-z] or [b-x]
   // [a-y] -> [b-y] or [a-z] or [a-x]

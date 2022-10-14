@@ -1,6 +1,7 @@
 package weaponregex.mutator
 
 import weaponregex.extension.RegexTreeExtension.RegexTreeStringBuilder
+import weaponregex.model.Location
 import weaponregex.model.mutation.{Mutant, TokenMutator}
 import weaponregex.model.regextree.*
 
@@ -15,6 +16,9 @@ object QuantifierRemoval extends TokenMutator {
   override val levels: Seq[Int] = Seq(1)
   override val description: String =
     "Remove a greedy, reluctant, or possessive quantifier including `?`, `*`, `+`, and `{n,m}`"
+
+  override def describeMutation(token: RegexTree, location: Location): String =
+    s"Remove a quantifier at ${location.start}"
 
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case q: ZeroOrOne  => Seq(q.expr)
@@ -97,6 +101,9 @@ object QuantifierNMModification extends TokenMutator {
   override val description: String =
     "Modify a quantifier `{n,m}` to `{n-1,m}`, `{n+1,m}`, `{n,m-1}`, and `{n,m+1}`"
 
+  override def describeMutation(token: RegexTree, location: Location): String =
+    s"Modify a quantifier `{n,m}` at ${location.start} to `{n-1,m}`, `{n+1,m}`, `{n,m-1}`, and `{n,m+1}`"
+
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case q: Quantifier if !q.isExact && q.max != Quantifier.Infinity =>
       (q.min, q.max) match {
@@ -132,6 +139,9 @@ object QuantifierShortModification extends TokenMutator {
   override val description: String =
     "Modify a short quantifier `?`, `*`, or `+` to `{n,}`, or `{n,m}`"
 
+  override def describeMutation(token: RegexTree, location: Location): String =
+    s"Modify a short quantifier at ${location.start} to `{n,}`, or `{n,m}`"
+
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case q: ZeroOrOne =>
       Seq(
@@ -161,6 +171,9 @@ object QuantifierShortChange extends TokenMutator {
   override val levels: Seq[Int] = Seq(2, 3)
   override val description: String =
     "Change a short quantifier `*`, `+` to `{n}`"
+
+  override def describeMutation(token: RegexTree, location: Location): String =
+    s"Change a short quantifier at ${location.start} to `{n}`"
 
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case q: ZeroOrMore =>

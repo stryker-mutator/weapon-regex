@@ -1,6 +1,7 @@
 package weaponregex.mutator
 
 import weaponregex.extension.RegexTreeExtension.RegexTreeStringBuilder
+import weaponregex.model.Location
 import weaponregex.model.mutation.{Mutant, TokenMutator}
 import weaponregex.model.regextree.*
 
@@ -31,6 +32,11 @@ object LookaroundNegation extends TokenMutator {
   override val name: String = "Lookaround construct (lookahead, lookbehind) negation"
   override val levels: Seq[Int] = Seq(1, 2, 3)
   override val description: String = "Negate a lookaround construct (lookahead, lookbehind)"
+
+  override def describeMutation(token: RegexTree, location: Location): String = token match {
+    case la: Lookaround => s"Negate a ${if (la.isLookahead) "lookahead" else "lookbehind"} at ${location.start}"
+    case _              => super.describeMutation(token, location)
+  }
 
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case la: Lookaround => Seq(la.copy(isPositive = !la.isPositive))

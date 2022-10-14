@@ -116,7 +116,7 @@ describe('Weapon regeX', () => {
       assert.strictEqual(mutants.length, 1);
       assert.strictEqual(
         mutants[0].description,
-        'Remove beginning of line character `^`'
+        'Remove a beginning of line character `^` at ' + mutants[0].location.start
       );
     });
   });
