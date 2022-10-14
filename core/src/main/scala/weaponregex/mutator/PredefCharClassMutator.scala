@@ -5,16 +5,16 @@ import weaponregex.extension.StringExtension.StringStylingExtension
 import weaponregex.model.mutation.{Mutant, TokenMutator}
 import weaponregex.model.regextree.*
 
-/** Negate predefined character class
+/** Negate a predefined character class
   *
   * ''Mutation level(s):'' 1
   * @example
   *   `\d` ⟶ `\D`
   */
 object PredefCharClassNegation extends TokenMutator {
-  override val name = "Predefined Character Class Negation"
+  override val name = "Predefined character class negation"
   override val levels: Seq[Int] = Seq(1)
-  override val description: String = "Negate predefined character class"
+  override val description: String = "Negate a predefined character class"
 
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case pdcc: PredefinedCharClass => Seq(pdcc.copy(charClass = pdcc.charClass.toggleCase))
@@ -22,16 +22,16 @@ object PredefCharClassNegation extends TokenMutator {
   }) map (_.build.toMutantOf(token))
 }
 
-/** Nullify a predefined character class by removing the `\`
+/** Nullify a predefined character class by removing the escape character `\`
   *
   * ''Mutation level(s):'' 2, 3
   * @example
   *   `\d` ⟶ `d`
   */
 object PredefCharClassNullification extends TokenMutator {
-  override val name = "Predefined Character Class Nullification"
+  override val name = "Predefined character class nullification"
   override val levels: Seq[Int] = Seq(2, 3)
-  override val description: String = "Nullify a predefined character class by removing the `\\`"
+  override val description: String = """Nullify a predefined character class by removing the escape character `\`"""
 
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case pdcc: PredefinedCharClass => Seq(pdcc.charClass)
@@ -39,17 +39,17 @@ object PredefCharClassNullification extends TokenMutator {
   }) map (_.toMutantOf(token))
 }
 
-/** "Add the negation of that predefined character class to match any character `[\\w\\W]`"
+/** Add the negation of a predefined character class to match any character
   *
   * ''Mutation level(s):'' 2, 3
   * @example
   *   `\d` ⟶ `[\d\D]`
   */
 object PredefCharClassAnyChar extends TokenMutator {
-  override val name = "Predefined Character Class to character class with its negation"
+  override val name = "Predefined character class to character class with its negation"
   override val levels: Seq[Int] = Seq(2, 3)
   override val description: String =
-    "Add the negation of that predefined character class to match any character [\\w\\W]"
+    "Add the negation of a predefined character class to match any character"
 
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case pdcc: PredefinedCharClass =>
@@ -58,16 +58,16 @@ object PredefCharClassAnyChar extends TokenMutator {
   }) map (_.build.toMutantOf(token))
 }
 
-/** Negate POSIX character class
+/** Negate a POSIX character class
   *
   * ''Mutation level(s):'' 1
   * @example
   *   `\p{Alpha}` ⟶ `\P{Alpha}`
   */
 object POSIXCharClassNegation extends TokenMutator {
-  override val name = "POSIX Character Class Negation"
+  override val name = "POSIX character class negation"
   override val levels: Seq[Int] = Seq(1)
-  override val description: String = "Negate POSIX character class"
+  override val description: String = "Negate a POSIX character class"
 
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case pcc: POSIXCharClass => Seq(pcc.copy(isPositive = !pcc.isPositive))

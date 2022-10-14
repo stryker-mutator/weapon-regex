@@ -4,16 +4,16 @@ import weaponregex.extension.RegexTreeExtension.RegexTreeStringBuilder
 import weaponregex.model.mutation.{Mutant, TokenMutator}
 import weaponregex.model.regextree.*
 
-/** Negate character class
+/** Negate a character class
   *
   * ''Mutation level(s):'' 1
   * @example
   *   `[abc]` ⟶ `[^abc]`
   */
 object CharClassNegation extends TokenMutator {
-  override val name = "Character Class Negation"
+  override val name = "Character class negation"
   override val levels: Seq[Int] = Seq(1)
-  override val description: String = "Negate character class"
+  override val description: String = "Negate a character class"
 
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case cc: CharacterClass => Seq(cc.copy(isPositive = !cc.isPositive))
@@ -21,16 +21,16 @@ object CharClassNegation extends TokenMutator {
   }) map (_.build.toMutantBeforeChildrenOf(token))
 }
 
-/** Remove a child from character class
+/** Remove a child from a character class
   *
   * ''Mutation level(s):'' 2, 3
   * @example
   *   `[abc]` ⟶ `[ab]`, `[ac]`, `[bc]`
   */
 object CharClassChildRemoval extends TokenMutator {
-  override val name: String = "Remove a child from the character class"
+  override val name: String = "Character class child removal"
   override val levels: Seq[Int] = Seq(2, 3)
-  override val description: String = "Remove a child character class"
+  override val description: String = "Remove a child from a character class"
 
   override def mutate(token: RegexTree): Seq[Mutant] = token match {
     case cc: CharacterClass if cc.children.length > 1 =>
@@ -41,16 +41,16 @@ object CharClassChildRemoval extends TokenMutator {
   }
 }
 
-/** Change character class to match any character [\w\W]
+/** Change a character class to a [\w\W] that matches any character
   *
   * ''Mutation level(s):'' 2, 3
   * @example
   *   `[abc]` ⟶ `[\w\W]`
   */
 object CharClassAnyChar extends TokenMutator {
-  override val name = "Character Class to character class that parses anything"
+  override val name = "Character class to character class that parses anything"
   override val levels: Seq[Int] = Seq(2, 3)
-  override val description: String = "Change character class to match any character [\\w\\W]"
+  override val description: String = "Change a character class to a [\\w\\W] that matches any character"
 
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case cc: CharacterClass =>
@@ -61,16 +61,16 @@ object CharClassAnyChar extends TokenMutator {
   }) map (_.build.toMutantOf(token))
 }
 
-/** Modify the range inside the character class by increasing or decreasing once
+/** Modify the range inside a character class by increasing or decreasing once
   *
   * ''Mutation level(s):'' 3
   * @example
   *   `[b-y]` ⟶ `[a-y]`, `[c-y]`, `[b-x]`, `[b-z]`
   */
 object CharClassRangeModification extends TokenMutator {
-  override val name = "Modify the range inside the character class"
+  override val name = "Character class range modification"
   override val levels: Seq[Int] = Seq(3)
-  override val description: String = "Modify the range inside the character class by increasing or decreasing once"
+  override val description: String = "Modify the range inside a character class by increasing or decreasing once"
 
   // [b-y] -> [a-y] or [c-y] or [b-z] or [b-x]
   // [a-y] -> [b-y] or [a-z] or [a-x]
