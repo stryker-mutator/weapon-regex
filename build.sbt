@@ -5,7 +5,7 @@ import _root_.io.github.davidgregory084.{DevMode, ScalacOption}
 publish / skip := true
 
 val Scala212 = "2.12.16"
-val Scala213 = "2.13.8"
+val Scala213 = "2.13.10"
 
 inThisBuild(
   List(
