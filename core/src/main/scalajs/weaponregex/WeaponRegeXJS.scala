@@ -16,7 +16,8 @@ import scala.scalajs.js.annotation.*
   */
 object WeaponRegeXJS {
 
-  /** Mutate using the given mutators at some specific mutation levels
+  /** Mutate a regex pattern and flags with the given options.
+    *
     * @param pattern
     *   Input regex string
     * @param flags
@@ -25,9 +26,9 @@ object WeaponRegeXJS {
     *   JavaScript object for Mutation options
     *   {{{
     * {
-    *   mutators: [Mutators to be used for mutation]. If this is `null`, all built-in mutators will be used.
-    *   mutationLevels: [Target mutation levels. If this is `null`, the `mutators` will not be filtered],
-    *   flavor: [Regex flavor. By the default, `ParerFlavorJS` will be used],
+    *   mutators: [Mutators to be used for mutation. If this is `null`, all built-in mutators will be used.],
+    *   mutationLevels: [Target mutation levels. If this is `null`, the `mutators`, will not be filtered.],
+    *   flavor: [Regex flavor. By the default, `ParerFlavorJS` will be used.]
     * }
     *   }}}
     * @return
@@ -44,15 +45,17 @@ object WeaponRegeXJS {
     }
   }
 
-  /** Mutate using the given mutators at some specific mutation levels
+  /** Mutate a regex pattern with the given options.
+    *
     * @param pattern
     *   Input regex string
     * @param options
     *   JavaScript object for Mutation options
     *   {{{
     * {
-    *   mutators: [Mutators to be used for mutation]. If this is `null`, all built-in mutators will be used.
-    *   mutationLevels: [Target mutation levels. If this is `null`, the `mutators` will not be filtered],
+    *   mutators: [Mutators to be used for mutation. If this is `null`, all built-in mutators will be used.],
+    *   mutationLevels: [Target mutation levels. If this is `null`, the `mutators`, will not be filtered.],
+    *   flavor: [Regex flavor. By the default, `ParerFlavorJS` will be used.]
     * }
     *   }}}
     * @return
