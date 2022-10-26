@@ -7,14 +7,13 @@ import weaponregex.parser.{ParserFlavor, ParserFlavorJS}
 
 object MutationOptionsExtension {
 
-  /**
-    * The extension that converts a given [[MutationOptions]]
+  /** The extension that converts a given [[MutationOptions]]
     */
   implicit class MutationOptionsConverter(mutationOptions: MutationOptions) {
 
-    /**
-      * Convert to a Scala tuple of (mutators, mutationLevels, flavor)
-      * @return A tuple of (mutators, mutationLevels, flavor)
+    /** Convert to a Scala tuple of (mutators, mutationLevels, flavor)
+      * @return
+      *   A tuple of (mutators, mutationLevels, flavor)
       */
     def toScala: (Seq[TokenMutator], Seq[Int], ParserFlavor) = {
       val mutators: Seq[TokenMutator] =
