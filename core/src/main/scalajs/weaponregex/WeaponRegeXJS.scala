@@ -1,9 +1,10 @@
 package weaponregex
 
+import weaponregex.extension.MutationOptionsExtension.MutationOptionsConverter
 import weaponregex.extension.RegexTreeExtension.RegexTreeMutator
+import weaponregex.model.MutationOptions
 import weaponregex.model.mutation.*
-import weaponregex.mutator.BuiltinMutators
-import weaponregex.parser.{Parser, ParserFlavor, ParserFlavorJS}
+import weaponregex.parser.Parser
 
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters.*
@@ -14,11 +15,6 @@ import scala.scalajs.js.annotation.*
   *   For JavaScript use only
   */
 object WeaponRegeXJS {
-  class MutationOptions(
-      val mutators: js.Array[TokenMutatorJS] = null,
-      val mutationLevels: js.Array[Int] = null,
-      val flavor: ParserFlavor = ParserFlavorJS
-  ) extends js.Object
 
   /** Mutate using the given mutators at some specific mutation levels
     * @param pattern
@@ -29,8 +25,9 @@ object WeaponRegeXJS {
     *   JavaScript object for Mutation options
     *   {{{
     * {
-    *   mutators: [Mutators to be used for mutation],
+    *   mutators: [Mutators to be used for mutation]. If this is `null`, all built-in mutators will be used.
     *   mutationLevels: [Target mutation levels. If this is `null`, the `mutators` will not be filtered],
+    *   flavor: [Regex flavor. By the default, `ParerFlavorJS` will be used],
     * }
     *   }}}
     * @return
@@ -38,20 +35,7 @@ object WeaponRegeXJS {
     */
   @JSExportTopLevel("mutate")
   def mutate(pattern: String, flags: js.UndefOr[String], options: MutationOptions): js.Array[MutantJS] = {
-    val mutators: Seq[TokenMutator] =
-      if (options.hasOwnProperty("mutators") && options.mutators != null)
-        options.mutators.toSeq map (_.tokenMutator)
-      else BuiltinMutators.all
-
-    val mutationLevels: Seq[Int] =
-      if (options.hasOwnProperty("mutationLevels") && options.mutationLevels != null)
-        options.mutationLevels.toSeq
-      else null
-
-    val flavor: ParserFlavor =
-      if (options.hasOwnProperty("flavor") && options.flavor != null) options.flavor
-      else ParserFlavorJS
-
+    val (mutators, mutationLevels, flavor) = options.toScala
     val flagsOpt = flags.toOption.filterNot(_ == null).filterNot(_.isEmpty)
 
     Parser(pattern, flagsOpt, flavor) match {
@@ -67,7 +51,7 @@ object WeaponRegeXJS {
     *   JavaScript object for Mutation options
     *   {{{
     * {
-    *   mutators: [Mutators to be used for mutation],
+    *   mutators: [Mutators to be used for mutation]. If this is `null`, all built-in mutators will be used.
     *   mutationLevels: [Target mutation levels. If this is `null`, the `mutators` will not be filtered],
     * }
     *   }}}
