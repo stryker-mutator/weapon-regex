@@ -1,8 +1,9 @@
 package weaponregex.model.mutation
 
 import weaponregex.model.Location
-import weaponregex.model.regextree.RegexTree
-import weaponregex.model.regextree.Node
+import weaponregex.model.regextree.{Node, RegexTree}
+
+import scala.annotation.nowarn
 
 trait TokenMutator {
 
@@ -28,7 +29,7 @@ trait TokenMutator {
     * @return
     *   A description of the mutation
     */
-  def describeMutation(token: RegexTree, location: Location): String = s"$description at ${location.start}"
+  def describeMutation(@nowarn token: RegexTree, location: Location): String = s"$description at ${location.start}"
 
   /** Apply mutation to the given token
     * @param token
