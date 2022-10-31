@@ -7,7 +7,7 @@ import weaponregex.parser.{ParserFlavor, ParserFlavorJS}
 
 object MutationOptionsExtension {
 
-  /** The extension that converts a given [[MutationOptions]]
+  /** The extension that converts a given [[weaponregex.model.MutationOptions]]
     */
   implicit class MutationOptionsConverter(mutationOptions: MutationOptions) {
 
