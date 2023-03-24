@@ -45,7 +45,7 @@ lazy val WeaponRegeX = projectMatrix
   .in(file("core"))
   .settings(
     name := "weapon-regex",
-    libraryDependencies += "com.lihaoyi" %%% "fastparse" % "3.0.0",
+    libraryDependencies += "com.lihaoyi" %%% "fastparse" % "3.0.1",
     libraryDependencies += "org.scalameta" %%% "munit" % "0.7.29" % Test,
     tpolecatScalacOptions += ScalacOption("-Xsource:3", _.major == 2)
   )
