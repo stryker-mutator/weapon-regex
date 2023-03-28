@@ -80,8 +80,6 @@ def mutate(
   mutationLevels: Seq[Int] = null,
   flavor: ParserFlavor = ParserFlavorJVM
 ): Either[String, Seq[Mutant]] = ???
-
-WeaponRegeX.mutate _
 ```
 
 With the `mutators` argument you can give a select list of mutators that should be used in

@@ -97,9 +97,6 @@ def mutate(
   mutationLevels: Seq[Int] = null,
   flavor: ParserFlavor = ParserFlavorJVM
 ): Either[String, Seq[Mutant]] = ???
-
-WeaponRegeX.mutate _
-// res1: (String, Seq[TokenMutator], Seq[Int], ParserFlavor) => Either[String, Seq[Mutant]] = <function4>
 ```
 
 With the `mutators` argument you can give a select list of mutators that should be used in
