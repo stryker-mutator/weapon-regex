@@ -49,7 +49,6 @@ lazy val WeaponRegeX = projectMatrix
     libraryDependencies += "org.scalameta" %%% "munit" % "0.7.29" % Test,
     tpolecatScalacOptions += ScalacOptions.source3,
     tpolecatExcludeOptions += ScalacOptions.warnNonUnitStatement
-
   )
   .jvmPlatform(
     scalaVersions = List(Scala213, Scala212),
@@ -85,7 +84,8 @@ lazy val docs = projectMatrix
   .in(file("wr-docs"))
   .dependsOn(WeaponRegeX)
   .settings(
-    mdocOut := file(".")
+    mdocOut := file("."),
+    tpolecatExcludeOptions += ScalacOptions.warnNonUnitStatement
   )
   .jvmPlatform(scalaVersions = List(Scala213))
   .enablePlugins(MdocPlugin)
