@@ -47,7 +47,9 @@ lazy val WeaponRegeX = projectMatrix
     name := "weapon-regex",
     libraryDependencies += "com.lihaoyi" %%% "fastparse" % "2.3.3",
     libraryDependencies += "org.scalameta" %%% "munit" % "0.7.29" % Test,
-    tpolecatScalacOptions += ScalacOption("-Xsource:3", _.major == 2)
+    tpolecatScalacOptions += ScalacOptions.source3,
+    tpolecatExcludeOptions += ScalacOptions.warnNonUnitStatement
+
   )
   .jvmPlatform(
     scalaVersions = List(Scala213, Scala212),
