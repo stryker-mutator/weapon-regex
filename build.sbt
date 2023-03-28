@@ -47,7 +47,8 @@ lazy val WeaponRegeX = projectMatrix
     name := "weapon-regex",
     libraryDependencies += "com.lihaoyi" %%% "fastparse" % "3.0.0",
     libraryDependencies += "org.scalameta" %%% "munit" % "0.7.29" % Test,
-    tpolecatScalacOptions += ScalacOption("-Xsource:3", _.major == 2)
+    tpolecatScalacOptions += ScalacOptions.source3,
+    tpolecatExcludeOptions += ScalacOptions.warnNonUnitStatement
   )
   .jvmPlatform(
     scalaVersions = List(Scala213, Scala212),
@@ -83,7 +84,8 @@ lazy val docs = projectMatrix
   .in(file("wr-docs"))
   .dependsOn(WeaponRegeX)
   .settings(
-    mdocOut := file(".")
+    mdocOut := file("."),
+    tpolecatExcludeOptions += ScalacOptions.warnNonUnitStatement
   )
   .jvmPlatform(scalaVersions = List(Scala213))
   .enablePlugins(MdocPlugin)
