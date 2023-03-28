@@ -6,6 +6,7 @@ publish / skip := true
 
 val Scala212 = "2.12.17"
 val Scala213 = "2.13.10"
+val Scala3 = "3.2.2"
 
 inThisBuild(
   List(
@@ -45,20 +46,20 @@ lazy val WeaponRegeX = projectMatrix
   .in(file("core"))
   .settings(
     name := "weapon-regex",
-    libraryDependencies += "com.lihaoyi" %%% "fastparse" % "2.3.3",
+    libraryDependencies += "com.lihaoyi" %%% "fastparse" % "3.0.0",
     libraryDependencies += "org.scalameta" %%% "munit" % "0.7.29" % Test,
-    tpolecatScalacOptions += ScalacOption("-Xsource:3", _.major == 2),
-    tpolecatScalacOptions += ScalacOption("-Xlint:unused", _.major == 2)
+    tpolecatScalacOptions += ScalacOptions.source3,
+    tpolecatExcludeOptions += ScalacOptions.warnNonUnitStatement
   )
   .jvmPlatform(
-    scalaVersions = List(Scala213, Scala212),
+    scalaVersions = List(Scala3, Scala213, Scala212),
     settings = Seq(
       // Add JVM-specific settings here
       libraryDependencies += "org.scala-js" %% "scalajs-stubs" % "1.1.0" % "provided"
     )
   )
   .jsPlatform(
-    scalaVersions = List(Scala213, Scala212),
+    scalaVersions = List(Scala3, Scala213, Scala212),
     settings = Seq(
       // Add JS-specific settings here
       scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.ESModule)
@@ -84,7 +85,8 @@ lazy val docs = projectMatrix
   .in(file("wr-docs"))
   .dependsOn(WeaponRegeX)
   .settings(
-    mdocOut := file(".")
+    mdocOut := file("."),
+    tpolecatExcludeOptions += ScalacOptions.warnNonUnitStatement
   )
-  .jvmPlatform(scalaVersions = List(Scala213))
+  .jvmPlatform(scalaVersions = List(Scala3))
   .enablePlugins(MdocPlugin)

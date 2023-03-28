@@ -3,7 +3,7 @@ import {
   mutators,
   ParserFlavorJS,
   ParserFlavorJVM,
-} from '../../core/target/js-2.13/weapon-regex-fastopt/main.js';
+} from '../../core/target/js-3/weapon-regex-fastopt/main.js';
 import assert from 'assert';
 
 describe('Weapon regeX', () => {
