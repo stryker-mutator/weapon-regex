@@ -67,7 +67,7 @@ jobs:
           cache: 'sbt'
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
           cache: 'npm'
           cache-dependency-path: node/package-lock.json
       - name: Generate JS
