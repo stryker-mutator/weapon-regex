@@ -22,7 +22,7 @@ jobs:
           java-version: 17
           cache: 'sbt'
       - name: Compile code
-        run: sbt "compile; docs/mdoc --check"
+        run: sbt "compile; docs3/mdoc --check"
 
   formatting:
     runs-on: ubuntu-latest

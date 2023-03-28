@@ -40,7 +40,7 @@ object WeaponRegeXJS {
     val flagsOpt = flags.toOption.filterNot(_ == null).filterNot(_.isEmpty)
 
     Parser(pattern, flagsOpt, flavor) match {
-      case Right(tree) => (tree.mutate(mutators, mutationLevels) map MutantJS).toJSArray
+      case Right(tree) => tree.mutate(mutators, mutationLevels).map(MutantJS(_)).toJSArray
       case Left(msg)   => throw new RuntimeException(msg)
     }
   }

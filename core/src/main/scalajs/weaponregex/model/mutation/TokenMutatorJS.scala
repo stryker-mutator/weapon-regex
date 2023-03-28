@@ -43,5 +43,5 @@ case class TokenMutatorJS(tokenMutator: TokenMutator) {
     * @return
     *   Sequence of [[weaponregex.model.mutation.MutantJS]]
     */
-  def mutate(token: RegexTree): Seq[MutantJS] = tokenMutator.mutate(token) map MutantJS
+  def mutate(token: RegexTree): Seq[MutantJS] = tokenMutator.mutate(token).map(MutantJS(_))
 }

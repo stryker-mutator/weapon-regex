@@ -1,6 +1,6 @@
 **
-!core/target/js-2.13/weapon-regex-opt/main.js
-!core/target/js-2.13/weapon-regex-opt/main.js.map
+!core/target/js-3/weapon-regex-opt/main.js
+!core/target/js-3/weapon-regex-opt/main.js.map
 !package.json
 !index.js
 !index.d.ts
