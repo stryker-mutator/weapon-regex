@@ -4,7 +4,7 @@ import _root_.io.github.davidgregory084.{DevMode, ScalacOption}
 // Skip publish root
 publish / skip := true
 
-val Scala212 = "2.12.17"
+val Scala212 = "2.12.18"
 val Scala213 = "2.13.10"
 val Scala3 = "3.3.0"
 
