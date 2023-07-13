@@ -20,7 +20,7 @@ object BuiltinMutatorsJS {
     *   A JS array of [[weaponregex.model.mutation.TokenMutatorJS]]
     */
   private def toTokenMutatorJSArray(mutators: Seq[TokenMutator]): js.Array[TokenMutatorJS] =
-    (mutators map TokenMutatorJS).toJSArray
+    mutators.map(TokenMutatorJS(_)).toJSArray
 
   /** JS Array of all built-in token mutators
     */

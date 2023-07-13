@@ -14,7 +14,7 @@ The JavaScript version of the library is generated from Scala using [Scala.js](h
 The generated mutant regular expressions cover human errors, such as edge cases and typos. A list of provided mutators is given below.
 For an introduction to mutation testing, see [Stryker's website](https://stryker-mutator.io/).
 
-The current supported versions for Scala are: `2.12` and `2.13`.
+The current supported versions for Scala are: `2.12`, `2.13` and `3`.
 
 # Getting started
 
@@ -22,7 +22,7 @@ In case you want to incorporate Weapon-regeX into your project.
 
 ## Scala
 
-Add Weapon regeX to your `build.sbt` [![Maven Central](https://img.shields.io/maven-central/v/io.stryker-mutator/weapon-regex_2.13.svg?label=Maven%20Central&colorB=brightgreen)](https://search.maven.org/artifact/io.stryker-mutator/weapon-regex_2.13):
+Add Weapon regeX to your `build.sbt` [![Maven Central](https://img.shields.io/maven-central/v/io.stryker-mutator/weapon-regex_3.svg?label=Maven%20Central&colorB=brightgreen)](https://search.maven.org/artifact/io.stryker-mutator/weapon-regex_3):
 
 ```scala
 libraryDependencies += "io.stryker-mutator" %% "weapon-regex" % weaponRegexVersion
@@ -97,9 +97,6 @@ def mutate(
   mutationLevels: Seq[Int] = null,
   flavor: ParserFlavor = ParserFlavorJVM
 ): Either[String, Seq[Mutant]] = ???
-
-WeaponRegeX.mutate _
-// res1: (String, Seq[TokenMutator], Seq[Int], ParserFlavor) => Either[String, Seq[Mutant]] = <function4>
 ```
 
 With the `mutators` argument you can give a select list of mutators that should be used in

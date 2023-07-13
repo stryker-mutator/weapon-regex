@@ -26,7 +26,7 @@ object Parser {
         if (flags.isDefined) Left(ErrorMessage.jvmWithStringFlags)
         else new ParserJVM(pattern).parse
       case ParserFlavorJS => new ParserJS(pattern, flags).parse
-      case _              => Left(ErrorMessage.unsupportedFlavor)
+      case null           => Left(ErrorMessage.unsupportedFlavor)
     }
 
   /** Apply the parser to parse the given pattern

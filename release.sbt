@@ -13,7 +13,7 @@ lazy val publishNpmLatest = taskKey[Unit]("Publish to npm with latest tag")
 publishNpmLatest := runNpmPublish("latest")
 
 def runNpmPublish(tag: String): Unit = {
-  val command = Seq("npm", "publish", "--tag", tag)
+  val command = Seq("npm", "publish", "--provenance", "--tag", tag)
   val os = sys.props("os.name").toLowerCase
   val panderToWindows = os match {
     case n if n contains "windows" => Seq("cmd", "/C") ++ command
