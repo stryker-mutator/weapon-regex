@@ -98,6 +98,9 @@ jobs:
     needs: [build, formatting, test, test-js]
     if: "github.ref == 'refs/heads/main' || startsWith(github.event.ref, 'refs/tags/')"
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v3
         with:

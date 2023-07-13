@@ -447,5 +447,3 @@ Flips the sign of a lookaround (lookahead, lookbehind) construct.
 | `(?<!abc)` | `(?<=abc)` |
 
 [Back to table 🔝](#supported-mutators)
-
-_Copyright 2021 Stryker mutator team_
