@@ -46,10 +46,10 @@ lazy val WeaponRegeX = projectMatrix
   .in(file("core"))
   .settings(
     name := "weapon-regex",
-    libraryDependencies += "com.lihaoyi" %%% "fastparse" % "3.0.0",
+    libraryDependencies += "com.lihaoyi" %%% "fastparse" % "3.0.1",
     libraryDependencies += "org.scalameta" %%% "munit" % "0.7.29" % Test,
     tpolecatScalacOptions += ScalacOptions.source3,
-    tpolecatExcludeOptions += ScalacOptions.warnNonUnitStatement
+    tpolecatExcludeOptions ++= Set(ScalacOptions.warnNonUnitStatement, ScalacOptions.warnUnusedNoWarn)
   )
   .jvmPlatform(
     scalaVersions = List(Scala3, Scala213, Scala212),
