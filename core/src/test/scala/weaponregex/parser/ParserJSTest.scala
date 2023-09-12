@@ -153,33 +153,33 @@ class ParserJSTest extends munit.FunSuite with ParserTest {
     parseErrorTest(pattern, Some("u"))
   }
 
-  test("Parse character class with POSIX character classes with the Unicode flag") {
+  test("Parse character class with Unicode character classes with the Unicode flag") {
     val pattern = """[\p{Alpha}\P{hello_World_0123}]"""
     val parsedTree = Parser(pattern, Some("u"), parserFlavor).getOrFail.to[CharacterClass]
 
     assert(clue(parsedTree.children.head) match {
-      case POSIXCharClass("Alpha", _, true) => true
-      case _                                => false
+      case UnicodeCharClass("Alpha", _, true) => true
+      case _                                  => false
     })
     assert(clue(parsedTree.children.last) match {
-      case POSIXCharClass("hello_World_0123", _, false) => true
-      case _                                            => false
+      case UnicodeCharClass("hello_World_0123", _, false) => true
+      case _                                              => false
     })
 
     treeBuildTest(parsedTree, pattern)
   }
 
-  test("Parse POSIX character classes with the Unicode flag") {
+  test("Parse Unicode character classes with the Unicode flag") {
     val pattern = """\p{Alpha}\P{hello_World_0123}"""
     val parsedTree = Parser(pattern, Some("u"), parserFlavor).getOrFail.to[Concat]
 
     assert(clue(parsedTree.children.head) match {
-      case POSIXCharClass("Alpha", _, true) => true
-      case _                                => false
+      case UnicodeCharClass("Alpha", _, true) => true
+      case _                                  => false
     })
     assert(clue(parsedTree.children.last) match {
-      case POSIXCharClass("hello_World_0123", _, false) => true
-      case _                                            => false
+      case UnicodeCharClass("hello_World_0123", _, false) => true
+      case _                                              => false
     })
 
     treeBuildTest(parsedTree, pattern)

@@ -148,7 +148,7 @@ All the supported mutators and at which mutation level they appear are shown in 
 | [PredefCharClassNegation](#predefcharclassnegation)             | ✅  |
 | [PredefCharClassNullification](#predefcharclassnullification)   |     | ✅  | ✅  |
 | [PredefCharClassAnyChar](#predefcharclassanychar)               |     | ✅  | ✅  |
-| [POSIXCharClassNegation](#posixcharclassnegation)               | ✅  |
+| [UnicodeCharClassNegation](#unicodecharclassnegation)               | ✅  |
 | [QuantifierRemoval](#quantifierremoval)                         | ✅  |
 | [QuantifierNChange](#quantifiernchange)                         |     | ✅  | ✅  |
 | [QuantifierNOrMoreModification](#quantifiernormoremodification) |     | ✅  | ✅  |
@@ -298,9 +298,9 @@ negation.
 
 [Back to table 🔝](#supported-mutators)
 
-### POSIXCharClassNegation
+### UnicodeCharClassNegation
 
-Flips the sign of a POSIX character class.
+Flips the sign of a Unicode character class.
 
 | Original    | Mutated     |
 | ----------- | ----------- |

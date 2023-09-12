@@ -14,13 +14,13 @@ class PredefinedCharClassNodeTest extends munit.FunSuite {
     assertEquals(node2.build, """\W""")
   }
 
-  test("POSIXCharClass build") {
-    val node1 = POSIXCharClass("hello_World_0123", LOCATION)
+  test("UnicodeCharClass build") {
+    val node1 = UnicodeCharClass("hello_World_0123", LOCATION)
     assertEquals(node1.build, """\p{hello_World_0123}""")
   }
 
-  test("POSIXCharClass build negated") {
-    val node1 = POSIXCharClass("hello_World_0123", LOCATION, isPositive = false)
+  test("UnicodeCharClass build negated") {
+    val node1 = UnicodeCharClass("hello_World_0123", LOCATION, isPositive = false)
     assertEquals(node1.build, """\P{hello_World_0123}""")
   }
 }

@@ -283,7 +283,7 @@ abstract class Parser(val pattern: String) {
     *   [[weaponregex.model.regextree.RegexTree]] (sub)tree
     */
   def classItem[A: P]: P[RegexTree] = P(
-    charClass | preDefinedCharClass | posixCharClass | metaCharacter | range | quoteChar | charClassCharLiteral
+    charClass | preDefinedCharClass | unicodeCharClass | metaCharacter | range | quoteChar | charClassCharLiteral
   )
 
   /** Parse a character class
@@ -316,17 +316,18 @@ abstract class Parser(val pattern: String) {
     Indexed("""\""" ~ CharPred(predefCharClassChars.contains(_)).!)
       .map { case (loc, c) => PredefinedCharClass(c, loc) }
 
-  /** Parse a posix character class
+  /** Parse a unicode character class
+    *
     * @return
-    *   [[weaponregex.model.regextree.POSIXCharClass]] tree node
+    *   [[weaponregex.model.regextree.UnicodeCharClass]] tree node
     * @example
     *   `"\p{Alpha}"`
     * @note
     *   This does not check for the validity of the property inside `\p{}`
     */
-  def posixCharClass[A: P]: P[POSIXCharClass] =
+  def unicodeCharClass[A: P]: P[UnicodeCharClass] =
     Indexed("""\""" ~ CharIn("pP").! ~ "{" ~ (CharIn("a-z", "A-Z") ~ CharIn("a-z", "A-Z", "0-9", "_").rep).! ~ "}")
-      .map { case (loc, (p, property)) => POSIXCharClass(property, loc, p == "p") }
+      .map { case (loc, (p, property)) => UnicodeCharClass(property, loc, p == "p") }
 
   /** A higher order parser that add [[weaponregex.model.regextree.QuantifierType]] information of the parse of the
     * given (quantifier) parser
@@ -570,7 +571,7 @@ abstract class Parser(val pattern: String) {
     *   [[weaponregex.model.regextree.RegexTree]] (sub)tree
     */
   def elementaryRE[A: P]: P[RegexTree] = P(
-    capturing | anyDot | preDefinedCharClass | posixCharClass | boundary | charClass | reference | character | quote
+    capturing | anyDot | preDefinedCharClass | unicodeCharClass | boundary | charClass | reference | character | quote
   )
 
   /** Intermediate parsing rule which can parse either `quantifier` or `elementaryRE`

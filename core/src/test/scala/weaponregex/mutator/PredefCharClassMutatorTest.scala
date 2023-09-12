@@ -86,11 +86,11 @@ class PredefCharClassMutatorTest extends munit.FunSuite {
     assertEquals(clue(mutants), Nil)
   }
 
-  test("Negates POSIX Character Class") {
+  test("Negates Unicode Character Class") {
     val pattern = """\p{Alpha}\P{Alpha}"""
     val parsedTree = Parser(pattern).getOrFail
 
-    val mutants: Seq[String] = parsedTree.mutate(Seq(POSIXCharClassNegation)) map (_.pattern)
+    val mutants: Seq[String] = parsedTree.mutate(Seq(UnicodeCharClassNegation)) map (_.pattern)
 
     val expected: Seq[String] = Seq(
       """\P{Alpha}\P{Alpha}""",
