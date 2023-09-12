@@ -63,7 +63,7 @@ class ParserJSTest extends munit.FunSuite with ParserTest {
     treeBuildTest(parsedTree, pattern)
   }
 
-  test("Parse non-hexadecimal value `\\xGG`  without the Unicode flag") {
+  test("Parse non-hexadecimal value `\\xGG` without the Unicode flag") {
     val pattern = "\\xGG"
     val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Concat]
 
@@ -131,90 +131,108 @@ class ParserJSTest extends munit.FunSuite with ParserTest {
 
   test("Parse `\\u{20}` as Unicode character with the Unicode flag") {
     val pattern = "\\u{20}"
-    val parsedTree = Parser(pattern, Some("ug"), parserFlavor).getOrFail.to[MetaChar]
 
-    assertEquals(parsedTree.metaChar, "u{20}")
+    Seq("u", "v").foreach(flag => {
+      val parsedTree = Parser(pattern, Some(flag + "g"), parserFlavor).getOrFail.to[MetaChar]
 
-    treeBuildTest(parsedTree, pattern)
+      assertEquals(parsedTree.metaChar, "u{20}")
+
+      treeBuildTest(parsedTree, pattern)
+    })
   }
 
   test("Unparsable: `\\x{20}` with the Unicode flag") {
     val pattern = "\\x{20}"
     parseErrorTest(pattern, Some("u"))
+    parseErrorTest(pattern, Some("v"))
   }
 
   test("Unparsable: `\\u20` with the Unicode flag") {
     val pattern = "\\u20"
     parseErrorTest(pattern, Some("u"))
+    parseErrorTest(pattern, Some("v"))
   }
 
   test("Unparsable: out-of-range code point hexadecimal values with the Unicode flag") {
     val pattern = "\\u{110000}" // 10FFFF + 1
     parseErrorTest(pattern, Some("u"))
+    parseErrorTest(pattern, Some("v"))
   }
 
   test("Parse character class with Unicode character classes with lone properties, with the Unicode flag") {
     val pattern = """[\p{Alpha}\P{hello_World_0123}]"""
-    val parsedTree = Parser(pattern, Some("u"), parserFlavor).getOrFail.to[CharacterClass]
 
-    assert(clue(parsedTree.children.head) match {
-      case UnicodeCharClass("Alpha", _, true, "") => true
-      case _                                      => false
-    })
-    assert(clue(parsedTree.children.last) match {
-      case UnicodeCharClass("hello_World_0123", _, false, "") => true
-      case _                                                  => false
-    })
+    Seq("u", "v").foreach(flag => {
+      val parsedTree = Parser(pattern, Some(flag), parserFlavor).getOrFail.to[CharacterClass]
 
-    treeBuildTest(parsedTree, pattern)
+      assert(clue(parsedTree.children.head) match {
+        case UnicodeCharClass("Alpha", _, true, "") => true
+        case _                                      => false
+      })
+      assert(clue(parsedTree.children.last) match {
+        case UnicodeCharClass("hello_World_0123", _, false, "") => true
+        case _                                                  => false
+      })
+
+      treeBuildTest(parsedTree, pattern)
+    })
   }
 
   test("Parse character class with Unicode character classes with properties and values, with the Unicode flag") {
     val pattern = """[\p{Script_Extensions=Latin}\P{hello_World_0123=Goodbye_world_321}]"""
-    val parsedTree = Parser(pattern, Some("u"), parserFlavor).getOrFail.to[CharacterClass]
 
-    assert(clue(parsedTree.children.head) match {
-      case UnicodeCharClass("Script_Extensions", _, true, "Latin") => true
-      case _                                                       => false
-    })
-    assert(clue(parsedTree.children.last) match {
-      case UnicodeCharClass("hello_World_0123", _, false, "Goodbye_world_321") => true
-      case _                                                                   => false
-    })
+    Seq("u", "v").foreach(flag => {
+      val parsedTree = Parser(pattern, Some(flag), parserFlavor).getOrFail.to[CharacterClass]
 
-    treeBuildTest(parsedTree, pattern)
+      assert(clue(parsedTree.children.head) match {
+        case UnicodeCharClass("Script_Extensions", _, true, "Latin") => true
+        case _                                                       => false
+      })
+      assert(clue(parsedTree.children.last) match {
+        case UnicodeCharClass("hello_World_0123", _, false, "Goodbye_world_321") => true
+        case _                                                                   => false
+      })
+
+      treeBuildTest(parsedTree, pattern)
+    })
   }
 
   test("Parse Unicode character classes with lone properties, with the Unicode flag") {
     val pattern = """\p{Alpha}\P{hello_World_0123}"""
-    val parsedTree = Parser(pattern, Some("u"), parserFlavor).getOrFail.to[Concat]
 
-    assert(clue(parsedTree.children.head) match {
-      case UnicodeCharClass("Alpha", _, true, "") => true
-      case _                                      => false
-    })
-    assert(clue(parsedTree.children.last) match {
-      case UnicodeCharClass("hello_World_0123", _, false, "") => true
-      case _                                                  => false
-    })
+    Seq("u", "v").foreach(flag => {
+      val parsedTree = Parser(pattern, Some(flag), parserFlavor).getOrFail.to[Concat]
 
-    treeBuildTest(parsedTree, pattern)
+      assert(clue(parsedTree.children.head) match {
+        case UnicodeCharClass("Alpha", _, true, "") => true
+        case _                                      => false
+      })
+      assert(clue(parsedTree.children.last) match {
+        case UnicodeCharClass("hello_World_0123", _, false, "") => true
+        case _                                                  => false
+      })
+
+      treeBuildTest(parsedTree, pattern)
+    })
   }
 
   test("Parse Unicode character classes with properties and values, with the Unicode flag") {
     val pattern = """\p{Script_Extensions=Latin}\P{hello_World_0123=Goodbye_world_321}"""
-    val parsedTree = Parser(pattern, Some("u"), parserFlavor).getOrFail.to[Concat]
 
-    assert(clue(parsedTree.children.head) match {
-      case UnicodeCharClass("Script_Extensions", _, true, "Latin") => true
-      case _                                                       => false
-    })
-    assert(clue(parsedTree.children.last) match {
-      case UnicodeCharClass("hello_World_0123", _, false, "Goodbye_world_321") => true
-      case _                                                                   => false
-    })
+    Seq("u", "v").foreach(flag => {
+      val parsedTree = Parser(pattern, Some(flag), parserFlavor).getOrFail.to[Concat]
 
-    treeBuildTest(parsedTree, pattern)
+      assert(clue(parsedTree.children.head) match {
+        case UnicodeCharClass("Script_Extensions", _, true, "Latin") => true
+        case _                                                       => false
+      })
+      assert(clue(parsedTree.children.last) match {
+        case UnicodeCharClass("hello_World_0123", _, false, "Goodbye_world_321") => true
+        case _                                                                   => false
+      })
+
+      treeBuildTest(parsedTree, pattern)
+    })
   }
 
   test("Parse `\\p{Alpha}` as a character quotation in a character class without the Unicode flag") {
@@ -360,22 +378,26 @@ class ParserJSTest extends munit.FunSuite with ParserTest {
   test("Parse syntax characters escape with the Unicode flag") {
     val syntaxChars = """^$\.*+?()[]{}|/"""
     val pattern = "\\" + syntaxChars.mkString("\\")
-    val parsedTree = Parser(pattern, Some("u"), parserFlavor).getOrFail.to[Concat]
 
-    syntaxChars zip parsedTree.children foreach { case (char, child) =>
-      assert(clue(child) match {
-        case MetaChar(c, _)  => c.head == char
-        case QuoteChar(c, _) => c == char
-        case _               => false
-      })
-    }
+    Seq("u", "v").foreach(flag => {
+      val parsedTree = Parser(pattern, Some(flag), parserFlavor).getOrFail.to[Concat]
 
-    treeBuildTest(parsedTree, pattern)
+      syntaxChars zip parsedTree.children foreach { case (char, child) =>
+        assert(clue(child) match {
+          case MetaChar(c, _)  => c.head == char
+          case QuoteChar(c, _) => c == char
+          case _               => false
+        })
+      }
+
+      treeBuildTest(parsedTree, pattern)
+    })
   }
 
   test("Unparsable: non-syntax character escape with the Unicode flag") {
     val pattern = "\\a"
     parseErrorTest(pattern, Some("u"))
+    parseErrorTest(pattern, Some("v"))
   }
 
   test("Unparsable: long-quantifier-like with nothing preceding") {

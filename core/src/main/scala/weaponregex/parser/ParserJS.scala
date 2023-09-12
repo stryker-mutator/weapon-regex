@@ -19,8 +19,8 @@ import weaponregex.model.regextree.*
   */
 class ParserJS private[parser] (pattern: String, val flags: Option[String] = None) extends Parser(pattern) {
 
-  /** Whether the flags contain the `u` flag for Unicode mode */
-  private val unicodeMode: Boolean = flags.exists(_.contains("u"))
+  /** Whether the flags contain the `u` or `v` flag for Unicode mode */
+  private val unicodeMode: Boolean = flags.exists(f => f.contains("u") || f.contains("v"))
 
   /** Regex special characters
     */
