@@ -66,8 +66,10 @@ class ParserJS private[parser] (pattern: String, val flags: Option[String] = Non
     *   Nested character class is a Scala/Java-only regex syntax
     */
   override def classItem[A: P]: P[RegexTree] =
-    if (unicodeMode) P(preDefinedCharClass | unicodeCharClass | metaCharacter | range | quoteChar | charClassCharLiteral)
-    else P(preDefinedCharClass | metaCharacter | range | quoteChar | charClassCharLiteral)
+    if (unicodeMode)
+      P(preDefinedCharClass | unicodeCharClass | metaCharacter | range | quoteChar | charClassCharLiteral)
+    else
+      P(preDefinedCharClass | metaCharacter | range | quoteChar | charClassCharLiteral)
 
   /** Parse a quoted character (any character). If [[weaponregex.parser.ParserJS unicodeMode]] is true, only the
     * following characters are allowed: `^ $ \ . * + ? ( ) [ ] { } |` or `/`
