@@ -15,8 +15,19 @@ case class PredefinedCharClass(charClass: String, override val location: Locatio
 /** Unicode character class leaf node
   * @param property
   *   The class character property
+  * @param propValue
+  *   The value of the [[property]]
   * @param location
   *   The [[weaponregex.model.Location]] of the node in the regex string
   */
-case class UnicodeCharClass(property: String, override val location: Location, isPositive: Boolean = true)
-    extends Leaf(property, location, if (isPositive) """\p{""" else """\P{""", "}")
+case class UnicodeCharClass(
+    property: String,
+    override val location: Location,
+    isPositive: Boolean = true,
+    propValue: String = ""
+) extends Leaf(
+      if (propValue.isEmpty) property else "%s=%s".format(property, propValue),
+      location,
+      if (isPositive) """\p{""" else """\P{""",
+      "}"
+    )

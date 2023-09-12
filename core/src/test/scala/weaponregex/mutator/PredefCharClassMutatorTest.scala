@@ -86,7 +86,7 @@ class PredefCharClassMutatorTest extends munit.FunSuite {
     assertEquals(clue(mutants), Nil)
   }
 
-  test("Negates Unicode Character Class") {
+  test("Negates Unicode Character Class with lone property") {
     val pattern = """\p{Alpha}\P{Alpha}"""
     val parsedTree = Parser(pattern).getOrFail
 
@@ -95,6 +95,21 @@ class PredefCharClassMutatorTest extends munit.FunSuite {
     val expected: Seq[String] = Seq(
       """\P{Alpha}\P{Alpha}""",
       """\p{Alpha}\p{Alpha}"""
+    )
+
+    assertEquals(clue(mutants).length, expected.length)
+    expected foreach (m => assert(clue(mutants) contains clue(m)))
+  }
+
+  test("Negates Unicode Character Class with property and value") {
+    val pattern = """\p{Script_Extensions=Latin}\P{Script_Extensions=Latin}"""
+    val parsedTree = Parser(pattern).getOrFail
+
+    val mutants: Seq[String] = parsedTree.mutate(Seq(UnicodeCharClassNegation)) map (_.pattern)
+
+    val expected: Seq[String] = Seq(
+      """\P{Script_Extensions=Latin}\P{Script_Extensions=Latin}""",
+      """\p{Script_Extensions=Latin}\p{Script_Extensions=Latin}"""
     )
 
     assertEquals(clue(mutants).length, expected.length)

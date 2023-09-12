@@ -14,13 +14,23 @@ class PredefinedCharClassNodeTest extends munit.FunSuite {
     assertEquals(node2.build, """\W""")
   }
 
-  test("UnicodeCharClass build") {
+  test("UnicodeCharClass with lone property build") {
     val node1 = UnicodeCharClass("hello_World_0123", LOCATION)
     assertEquals(node1.build, """\p{hello_World_0123}""")
   }
 
-  test("UnicodeCharClass build negated") {
+  test("UnicodeCharClass with property and value build") {
+    val node1 = UnicodeCharClass("hello_World_0123", LOCATION, propValue = "Goodbye_world_321")
+    assertEquals(node1.build, """\p{hello_World_0123=Goodbye_world_321}""")
+  }
+
+  test("UnicodeCharClass with lone property build negated") {
     val node1 = UnicodeCharClass("hello_World_0123", LOCATION, isPositive = false)
     assertEquals(node1.build, """\P{hello_World_0123}""")
+  }
+
+  test("UnicodeCharClass with lone property build negated") {
+    val node1 = UnicodeCharClass("hello_World_0123", LOCATION, isPositive = false, propValue = "Goodbye_world_321")
+    assertEquals(node1.build, """\P{hello_World_0123=Goodbye_world_321}""")
   }
 }

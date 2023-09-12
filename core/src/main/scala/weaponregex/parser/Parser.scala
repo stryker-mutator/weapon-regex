@@ -316,7 +316,7 @@ abstract class Parser(val pattern: String) {
     Indexed("""\""" ~ CharPred(predefCharClassChars.contains(_)).!)
       .map { case (loc, c) => PredefinedCharClass(c, loc) }
 
-  /** Parse a unicode character class
+  /** Parse a unicode character class with lone property
     *
     * @return
     *   [[weaponregex.model.regextree.UnicodeCharClass]] tree node
@@ -325,9 +325,40 @@ abstract class Parser(val pattern: String) {
     * @note
     *   This does not check for the validity of the property inside `\p{}`
     */
-  def unicodeCharClass[A: P]: P[UnicodeCharClass] =
-    Indexed("""\""" ~ CharIn("pP").! ~ "{" ~ (CharIn("a-z", "A-Z") ~ CharIn("a-z", "A-Z", "0-9", "_").rep).! ~ "}")
+  def unicodeCharClassLoneProperty[A: P]: P[UnicodeCharClass] =
+    Indexed(
+      """\""" ~ CharIn("pP").! ~ "{" ~
+        (CharIn("a-z", "A-Z") ~ CharIn("a-z", "A-Z", "0-9", "_").rep).! ~ "}"
+    )
       .map { case (loc, (p, property)) => UnicodeCharClass(property, loc, p == "p") }
+
+  /** Parse a unicode character class with property and value
+    *
+    * @return
+    *   [[weaponregex.model.regextree.UnicodeCharClass]] tree node
+    * @example
+    *   `"\p{Script_Extensions=Latin}"`
+    * @note
+    *   This does not check for the validity of the property inside `\p{}`
+    */
+  def unicodeCharClassPropertyValue[A: P]: P[UnicodeCharClass] =
+    Indexed(
+      """\""" ~ CharIn("pP").! ~ "{" ~
+        (CharIn("a-z", "A-Z") ~ CharIn("a-z", "A-Z", "0-9", "_").rep).! ~ "=" ~
+        (CharIn("a-z", "A-Z") ~ CharIn("a-z", "A-Z", "0-9", "_").rep).! ~ "}"
+    )
+      .map { case (loc, (p, property, propValue)) => UnicodeCharClass(property, loc, p == "p", propValue) }
+
+  /** Parse a unicode character class
+    *
+    * @return
+    *   [[weaponregex.model.regextree.UnicodeCharClass]] tree node
+    * @example
+    *   `"\p{Alpha}"` or `"\p{Script_Extensions=Latin}"`
+    * @note
+    *   This does not check for the validity of the property inside `\p{}`
+    */
+  def unicodeCharClass[A: P]: P[UnicodeCharClass] = P(unicodeCharClassPropertyValue | unicodeCharClassLoneProperty)
 
   /** A higher order parser that add [[weaponregex.model.regextree.QuantifierType]] information of the parse of the
     * given (quantifier) parser

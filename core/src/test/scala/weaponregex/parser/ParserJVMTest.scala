@@ -131,33 +131,65 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
     parseErrorTest(pattern)
   }
 
-  test("Parse character class with Unicode character classes") {
+  test("Parse character class with Unicode character classes with lone properties") {
     val pattern = """[\p{Alpha}\P{hello_World_0123}]"""
     val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[CharacterClass]
 
     assert(clue(parsedTree.children.head) match {
-      case UnicodeCharClass("Alpha", _, true) => true
-      case _                                  => false
+      case UnicodeCharClass("Alpha", _, true, "") => true
+      case _                                      => false
     })
     assert(clue(parsedTree.children.last) match {
-      case UnicodeCharClass("hello_World_0123", _, false) => true
-      case _                                              => false
+      case UnicodeCharClass("hello_World_0123", _, false, "") => true
+      case _                                                  => false
     })
 
     treeBuildTest(parsedTree, pattern)
   }
 
-  test("Parse Unicode character classes") {
+  test("Parse character class with Unicode character classes with properties and values") {
+    val pattern = """[\p{Script_Extensions=Latin}\P{hello_World_0123=Goodbye_world_321}]"""
+    val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[CharacterClass]
+
+    assert(clue(parsedTree.children.head) match {
+      case UnicodeCharClass("Script_Extensions", _, true, "Latin") => true
+      case _                                                       => false
+    })
+    assert(clue(parsedTree.children.last) match {
+      case UnicodeCharClass("hello_World_0123", _, false, "Goodbye_world_321") => true
+      case _                                                                 => false
+    })
+
+    treeBuildTest(parsedTree, pattern)
+  }
+
+  test("Parse Unicode character classes with lone properties") {
     val pattern = """\p{Alpha}\P{hello_World_0123}"""
     val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Concat]
 
     assert(clue(parsedTree.children.head) match {
-      case UnicodeCharClass("Alpha", _, true) => true
-      case _                                  => false
+      case UnicodeCharClass("Alpha", _, true, "") => true
+      case _                                      => false
     })
     assert(clue(parsedTree.children.last) match {
-      case UnicodeCharClass("hello_World_0123", _, false) => true
-      case _                                              => false
+      case UnicodeCharClass("hello_World_0123", _, false, "") => true
+      case _                                                  => false
+    })
+
+    treeBuildTest(parsedTree, pattern)
+  }
+
+  test("Parse Unicode character classes with properties and values") {
+    val pattern = """\p{Script_Extensions=Latin}\P{hello_World_0123=Goodbye_world_321}"""
+    val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Concat]
+
+    assert(clue(parsedTree.children.head) match {
+      case UnicodeCharClass("Script_Extensions", _, true, "Latin") => true
+      case _                                                       => false
+    })
+    assert(clue(parsedTree.children.last) match {
+      case UnicodeCharClass("hello_World_0123", _, false, "Goodbye_world_321") => true
+      case _                                                                 => false
     })
 
     treeBuildTest(parsedTree, pattern)
