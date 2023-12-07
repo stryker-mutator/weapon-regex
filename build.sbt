@@ -1,5 +1,6 @@
 import org.scalajs.linker.interface.{ESFeatures, ESVersion}
-import _root_.io.github.davidgregory084.{DevMode, ScalacOption}
+import org.typelevel.scalacoptions.{ScalacOption, ScalacOptions}
+import org.typelevel.sbt.tpolecat.DevMode
 
 // Skip publish root
 publish / skip := true
@@ -48,7 +49,7 @@ lazy val WeaponRegeX = projectMatrix
     name := "weapon-regex",
     libraryDependencies += "com.lihaoyi" %%% "fastparse" % "3.0.2",
     libraryDependencies += "org.scalameta" %%% "munit" % "0.7.29" % Test,
-    tpolecatScalacOptions += ScalacOptions.source3,
+    tpolecatScalacOptions ++= Set(ScalacOptions.source3, ScalacOptions.release("8")),
     tpolecatExcludeOptions ++= Set(ScalacOptions.warnNonUnitStatement, ScalacOptions.warnUnusedNoWarn)
   )
   .jvmPlatform(
@@ -64,7 +65,7 @@ lazy val WeaponRegeX = projectMatrix
       // Add JS-specific settings here
       scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.ESModule)
         .withESFeatures(ESFeatures.Defaults.withESVersion(ESVersion.ES2020))),
-      scalacOptions += scalaJSSourceUri.value
+      tpolecatScalacOptions += ScalacOptions.other(scalaJSSourceUri.value)
     )
   )
 
