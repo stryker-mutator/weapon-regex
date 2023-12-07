@@ -2,6 +2,8 @@ package weaponregex.model.regextree
 
 import weaponregex.model.Location
 
+import scala.annotation.nowarn
+
 /** The enumeration of the quantifier type
   *
   * @param syntax
@@ -40,6 +42,7 @@ case object PossessiveQuantifier extends QuantifierType("+")
   *   This class constructor is private, instances must be created using the companion
   *   [[weaponregex.model.regextree.Quantifier]] object
   */
+@nowarn("cat=scala3-migration")
 case class Quantifier protected[weaponregex] (
     expr: RegexTree,
     min: Int,
