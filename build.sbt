@@ -90,6 +90,7 @@ lazy val docs = projectMatrix
   .in(file("wr-docs"))
   .dependsOn(WeaponRegeX)
   .settings(
+    publish / skip := true,
     mdocOut := file("."),
     tpolecatExcludeOptions += ScalacOptions.warnNonUnitStatement
   )
