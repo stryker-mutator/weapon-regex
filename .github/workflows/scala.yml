@@ -3,7 +3,9 @@ name: Scala CI
 on:
   workflow_dispatch:
   push:
+    branches: [main]
   pull_request:
+    types: [synchronize, opened, reopened]
 
 jobs:
   build:
@@ -19,7 +21,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
           cache: 'sbt'
       - name: Compile code
         run: sbt "compile; docs3/mdoc --check"
@@ -32,7 +34,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
           cache: 'sbt'
       - name: Check formatting
         run: sbt scalafmtCheckAll
@@ -50,7 +52,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
           cache: 'sbt'
       - name: Test
         run: sbt test
@@ -63,11 +65,11 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
           cache: 'sbt'
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
           cache: 'npm'
           cache-dependency-path: node/package-lock.json
       - name: Generate JS
@@ -87,7 +89,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
           cache: 'sbt'
       - name: Run stryker
         run: sbt 'project WeaponRegeX; stryker'
@@ -112,7 +114,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
           cache: 'sbt'
       - run: git fetch --tags
       - name: Set NPM Env

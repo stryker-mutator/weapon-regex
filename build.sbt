@@ -1,5 +1,5 @@
 import org.scalajs.linker.interface.{ESFeatures, ESVersion}
-import org.typelevel.scalacoptions.{ScalacOption, ScalacOptions}
+import org.typelevel.scalacoptions.{ScalaVersion, ScalacOption, ScalacOptions}
 import org.typelevel.sbt.tpolecat.DevMode
 
 // Skip publish root
@@ -49,7 +49,11 @@ lazy val WeaponRegeX = projectMatrix
     name := "weapon-regex",
     libraryDependencies += "com.lihaoyi" %%% "fastparse" % "3.0.2",
     libraryDependencies += "org.scalameta" %%% "munit" % "0.7.29" % Test,
-    tpolecatScalacOptions ++= Set(ScalacOptions.source3, ScalacOptions.release("8")),
+    tpolecatScalacOptions ++= Set(
+      ScalacOptions.source3,
+      ScalacOptions.release("8"),
+      ScalacOptions.other("-Wconf:cat=scala3-migration:s", _.isBetween(ScalaVersion.V2_12_2, ScalaVersion.V3_0_0))
+    ),
     tpolecatExcludeOptions ++= Set(ScalacOptions.warnNonUnitStatement, ScalacOptions.warnUnusedNoWarn)
   )
   .jvmPlatform(
