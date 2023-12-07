@@ -95,3 +95,37 @@ lazy val docs = projectMatrix
   )
   .jvmPlatform(scalaVersions = List(Scala3))
   .enablePlugins(MdocPlugin)
+
+lazy val writePackageJson = taskKey[Unit]("Write package.json")
+writePackageJson := IO.write(file("package.json"), generatePackageJson.value)
+
+lazy val generatePackageJson = taskKey[String]("Generate package.json")
+generatePackageJson := s"""{
+                          |  "name": "${name.value}",
+                          |  "type": "module",
+                          |  "version": "${version.value}",
+                          |  "description": "${description.value}",
+                          |  "exports": {
+                          |    ".": {
+                          |      "types": "./index.d.ts",
+                          |      "import": "./${(WeaponRegeX.js(Scala3) / Compile / fullLinkJSOutput).value
+                           .relativeTo(file("."))
+                           .get
+                           .toString}/main.js"
+                          |    }
+                          |  },
+                          |  "repository": {
+                          |    "type": "git",
+                          |    "url": "${homepage.value.get}"
+                          |  },
+                          |  "keywords": [
+                          |    "regex",
+                          |    "regexp",
+                          |    "regular expression",
+                          |    "mutate",
+                          |    "mutation",
+                          |    "mutator"
+                          |  ],
+                          |  "license": "${licenses.value.head._1}"
+                          |}
+                          |""".stripMargin
