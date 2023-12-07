@@ -24,29 +24,3 @@ def runNpmPublish(tag: String): Unit = {
     case exitCode => throw new Exception(s"Exit code $exitCode")
   }
 }
-
-lazy val writePackageJson = taskKey[Unit]("Write package.json")
-writePackageJson := IO.write(file("package.json"), generatePackageJson.value)
-
-lazy val generatePackageJson = taskKey[String]("Generate package.json")
-generatePackageJson := s"""{
-                          |  "name": "${name.value}",
-                          |  "type": "module",
-                          |  "version": "${version.value}",
-                          |  "description": "${description.value}",
-                          |  "main": "./index.js",
-                          |  "repository": {
-                          |    "type": "git",
-                          |    "url": "${homepage.value.get}"
-                          |  },
-                          |  "keywords": [
-                          |    "regex",
-                          |    "regexp",
-                          |    "regular expression",
-                          |    "mutate",
-                          |    "mutation",
-                          |    "mutator"
-                          |  ],
-                          |  "license": "${licenses.value.head._1}"
-                          |}
-                          |""".stripMargin

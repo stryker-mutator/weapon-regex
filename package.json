@@ -2,7 +2,12 @@
   "name": "weapon-regex",
   "type": "module",
   "description": "Weapon regeX mutates regular expressions for use in mutation testing.",
-  "main": "./index.js",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./core/target/js-3/weapon-regex-opt/main.js"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/stryker-mutator/weapon-regex"
