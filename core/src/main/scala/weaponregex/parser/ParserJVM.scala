@@ -89,7 +89,11 @@ class ParserJVM private[parser] (pattern: String) extends Parser(pattern) {
     *   `"[abc]"`
     */
   override def charClass[A: P]: P[CharacterClass] =
-    Indexed("[" ~ "^".!.? ~ (charClassIntersection.rep(exactly = 1) | classItem.rep(minCharClassItem)) ~ "]")
+    Indexed(
+      "[" ~ "^".!.? ~ ((charClassIntersection.rep(exactly = 1): P[Seq[RegexTree]]) | classItem.rep(
+        minCharClassItem
+      )) ~ "]"
+    )
       .map { case (loc, (hat, nodes)) => CharacterClass(nodes, loc, isPositive = hat.isEmpty) }
 
   /** Intermediate parsing rule for special construct tokens which can parse either `namedGroup`, `nonCapturingGroup`,

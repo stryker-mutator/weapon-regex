@@ -1,12 +1,13 @@
 import org.scalajs.linker.interface.{ESFeatures, ESVersion}
-import _root_.io.github.davidgregory084.{DevMode, ScalacOption}
+import org.typelevel.scalacoptions.{ScalaVersion, ScalacOption, ScalacOptions}
+import org.typelevel.sbt.tpolecat.DevMode
 
 // Skip publish root
 publish / skip := true
 
-val Scala212 = "2.12.17"
-val Scala213 = "2.13.10"
-val Scala3 = "3.2.2"
+val Scala212 = "2.12.18"
+val Scala213 = "2.13.12"
+val Scala3 = "3.3.1"
 
 inThisBuild(
   List(
@@ -46,10 +47,14 @@ lazy val WeaponRegeX = projectMatrix
   .in(file("core"))
   .settings(
     name := "weapon-regex",
-    libraryDependencies += "com.lihaoyi" %%% "fastparse" % "3.0.0",
+    libraryDependencies += "com.lihaoyi" %%% "fastparse" % "3.0.2",
     libraryDependencies += "org.scalameta" %%% "munit" % "0.7.29" % Test,
-    tpolecatScalacOptions += ScalacOptions.source3,
-    tpolecatExcludeOptions += ScalacOptions.warnNonUnitStatement
+    tpolecatScalacOptions ++= Set(
+      ScalacOptions.source3,
+      ScalacOptions.release("8"),
+      ScalacOptions.other("-Wconf:cat=scala3-migration:s", _.isBetween(ScalaVersion.V2_12_2, ScalaVersion.V3_0_0))
+    ),
+    tpolecatExcludeOptions ++= Set(ScalacOptions.warnNonUnitStatement, ScalacOptions.warnUnusedNoWarn)
   )
   .jvmPlatform(
     scalaVersions = List(Scala3, Scala213, Scala212),
@@ -64,7 +69,7 @@ lazy val WeaponRegeX = projectMatrix
       // Add JS-specific settings here
       scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.ESModule)
         .withESFeatures(ESFeatures.Defaults.withESVersion(ESVersion.ES2020))),
-      scalacOptions += scalaJSSourceUri.value
+      tpolecatScalacOptions += ScalacOptions.other(scalaJSSourceUri.value)
     )
   )
 
