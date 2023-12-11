@@ -19,8 +19,8 @@ import weaponregex.model.regextree.*
   */
 class ParserJS private[parser] (pattern: String, val flags: Option[String] = None) extends Parser(pattern) {
 
-  /** Whether the flags contain the `u` flag for Unicode mode */
-  private val unicodeMode: Boolean = flags.exists(_.contains("u"))
+  /** Whether the flags contain the `u` or `v` flag for Unicode mode */
+  private val unicodeMode: Boolean = flags.exists(f => f.contains("u") || f.contains("v"))
 
   /** Regex special characters
     */
@@ -66,8 +66,10 @@ class ParserJS private[parser] (pattern: String, val flags: Option[String] = Non
     *   Nested character class is a Scala/Java-only regex syntax
     */
   override def classItem[A: P]: P[RegexTree] =
-    if (unicodeMode) P(preDefinedCharClass | posixCharClass | metaCharacter | range | quoteChar | charClassCharLiteral)
-    else P(preDefinedCharClass | metaCharacter | range | quoteChar | charClassCharLiteral)
+    if (unicodeMode)
+      P(preDefinedCharClass | unicodeCharClass | metaCharacter | range | quoteChar | charClassCharLiteral)
+    else
+      P(preDefinedCharClass | metaCharacter | range | quoteChar | charClassCharLiteral)
 
   /** Parse a quoted character (any character). If [[weaponregex.parser.ParserJS unicodeMode]] is true, only the
     * following characters are allowed: `^ $ \ . * + ? ( ) [ ] { } |` or `/`
@@ -117,7 +119,7 @@ class ParserJS private[parser] (pattern: String, val flags: Option[String] = Non
   override def elementaryRE[A: P]: P[RegexTree] =
     if (unicodeMode)
       P(
-        capturing | anyDot | preDefinedCharClass | posixCharClass | boundary | charClass | reference | character | quote
+        capturing | anyDot | preDefinedCharClass | unicodeCharClass | boundary | charClass | reference | character | quote
       )
     else P(capturing | anyDot | preDefinedCharClass | boundary | charClass | reference | character | quote)
 }

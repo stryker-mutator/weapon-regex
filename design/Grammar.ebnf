@@ -13,7 +13,7 @@ basicRE = quantifier
 
 elementaryRE = capturing
              | predefinedCharClass
-             | posixCharClass
+             | unicodeCharClass
              | boundary
              | charClass
              | reference
@@ -61,7 +61,7 @@ charClass = '[' charClassItem { charClassItem } ']'           (* positive charac
 
 charClassItem = charClass
               | predefinedCharClass
-              | posixCharClass
+              | unicodeCharClass
               | metaChar
               | charClassCharLiteral '-' charClassCharLiteral (* range *)
               | quoteChar
@@ -82,9 +82,9 @@ predefinedCharClass = '.'                                     (* any *)
                     | '\\W'                                   (* non-word *)
                     ;
 
-posixCharClass = '\\p{' ? [a-zA-Z][a-zA-Z0-9_] ? '}'          (* positive POSIX character class *)
-               | '\\P{' ? [a-zA-Z][a-zA-Z0-9_] ? '}'          (* negative POSIX character class *)
-               ;
+unicodeCharClass = '\\p{' ? [a-zA-Z][a-zA-Z0-9_] ? '}'        (* positive Unicode character class *)
+                 | '\\P{' ? [a-zA-Z][a-zA-Z0-9_] ? '}'        (* negative Unicode character class *)
+                 ;
 
 boundary = '^'                                                (* beginning of a line *)
          | '$'                                                (* end of a line *)
