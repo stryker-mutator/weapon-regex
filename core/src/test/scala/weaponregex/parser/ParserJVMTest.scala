@@ -137,11 +137,11 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
 
     assert(clue(parsedTree.children.head) match {
       case UnicodeCharClass("Alpha", _, true, None) => true
-      case _                                      => false
+      case _                                        => false
     })
     assert(clue(parsedTree.children.last) match {
       case UnicodeCharClass("hello_World_0123", _, false, None) => true
-      case _                                                  => false
+      case _                                                    => false
     })
 
     treeBuildTest(parsedTree, pattern)
@@ -153,11 +153,11 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
 
     assert(clue(parsedTree.children.head) match {
       case UnicodeCharClass("Script_Extensions", _, true, Some("Latin")) => true
-      case _                                                       => false
+      case _                                                             => false
     })
     assert(clue(parsedTree.children.last) match {
       case UnicodeCharClass("hello_World_0123", _, false, Some("Goodbye_world_321")) => true
-      case _                                                                   => false
+      case _                                                                         => false
     })
 
     treeBuildTest(parsedTree, pattern)
@@ -169,11 +169,11 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
 
     assert(clue(parsedTree.children.head) match {
       case UnicodeCharClass("Alpha", _, true, None) => true
-      case _                                      => false
+      case _                                        => false
     })
     assert(clue(parsedTree.children.last) match {
       case UnicodeCharClass("hello_World_0123", _, false, None) => true
-      case _                                                  => false
+      case _                                                    => false
     })
 
     treeBuildTest(parsedTree, pattern)
@@ -185,11 +185,11 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
 
     assert(clue(parsedTree.children.head) match {
       case UnicodeCharClass("Script_Extensions", _, true, Some("Latin")) => true
-      case _                                                       => false
+      case _                                                             => false
     })
     assert(clue(parsedTree.children.last) match {
       case UnicodeCharClass("hello_World_0123", _, false, Some("Goodbye_world_321")) => true
-      case _                                                                   => false
+      case _                                                                         => false
     })
 
     treeBuildTest(parsedTree, pattern)
