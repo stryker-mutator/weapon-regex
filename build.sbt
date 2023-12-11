@@ -1,14 +1,20 @@
+import org.scalajs.linker.interface.{ESFeatures, ESVersion}
+import org.typelevel.scalacoptions.{ScalaVersion, ScalacOption, ScalacOptions}
+import org.typelevel.sbt.tpolecat.DevMode
+
 // Skip publish root
 publish / skip := true
 
-val Scala212 = "2.12.15"
-val Scala213 = "2.13.8"
+val Scala212 = "2.12.18"
+val Scala213 = "2.13.12"
+val Scala3 = "3.3.1"
 
 inThisBuild(
   List(
     organization := "io.stryker-mutator",
+    description := "Weapon regeX mutates regular expressions for use in mutation testing.",
     homepage := Some(url("https://github.com/stryker-mutator/weapon-regex")),
-    licenses := List("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
+    licenses := List(License.Apache2),
     developers := List(
       Developer(
         id = "nhat",
@@ -28,7 +34,12 @@ inThisBuild(
         email = "",
         url = url("https://github.com/wijtserekker")
       )
-    )
+    ),
+    versionScheme := Some(VersionScheme.SemVerSpec),
+    // Fatal warnings only in CI
+    tpolecatCiModeEnvVar := "CI",
+    tpolecatReleaseModeEnvVar := "CI_RELEASE",
+    tpolecatDefaultOptionsMode := DevMode
   )
 )
 
@@ -36,33 +47,36 @@ lazy val WeaponRegeX = projectMatrix
   .in(file("core"))
   .settings(
     name := "weapon-regex",
-    libraryDependencies += "com.lihaoyi" %%% "fastparse" % "2.3.3",
+    libraryDependencies += "com.lihaoyi" %%% "fastparse" % "3.0.2",
     libraryDependencies += "org.scalameta" %%% "munit" % "0.7.29" % Test,
-    // Fatal warnings only in CI
-    scalacOptions --= (if (sys.env.exists { case (k, v) => k == "CI" && v == "true" }) Nil
-                       else Seq("-Xfatal-warnings")),
-    scalacOptions += "-Xsource:3"
+    tpolecatScalacOptions ++= Set(
+      ScalacOptions.source3,
+      ScalacOptions.release("8"),
+      ScalacOptions.other("-Wconf:cat=scala3-migration:s", _.isBetween(ScalaVersion.V2_12_2, ScalaVersion.V3_0_0))
+    ),
+    tpolecatExcludeOptions ++= Set(ScalacOptions.warnNonUnitStatement, ScalacOptions.warnUnusedNoWarn)
   )
   .jvmPlatform(
-    scalaVersions = List(Scala213, Scala212),
+    scalaVersions = List(Scala3, Scala213, Scala212),
     settings = Seq(
       // Add JVM-specific settings here
       libraryDependencies += "org.scala-js" %% "scalajs-stubs" % "1.1.0" % "provided"
     )
   )
   .jsPlatform(
-    scalaVersions = List(Scala213, Scala212),
+    scalaVersions = List(Scala3, Scala213, Scala212),
     settings = Seq(
       // Add JS-specific settings here
-      scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule)),
-      scalacOptions += scalaJSSourceUri.value
+      scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.ESModule)
+        .withESFeatures(ESFeatures.Defaults.withESVersion(ESVersion.ES2020))),
+      tpolecatScalacOptions += ScalacOptions.other(scalaJSSourceUri.value)
     )
   )
 
 /** Map sourceURI to github location, taken from
   * https://github.com/typelevel/cats/blob/7ce35f50ced2ceb5747ec643333e38f0af866c1e/build.sbt#L186-L195
   */
-lazy val scalaJSSourceUri = Def.task {
+lazy val scalaJSSourceUri = Def.setting {
   val tagOrHash =
     if (isSnapshot.value) git.gitHeadCommit.value.get
     else "v" + version.value
@@ -76,7 +90,43 @@ lazy val docs = projectMatrix
   .in(file("wr-docs"))
   .dependsOn(WeaponRegeX)
   .settings(
-    mdocOut := file(".")
+    publish / skip := true,
+    mdocOut := file("."),
+    tpolecatExcludeOptions += ScalacOptions.warnNonUnitStatement
   )
-  .jvmPlatform(scalaVersions = List(Scala213))
+  .jvmPlatform(scalaVersions = List(Scala3))
   .enablePlugins(MdocPlugin)
+
+lazy val writePackageJson = taskKey[Unit]("Write package.json")
+writePackageJson := IO.write(file("package.json"), generatePackageJson.value)
+
+lazy val generatePackageJson = taskKey[String]("Generate package.json")
+generatePackageJson := s"""{
+                          |  "name": "${name.value}",
+                          |  "type": "module",
+                          |  "version": "${version.value}",
+                          |  "description": "${description.value}",
+                          |  "exports": {
+                          |    ".": {
+                          |      "types": "./index.d.ts",
+                          |      "import": "./${(WeaponRegeX.js(Scala3) / Compile / fullLinkJSOutput).value
+                           .relativeTo(file("."))
+                           .get
+                           .toString}/main.js"
+                          |    }
+                          |  },
+                          |  "repository": {
+                          |    "type": "git",
+                          |    "url": "${homepage.value.get}"
+                          |  },
+                          |  "keywords": [
+                          |    "regex",
+                          |    "regexp",
+                          |    "regular expression",
+                          |    "mutate",
+                          |    "mutation",
+                          |    "mutator"
+                          |  ],
+                          |  "license": "${licenses.value.head._1}"
+                          |}
+                          |""".stripMargin

@@ -1,8 +1,9 @@
 {
   "name": "weaponregex-test",
   "version": "1.0.0",
-  "description": "Integration tests for the JS varaint of Weapon regeX ",
+  "description": "Integration tests for the JS variant of Weapon regeX ",
   "private": true,
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "test": "mocha"
@@ -10,6 +11,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "mocha": "^8.4.0"
+    "mocha": "^10.2.0"
   }
 }

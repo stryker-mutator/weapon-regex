@@ -39,6 +39,12 @@ class ParserJVM private[parser] (pattern: String) extends Parser(pattern) {
     */
   override val minCharClassItem: Int = 1
 
+  /** The escape character used with a code point
+    * @example
+    *   `\ x{h..h}` or `\ u{h..h}`
+    */
+  override val codePointEscChar: String = "x"
+
   /** Parse a character with octal value `\0n`, `\0nn`, `\0mnn` (0 <= m <= 3, 0 <= n <= 7)
     *
     * @return
@@ -83,7 +89,11 @@ class ParserJVM private[parser] (pattern: String) extends Parser(pattern) {
     *   `"[abc]"`
     */
   override def charClass[A: P]: P[CharacterClass] =
-    Indexed("[" ~ "^".!.? ~ (charClassIntersection.rep(exactly = 1) | classItem.rep(minCharClassItem)) ~ "]")
+    Indexed(
+      "[" ~ "^".!.? ~ ((charClassIntersection.rep(exactly = 1): P[Seq[RegexTree]]) | classItem.rep(
+        minCharClassItem
+      )) ~ "]"
+    )
       .map { case (loc, (hat, nodes)) => CharacterClass(nodes, loc, isPositive = hat.isEmpty) }
 
   /** Intermediate parsing rule for special construct tokens which can parse either `namedGroup`, `nonCapturingGroup`,

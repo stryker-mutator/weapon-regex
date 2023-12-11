@@ -7,13 +7,20 @@ import weaponregex.model.regextree.*
 /** Concrete parser for JS flavor of regex
   * @param pattern
   *   The regex pattern to be parsed
+  * @param flags
+  *   The regex flags to be used
   * @note
   *   This class constructor is private, instances must be created using the companion [[weaponregex.parser.Parser]]
   *   object
   * @see
   *   [[https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions/Cheatsheet]]
+  * @see
+  *   [[https://tc39.es/ecma262/multipage/text-processing.html#sec-patterns]]
   */
-class ParserJS private[parser] (pattern: String) extends Parser(pattern) {
+class ParserJS private[parser] (pattern: String, val flags: Option[String] = None) extends Parser(pattern) {
+
+  /** Whether the flags contain the `u` flag for Unicode mode */
+  private val unicodeMode: Boolean = flags.exists(_.contains("u"))
 
   /** Regex special characters
     */
@@ -39,6 +46,12 @@ class ParserJS private[parser] (pattern: String) extends Parser(pattern) {
     */
   override val minCharClassItem: Int = 0
 
+  /** The escape character used with a code point
+    * @example
+    *   `\ x{h..h}` or `\ u{h..h}`
+    */
+  override val codePointEscChar: String = "u"
+
   /** Parse special cases of a character literal
     * @return
     *   The captured character as a string
@@ -52,15 +65,21 @@ class ParserJS private[parser] (pattern: String) extends Parser(pattern) {
     * @note
     *   Nested character class is a Scala/Java-only regex syntax
     */
-  override def classItem[A: P]: P[RegexTree] = P(
-    preDefinedCharClass | posixCharClass | metaCharacter | range | quoteChar | charClassCharLiteral
-  )
+  override def classItem[A: P]: P[RegexTree] =
+    if (unicodeMode) P(preDefinedCharClass | posixCharClass | metaCharacter | range | quoteChar | charClassCharLiteral)
+    else P(preDefinedCharClass | metaCharacter | range | quoteChar | charClassCharLiteral)
 
-  /** Intermediate parsing rule for quoting tokens which can parse only `quoteChar`
+  /** Parse a quoted character (any character). If [[weaponregex.parser.ParserJS unicodeMode]] is true, only the
+    * following characters are allowed: `^ $ \ . * + ? ( ) [ ] { } |` or `/`
     * @return
-    *   [[weaponregex.model.regextree.RegexTree]] (sub)tree
+    *   [[weaponregex.model.regextree.QuoteChar]]
+    * @example
+    *   `"\$"`
     */
-  override def quote[A: P]: P[RegexTree] = quoteChar
+  override def quote[A: P]: P[QuoteChar] = if (unicodeMode)
+    Indexed("""\""" ~ CharIn("""^$\.*+?()[]{}|/""").!)
+      .map { case (loc, char) => QuoteChar(char.head, loc) }
+  else quoteChar
 
   /** Parse a character with octal value `\n`, `\nn`, `\mnn` (0 <= m,n <= 9)
     *
@@ -86,5 +105,19 @@ class ParserJS private[parser] (pattern: String) extends Parser(pattern) {
     * @return
     *   [[weaponregex.model.regextree.RegexTree]] (sub)tree
     */
-  override def metaCharacter[A: P]: P[RegexTree] = P(charOct | charHex | charUnicode | escapeChar | controlChar)
+  override def metaCharacter[A: P]: P[RegexTree] =
+    if (unicodeMode) P(charOct | charHex | charUnicode | charCodePoint | escapeChar | controlChar)
+    else P(charOct | charHex | escapeChar | controlChar)
+
+  /** Intermediate parsing rule which can parse either `capturing`, `anyDot`, `preDefinedCharClass`, `boundary`,
+    * `charClass`, `reference`, `character` or `quote`
+    * @return
+    *   [[weaponregex.model.regextree.RegexTree]] (sub)tree
+    */
+  override def elementaryRE[A: P]: P[RegexTree] =
+    if (unicodeMode)
+      P(
+        capturing | anyDot | preDefinedCharClass | posixCharClass | boundary | charClass | reference | character | quote
+      )
+    else P(capturing | anyDot | preDefinedCharClass | boundary | charClass | reference | character | quote)
 }

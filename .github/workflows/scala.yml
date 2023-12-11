@@ -3,37 +3,39 @@ name: Scala CI
 on:
   workflow_dispatch:
   push:
+    branches: [main]
   pull_request:
+    types: [synchronize, opened, reopened]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           # Fetch all commits, used by sbt-dynver plugin to determine version
           fetch-depth: 0
         # Fetch all tags
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      - uses: coursier/cache-action@v6.3
       - name: Set up JDK
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v4
         with:
-          distribution: adopt
-          java-version: 11
+          distribution: temurin
+          java-version: 21
+          cache: 'sbt'
       - name: Compile code
-        run: sbt "compile; docs/mdoc --check"
+        run: sbt "compile; docs3/mdoc --check"
 
   formatting:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: coursier/cache-action@v6.3
+      - uses: actions/checkout@v4
       - name: Set up JDK
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v4
         with:
-          distribution: adopt
-          java-version: 11
+          distribution: temurin
+          java-version: 21
+          cache: 'sbt'
       - name: Check formatting
         run: sbt scalafmtCheckAll
 
@@ -45,29 +47,31 @@ jobs:
         os: ['ubuntu-latest', 'windows-latest']
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: coursier/cache-action@v6.3
+      - uses: actions/checkout@v4
       - name: Set up JDK
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v4
         with:
-          distribution: adopt
-          java-version: 11
+          distribution: temurin
+          java-version: 21
+          cache: 'sbt'
       - name: Test
         run: sbt test
 
   test-js:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: coursier/cache-action@v6.3
+      - uses: actions/checkout@v4
       - name: Set up JDK
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v4
         with:
-          distribution: adopt
-          java-version: 11
-      - uses: actions/setup-node@v3
+          distribution: temurin
+          java-version: 21
+          cache: 'sbt'
+      - uses: actions/setup-node@v4
         with:
-          node-version: 14
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: node/package-lock.json
       - name: Generate JS
         run: sbt fastLinkJS
       - name: Npm setup
@@ -80,13 +84,13 @@ jobs:
   mutation-testing:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: coursier/cache-action@v6.3
+      - uses: actions/checkout@v4
       - name: Set up JDK
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v4
         with:
-          distribution: adopt
-          java-version: 11
+          distribution: temurin
+          java-version: 21
+          cache: 'sbt'
       - name: Run stryker
         run: sbt 'project WeaponRegeX; stryker'
         env:
@@ -96,19 +100,22 @@ jobs:
     needs: [build, formatting, test, test-js]
     if: "github.ref == 'refs/heads/main' || startsWith(github.event.ref, 'refs/tags/')"
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           # Fetch all commits, used by sbt-dynver plugin to determine version
           fetch-depth: 0
         # Fetch all tags
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      - uses: coursier/cache-action@v6.3
       - name: Set up JDK
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v4
         with:
-          distribution: adopt
-          java-version: 11
+          distribution: temurin
+          java-version: 21
+          cache: 'sbt'
       - run: git fetch --tags
       - name: Set NPM Env
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
