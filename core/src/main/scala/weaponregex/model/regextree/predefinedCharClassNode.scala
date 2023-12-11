@@ -24,9 +24,12 @@ case class UnicodeCharClass(
     property: String,
     override val location: Location,
     isPositive: Boolean = true,
-    propValue: String = ""
+    propValue: Option[String] = None
 ) extends Leaf(
-      if (propValue.isEmpty) property else "%s=%s".format(property, propValue),
+  propValue match {
+    case Some(value) => s"$property=$value"
+    case None        => property
+  },
       location,
       if (isPositive) """\p{""" else """\P{""",
       "}"

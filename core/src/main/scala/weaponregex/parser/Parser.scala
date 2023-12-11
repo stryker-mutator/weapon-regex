@@ -347,7 +347,7 @@ abstract class Parser(val pattern: String) {
         (CharIn("a-z", "A-Z") ~ CharIn("a-z", "A-Z", "0-9", "_").rep).! ~ "=" ~
         (CharIn("a-z", "A-Z") ~ CharIn("a-z", "A-Z", "0-9", "_").rep).! ~ "}"
     )
-      .map { case (loc, (p, property, propValue)) => UnicodeCharClass(property, loc, p == "p", propValue) }
+      .map { case (loc, (p, property, propValue)) => UnicodeCharClass(property, loc, p == "p", Some(propValue)) }
 
   /** Parse a unicode character class
     *
