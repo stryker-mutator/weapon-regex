@@ -26,10 +26,10 @@ case class UnicodeCharClass(
     isPositive: Boolean = true,
     propValue: Option[String] = None
 ) extends Leaf(
-  propValue match {
-    case Some(value) => s"$property=$value"
-    case None        => property
-  },
+      propValue match {
+        case Some(value) => s"$property=$value"
+        case None        => property
+      },
       location,
       if (isPositive) """\p{""" else """\P{""",
       "}"
