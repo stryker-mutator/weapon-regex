@@ -1,5 +1,6 @@
 package weaponregex.mutator
 
+import weaponregex.internal.mutator.*
 import weaponregex.model.mutation.TokenMutator
 
 /** The object that manages all built-in token mutators

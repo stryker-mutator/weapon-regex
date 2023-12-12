@@ -125,7 +125,7 @@ import wrx from 'weapon-regex';
 let mutants = wrx.mutate('^abc(d+|[xyz])$', 'u', {
     mutators: Array.from(wrx.mutators.values()),
     mutationLevels: [1, 2, 3],
-    flavor: ParserFlavorJS,
+    flavor: wrx.ParserFlavorJS,
 });
 ```
 
