@@ -39,8 +39,9 @@ object CharClassChildRemoval extends TokenMutator {
         .buildWhile(_ ne child)
         .toMutantOf(
           child,
-          description =
+          description = Some(
             s"${child.location.show} Remove the child `${child.build}` from the character class `${token.build}`"
+          )
         )
     )
 
@@ -104,9 +105,10 @@ object CharClassRangeModification extends TokenMutator {
 
       mutatedRange.build.toMutantOf(
         token,
-        description =
+        description = Some(
           s"${range.location.show} ${if (isIncrease) "Increase" else "Decrease"} once the ${if (isLeft) s"lower limit $l"
             else s"upper limit $r"} of the range `${range.build}`"
+        )
       )
     }
 

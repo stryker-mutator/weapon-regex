@@ -5,6 +5,7 @@ import weaponregex.model.Location
 import weaponregex.model.regextree.{Node, RegexTree}
 
 trait TokenMutator {
+  self =>
 
   /** The name of the mutator
     */
@@ -70,10 +71,9 @@ trait TokenMutator {
       * @return
       *   A [[weaponregex.model.mutation.Mutant]]
       */
-    def toMutantOf(token: RegexTree, location: Location = null, description: String = null): Mutant = {
-      val loc: Location = if (location == null) token.location else location
-      val desc: String =
-        if (description == null) TokenMutator.this.description(token.build, pattern, loc) else description
+    def toMutantOf(token: RegexTree, location: Option[Location] = None, description: Option[String] = None): Mutant = {
+      val loc: Location = location.getOrElse(token.location)
+      val desc: String = description.getOrElse(self.description(token.build, pattern, loc))
       Mutant(pattern, name, loc, levels, desc)
     }
 
@@ -89,12 +89,12 @@ trait TokenMutator {
       * @return
       *   A [[weaponregex.model.mutation.Mutant]]
       */
-    def toMutantBeforeChildrenOf(token: RegexTree, description: String = null): Mutant = {
+    def toMutantBeforeChildrenOf(token: RegexTree, description: Option[String] = None): Mutant = {
       val loc: Location = token match {
         case node: Node if node.children.nonEmpty => Location(token.location.start, node.children.head.location.start)
         case _                                    => token.location
       }
-      toMutantOf(token, loc, description)
+      toMutantOf(token, Some(loc), description)
     }
 
     /** Convert a mutated pattern string into a [[weaponregex.model.mutation.Mutant]] with the
@@ -109,12 +109,12 @@ trait TokenMutator {
       * @return
       *   A [[weaponregex.model.mutation.Mutant]]
       */
-    def toMutantAfterChildrenOf(token: RegexTree, description: String = null): Mutant = {
+    def toMutantAfterChildrenOf(token: RegexTree, description: Option[String] = None): Mutant = {
       val loc: Location = token match {
         case node: Node if node.children.nonEmpty => Location(node.children.last.location.end, token.location.end)
         case _                                    => token.location
       }
-      toMutantOf(token, loc, description)
+      toMutantOf(token, Some(loc), description)
     }
   }
 }
