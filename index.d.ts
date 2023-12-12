@@ -25,7 +25,6 @@ export type ParserFlavor = typeof ParserFlavorJS | typeof ParserFlavorJVM;
 export interface TokenMutator {
     name: string;
     levels: number[];
-    description: string;
 }
 
 export interface MutationOptions {
@@ -55,26 +54,6 @@ export interface Mutant {
      */
     description: string;
 }
-
-/** Mutate a regex pattern with the given options.
- *
- * @param pattern
- *   Input regex string
- * @param options
- *   JavaScript object for Mutation options
- *   {{{
- * {
- *   mutators: [Mutators to be used for mutation. If this is `null`, all built-in mutators will be used.],
- *   mutationLevels: [Target mutation levels. If this is `null`, the `mutators`, will not be filtered.],
- *   flavor: [Regex flavor. By the default, `ParerFlavorJS` will be used.]
- * }
- *   }}}
- * @return
- *   A JavaScript Array of [[weaponregex.model.mutation.Mutant]] if can be parsed, or throw an exception otherwise
- * @deprecated
- *   Use `mutate(pattern, flags, options)` instead. This will be removed in the future.". @since 0.7.x
- */
-export function mutate(pattern: string, options: MutationOptions): Mutant[];
 
 /** Mutate a regex pattern and flags with the given options.
  *

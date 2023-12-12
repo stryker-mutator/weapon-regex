@@ -24,11 +24,6 @@ case class TokenMutatorJS(tokenMutator: TokenMutator) {
   @JSExport
   val levels: js.Array[Int] = tokenMutator.levels.toJSArray
 
-  /** A short description of the mutator
-    */
-  @JSExport
-  val description: String = tokenMutator.description
-
   /** Apply mutation to the given token
     * @param token
     *   Target token
