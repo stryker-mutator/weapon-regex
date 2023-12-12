@@ -15,7 +15,7 @@ object CharClassNegation extends TokenMutator {
   override val name = "Character class negation"
   override val levels: Seq[Int] = Seq(1)
   override def description(original: String, mutated: String, location: Location): String =
-    s"${location.pretty} Negate the character class `$original` to `$mutated`"
+    s"${location.show} Negate the character class `$original` to `$mutated`"
 
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case cc: CharacterClass => Seq(cc.copy(isPositive = !cc.isPositive))
@@ -40,7 +40,7 @@ object CharClassChildRemoval extends TokenMutator {
         .toMutantOf(
           child,
           description =
-            s"${child.location.pretty} Remove the child `${child.build}` from the character class `${token.build}`"
+            s"${child.location.show} Remove the child `${child.build}` from the character class `${token.build}`"
         )
     )
 
@@ -62,7 +62,7 @@ object CharClassAnyChar extends TokenMutator {
   override val name = """Character class to `[\w\W]` change"""
   override val levels: Seq[Int] = Seq(2, 3)
   override def description(original: String, mutated: String, location: Location): String =
-    s"${location.pretty} Change the character class `$original` to match any character `[\\w\\W]`"
+    s"${location.show} Change the character class `$original` to match any character `[\\w\\W]`"
 
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case cc: CharacterClass =>
@@ -105,7 +105,7 @@ object CharClassRangeModification extends TokenMutator {
       mutatedRange.build.toMutantOf(
         token,
         description =
-          s"${range.location.pretty} ${if (isIncrease) "Increase" else "Decrease"} once the ${if (isLeft) s"lower limit $l"
+          s"${range.location.show} ${if (isIncrease) "Increase" else "Decrease"} once the ${if (isLeft) s"lower limit $l"
             else s"upper limit $r"} of the range `${range.build}`"
       )
     }

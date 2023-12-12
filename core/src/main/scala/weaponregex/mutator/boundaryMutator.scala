@@ -15,7 +15,7 @@ object BOLRemoval extends TokenMutator {
   override val name: String = "Beginning of line character `^` removal"
   override val levels: Seq[Int] = Seq(1, 2, 3)
   override def description(original: String, mutated: String, location: Location): String =
-    location.pretty + " Remove the beginning of line character `^`"
+    location.show + " Remove the beginning of line character `^`"
 
   override def mutate(token: RegexTree): Seq[Mutant] = token match {
     case node: Node =>
@@ -37,7 +37,7 @@ object EOLRemoval extends TokenMutator {
   override val name: String = "End of line character `$` removal"
   override val levels: Seq[Int] = Seq(1, 2, 3)
   override def description(original: String, mutated: String, location: Location): String =
-    location.pretty + " Remove the end of line character `$`"
+    location.show + " Remove the end of line character `$`"
 
   override def mutate(token: RegexTree): Seq[Mutant] = token match {
     case node: Node =>
@@ -59,7 +59,7 @@ object BOL2BOI extends TokenMutator {
   override val name: String = """Beginning of line `^` to beginning of input `\A` change"""
   override val levels: Seq[Int] = Seq(2, 3)
   override def description(original: String, mutated: String, location: Location): String =
-    location.pretty + """ Change the beginning of line `^` to beginning of input `\A`"""
+    location.show + """ Change the beginning of line `^` to beginning of input `\A`"""
 
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case _: BOL => Seq(Boundary("A", token.location))
@@ -77,7 +77,7 @@ object EOL2EOI extends TokenMutator {
   override val name: String = """End of line `$` to end of input `\z` change"""
   override val levels: Seq[Int] = Seq(2, 3)
   override def description(original: String, mutated: String, location: Location): String =
-    location.pretty + """ Change the end of line `$` to end of input `\z`"""
+    location.show + """ Change the end of line `$` to end of input `\z`"""
 
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case _: EOL => Seq(Boundary("z", token.location))

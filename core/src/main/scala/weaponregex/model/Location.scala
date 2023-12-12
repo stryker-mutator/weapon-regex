@@ -11,7 +11,7 @@ import scala.scalajs.js.annotation.*
   */
 @JSExportAll
 case class Location(start: Position, end: Position) {
-  val pretty: String = s"[${start.pretty}, ${end.pretty})"
+  val show: String = s"[${start.show}, ${end.show})"
 }
 
 /** Companion object for [[weaponregex.model.Location]]

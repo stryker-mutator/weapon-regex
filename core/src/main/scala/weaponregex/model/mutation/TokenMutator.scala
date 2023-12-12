@@ -33,7 +33,7 @@ trait TokenMutator {
     *   The [[weaponregex.model.Location]] where the mutation occurred
     */
   def description(original: String, mutated: String, location: Location): String =
-    s"${location.pretty} Mutate $original to $mutated"
+    s"${location.show} Mutate $original to $mutated"
 
   /** Apply mutation to the given token
     * @param token

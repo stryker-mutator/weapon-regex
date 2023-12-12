@@ -9,7 +9,7 @@ class MutatorTest extends munit.FunSuite {
 
   test("Mutator description starts with a location") {
     BuiltinMutators.all foreach (mutator =>
-      assert(clue(mutator.description("original", "mutated", LOCATION)).startsWith(LOCATION.pretty))
+      assert(clue(mutator.description("original", "mutated", LOCATION)).startsWith(LOCATION.show))
     )
   }
 }

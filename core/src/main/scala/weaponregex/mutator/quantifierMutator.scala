@@ -15,7 +15,7 @@ object QuantifierRemoval extends TokenMutator {
   override val name: String = "Quantifier removal"
   override val levels: Seq[Int] = Seq(1)
   override def description(original: String, mutated: String, location: Location): String =
-    s"${location.pretty} Remove the quantifier from `$original` to `$mutated`"
+    s"${location.show} Remove the quantifier from `$original` to `$mutated`"
 
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case q: ZeroOrOne  => Seq(q.expr)
@@ -36,7 +36,7 @@ object QuantifierNChange extends TokenMutator {
   override val name: String = "Quantifier `{n}` to `{0,n}` and `{n,}` change"
   override val levels: Seq[Int] = Seq(2, 3)
   override def description(original: String, mutated: String, location: Location): String =
-    s"${location.pretty} Change the quantifier from `$original` to `$mutated`"
+    s"${location.show} Change the quantifier from `$original` to `$mutated`"
 
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case q: Quantifier if q.isExact =>
@@ -58,7 +58,7 @@ object QuantifierNOrMoreModification extends TokenMutator {
   override val name: String = "Quantifier `{n,}` to `{n-1,}` and `{n+1,}` modification"
   override val levels: Seq[Int] = Seq(2, 3)
   override def description(original: String, mutated: String, location: Location): String =
-    s"${location.pretty} Modify the quantifier from `$original` to `$mutated`"
+    s"${location.show} Modify the quantifier from `$original` to `$mutated`"
 
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case q: Quantifier if !q.isExact && q.max == Quantifier.Infinity =>
@@ -78,7 +78,7 @@ object QuantifierNOrMoreChange extends TokenMutator {
   override val name: String = "Quantifier `{n,}` to `{n}` change"
   override val levels: Seq[Int] = Seq(2, 3)
   override def description(original: String, mutated: String, location: Location): String =
-    s"${location.pretty} Change the quantifier from `$original` to `$mutated`"
+    s"${location.show} Change the quantifier from `$original` to `$mutated`"
 
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case q: Quantifier if !q.isExact && q.max == Quantifier.Infinity => Seq(q.copy(isExact = true))
@@ -96,7 +96,7 @@ object QuantifierNMModification extends TokenMutator {
   override val name: String = "Quantifier `{n,m}` modification"
   override val levels: Seq[Int] = Seq(2, 3)
   override def description(original: String, mutated: String, location: Location): String =
-    s"${location.pretty} Change the quantifier from `$original` to `$mutated`"
+    s"${location.show} Change the quantifier from `$original` to `$mutated`"
 
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case q: Quantifier if !q.isExact && q.max != Quantifier.Infinity =>
@@ -131,7 +131,7 @@ object QuantifierShortModification extends TokenMutator {
   override val name: String = "Short quantifier to `{n,}` or `{n,m}` modification"
   override val levels: Seq[Int] = Seq(2, 3)
   override def description(original: String, mutated: String, location: Location): String =
-    s"${location.pretty} Change the short quantifier from `$original` to `$mutated`"
+    s"${location.show} Change the short quantifier from `$original` to `$mutated`"
 
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case q: ZeroOrOne =>
@@ -161,7 +161,7 @@ object QuantifierShortChange extends TokenMutator {
   override val name: String = "Short quantifier `*` and `+` to `{n}` change"
   override val levels: Seq[Int] = Seq(2, 3)
   override def description(original: String, mutated: String, location: Location): String =
-    s"${location.pretty} Change the short quantifier from `$original` to `$mutated`"
+    s"${location.show} Change the short quantifier from `$original` to `$mutated`"
 
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case q: ZeroOrMore =>
@@ -182,7 +182,7 @@ object QuantifierReluctantAddition extends TokenMutator {
   override val name: String = "Greedy quantifier to reluctant quantifier modification"
   override val levels: Seq[Int] = Seq(3)
   override def description(original: String, mutated: String, location: Location): String =
-    s"${location.pretty} Modify the greedy quantifier `$original` to reluctant quantifier `$mutated`"
+    s"${location.show} Modify the greedy quantifier `$original` to reluctant quantifier `$mutated`"
 
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case q: ZeroOrOne if q.quantifierType == GreedyQuantifier =>

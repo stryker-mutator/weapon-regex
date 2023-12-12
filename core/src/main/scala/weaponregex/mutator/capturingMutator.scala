@@ -15,7 +15,7 @@ object GroupToNCGroup extends TokenMutator {
   override val name: String = "Capturing group to non-capturing group modification"
   override val levels: Seq[Int] = Seq(2, 3)
   override def description(original: String, mutated: String, location: Location): String =
-    s"${location.pretty} Modify the capturing group `$original` to non-capturing group `$mutated`"
+    s"${location.show} Modify the capturing group `$original` to non-capturing group `$mutated`"
 
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case group @ Group(_, true, _) => Seq(group.copy(isCapturing = false))
@@ -33,7 +33,7 @@ object LookaroundNegation extends TokenMutator {
   override val name: String = "Lookaround constructs (lookahead, lookbehind) negation"
   override val levels: Seq[Int] = Seq(1, 2, 3)
   override def description(original: String, mutated: String, location: Location): String =
-    s"${location.pretty} Negate the lookaround construct `$original` to `$mutated`"
+    s"${location.show} Negate the lookaround construct `$original` to `$mutated`"
 
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case la: Lookaround => Seq(la.copy(isPositive = !la.isPositive))
