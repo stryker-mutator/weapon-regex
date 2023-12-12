@@ -1,12 +1,12 @@
 package weaponregex.model.regextree
 
+import weaponregex.constant.RegexTreeStubs.LOCATION
 import weaponregex.extension.RegexTreeExtension.RegexTreeStringBuilder
-import weaponregex.model.*
 
 class RegexTreeTest extends munit.FunSuite {
   test("RegexTree build") {
     val pattern: String = """^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$"""
-    val loc = Location(0, 0)(0, 1)
+    val loc = LOCATION
     val tree: RegexTree = Concat(
       Seq(
         BOL(loc),

@@ -5,7 +5,7 @@ import weaponregex.model.Location
 import weaponregex.model.mutation.{Mutant, TokenMutator}
 import weaponregex.model.regextree.*
 
-/** Remove beginning of line character `^`
+/** Mutator for beginning of line character `^` removal
   *
   * ''Mutation level(s):'' 1, 2, 3
   * @example
@@ -15,7 +15,7 @@ object BOLRemoval extends TokenMutator {
   override val name: String = "Beginning of line character `^` removal"
   override val levels: Seq[Int] = Seq(1, 2, 3)
   override def description(original: String, mutated: String, location: Location): String =
-    "Remove beginning of line character `^` at " + location.pretty
+    location.pretty + " Remove the beginning of line character `^`"
 
   override def mutate(token: RegexTree): Seq[Mutant] = token match {
     case node: Node =>
@@ -27,7 +27,7 @@ object BOLRemoval extends TokenMutator {
   }
 }
 
-/** Remove end of line character `$`
+/** Mutator for end of line character `$` removal
   *
   * ''Mutation level(s):'' 1, 2, 3
   * @example
@@ -37,7 +37,7 @@ object EOLRemoval extends TokenMutator {
   override val name: String = "End of line character `$` removal"
   override val levels: Seq[Int] = Seq(1, 2, 3)
   override def description(original: String, mutated: String, location: Location): String =
-    "Remove end of line character `$` at " + location.pretty
+    location.pretty + " Remove the end of line character `$`"
 
   override def mutate(token: RegexTree): Seq[Mutant] = token match {
     case node: Node =>
@@ -49,17 +49,17 @@ object EOLRemoval extends TokenMutator {
   }
 }
 
-/** Change beginning of line `^` to beginning of input `\A`
+/** Mutator for beginning of line `^` to beginning of input `\A` change
   *
   * ''Mutation level(s):'' 2, 3
   * @example
   *   `^a` ⟶ `\Aa`
   */
 object BOL2BOI extends TokenMutator {
-  override val name: String = """Beginning of line `^` to beginning of input `\A`"""
+  override val name: String = """Beginning of line `^` to beginning of input `\A` change"""
   override val levels: Seq[Int] = Seq(2, 3)
   override def description(original: String, mutated: String, location: Location): String =
-    """Change beginning of line `^` to beginning of input `\A` at """ + location.pretty
+    location.pretty + """ Change the beginning of line `^` to beginning of input `\A`"""
 
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case _: BOL => Seq(Boundary("A", token.location))
@@ -67,17 +67,17 @@ object BOL2BOI extends TokenMutator {
   }) map (_.build.toMutantOf(token))
 }
 
-/** Change end of line `$` to end pf input `\z`
+/** Mutator for end of line `$` to end of input `\z` change
   *
   * ''Mutation level(s):'' 2, 3
   * @example
   *   `a$` ⟶ `a\z`
   */
 object EOL2EOI extends TokenMutator {
-  override val name: String = """End of line `$` to end of input `\z`"""
+  override val name: String = """End of line `$` to end of input `\z` change"""
   override val levels: Seq[Int] = Seq(2, 3)
   override def description(original: String, mutated: String, location: Location): String =
-    """Change end of line `$` to end of input `\z` at """ + location.pretty
+    location.pretty + """ Change the end of line `$` to end of input `\z`"""
 
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case _: EOL => Seq(Boundary("z", token.location))
