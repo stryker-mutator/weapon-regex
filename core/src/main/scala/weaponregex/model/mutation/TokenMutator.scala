@@ -15,16 +15,6 @@ trait TokenMutator {
     */
   val levels: Seq[Int]
 
-  @deprecated(
-    "This member is deprecated and will be removed in a later version. " +
-      "For now, this will return the same value as `name`." +
-      "Description is now generated for each mutant instead of the mutator.",
-    "v1.2.0"
-  )
-  /** A short description of the mutator
-    */
-  def description: String = name
-
   /** Generate the default description for the mutants of this mutator
     * @param original
     *   The original token string being mutated

@@ -44,25 +44,4 @@ object WeaponRegeXJS {
       case Left(msg)   => throw new RuntimeException(msg)
     }
   }
-
-  /** Mutate a regex pattern with the given options.
-    *
-    * @param pattern
-    *   Input regex string
-    * @param options
-    *   JavaScript object for Mutation options
-    *   {{{
-    * {
-    *   mutators: [Mutators to be used for mutation. If this is `null`, all built-in mutators will be used.],
-    *   mutationLevels: [Target mutation levels. If this is `null`, the `mutators`, will not be filtered.],
-    *   flavor: [Regex flavor. By the default, `ParerFlavorJS` will be used.]
-    * }
-    *   }}}
-    * @return
-    *   A JavaScript Array of [[weaponregex.model.mutation.Mutant]] if can be parsed, or throw an exception otherwise
-    */
-  @deprecated("Use `mutate(pattern, flags, options)` instead. This will be removed in the future.", "0.7.x")
-  @JSExportTopLevel("mutate")
-  def mutate(pattern: String, options: MutationOptions = new MutationOptions): js.Array[MutantJS] =
-    mutate(pattern, js.undefined, options)
 }
