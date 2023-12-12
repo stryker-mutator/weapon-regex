@@ -20,7 +20,7 @@ object BuiltinMutators {
     PredefCharClassNegation,
     PredefCharClassNullification,
     PredefCharClassAnyChar,
-    POSIXCharClassNegation,
+    UnicodeCharClassNegation,
     QuantifierRemoval,
     QuantifierNChange,
     QuantifierNOrMoreModification,
