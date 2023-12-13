@@ -18,3 +18,4 @@ jobs:
           # Version is determined by sbt-ci-release (which uses sbt-dynver)
           # Actual release code is in `./scala.yml`
           release-type: simple
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
