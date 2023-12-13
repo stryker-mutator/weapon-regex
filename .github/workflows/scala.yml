@@ -18,6 +18,7 @@ jobs:
           fetch-depth: 0
         # Fetch all tags
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+      - run: git fetch --tags
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:

@@ -58,7 +58,9 @@ lazy val WeaponRegeX = projectMatrix
     ),
     tpolecatExcludeOptions ++= Set(ScalacOptions.warnNonUnitStatement, ScalacOptions.warnUnusedNoWarn),
     // To introduce a breaking version, comment out these lines and add `.disablePlugins(MimaPlugin)` after the .settings()
-    mimaPreviousArtifacts := Set(organization.value %% name.value % previousStableVersion.value.get),
+    mimaPreviousArtifacts := previousStableVersion.value
+      .map(previousVersion => organization.value %% name.value % previousVersion)
+      .toSet,
     mimaBinaryIssueFilters ++= Seq(
       ProblemFilters.exclude[Problem]("weaponregex.internal.*")
     )
