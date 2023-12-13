@@ -25,7 +25,7 @@ jobs:
           java-version: 21
           cache: 'sbt'
       - name: Compile code
-        run: sbt "compile; docs3/mdoc --check"
+        run: sbt "compile; docs3/mdoc --check; mimaReportBinaryIssues"
 
   formatting:
     runs-on: ubuntu-latest

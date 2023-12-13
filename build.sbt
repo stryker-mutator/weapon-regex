@@ -1,9 +1,11 @@
 import org.scalajs.linker.interface.{ESFeatures, ESVersion}
 import org.typelevel.scalacoptions.{ScalaVersion, ScalacOption, ScalacOptions}
 import org.typelevel.sbt.tpolecat.DevMode
+import com.typesafe.tools.mima.core.{Problem, ProblemFilters}
 
 // Skip publish root
 publish / skip := true
+disablePlugins(MimaPlugin)
 
 val Scala212 = "2.12.18"
 val Scala213 = "2.13.12"
@@ -54,7 +56,12 @@ lazy val WeaponRegeX = projectMatrix
       ScalacOptions.release("8"),
       ScalacOptions.other("-Wconf:cat=scala3-migration:s", _.isBetween(ScalaVersion.V2_12_2, ScalaVersion.V3_0_0))
     ),
-    tpolecatExcludeOptions ++= Set(ScalacOptions.warnNonUnitStatement, ScalacOptions.warnUnusedNoWarn)
+    tpolecatExcludeOptions ++= Set(ScalacOptions.warnNonUnitStatement, ScalacOptions.warnUnusedNoWarn),
+    // To introduce a breaking version, comment out these lines and add `.disablePlugins(MimaPlugin)` after the .settings()
+    mimaPreviousArtifacts := Set(organization.value %% name.value % previousStableVersion.value.get),
+    mimaBinaryIssueFilters ++= Seq(
+      ProblemFilters.exclude[Problem]("weaponregex.internal.*")
+    )
   )
   .jvmPlatform(
     scalaVersions = List(Scala3, Scala213, Scala212),
@@ -96,6 +103,7 @@ lazy val docs = projectMatrix
   )
   .jvmPlatform(scalaVersions = List(Scala3))
   .enablePlugins(MdocPlugin)
+  .disablePlugins(MimaPlugin)
 
 lazy val writePackageJson = taskKey[Unit]("Write package.json")
 writePackageJson := IO.write(file("package.json"), generatePackageJson.value)
