@@ -1,6 +1,6 @@
 package weaponregex.mutator
 
-import weaponregex.constant.RegexTreeStubs.LOCATION
+import weaponregex.internal.constant.RegexTreeStubs.LOCATION
 
 class MutatorTest extends munit.FunSuite {
   test("Mutator name is non-empty") {

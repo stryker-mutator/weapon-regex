@@ -1,7 +1,7 @@
 package weaponregex
 
-import weaponregex.constant.ErrorMessage
-import weaponregex.extension.EitherExtension.LeftStringEitherTest
+import weaponregex.internal.constant.ErrorMessage
+import weaponregex.internal.extension.EitherExtension.LeftStringEitherTest
 import weaponregex.model.mutation.Mutant
 import weaponregex.mutator.BuiltinMutators
 

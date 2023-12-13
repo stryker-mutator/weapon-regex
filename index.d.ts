@@ -60,9 +60,9 @@ export interface Mutant {
  * @param pattern
  *   Input regex string
  * @param flags
- *   Regex flags or `undefined`
+ *   Optional regex flags
  * @param options
- *   JavaScript object for Mutation options
+ *   Optional JavaScript object for Mutation options
  *   {{{
  * {
  *   mutators: [Mutators to be used for mutation. If this is `null`, all built-in mutators will be used.],
@@ -73,16 +73,7 @@ export interface Mutant {
  * @return
  *   A JavaScript Array of [[weaponregex.model.mutation.Mutant]] if can be parsed, or throw an exception otherwise
  */
-export function mutate(pattern: string, flags: string | undefined, options: MutationOptions): Mutant[];
-
-/** Mutate a regex pattern with the default options.
- *
- * @param pattern
- *   Input regex string
- * @return
- *   A JavaScript Array of [[weaponregex.model.mutation.Mutant]] if can be parsed, or throw an exception otherwise
- */
-export function mutate(pattern: string): Mutant[];
+export function mutate(pattern: string, flags?: string, options?: MutationOptions): Mutant[];
 
 /** JS Map that maps from a token mutator class names to the associating token mutator
  */

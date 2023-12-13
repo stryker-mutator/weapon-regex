@@ -1,10 +1,10 @@
 package weaponregex
 
-import weaponregex.extension.MutationOptionsExtension.MutationOptionsConverter
-import weaponregex.extension.RegexTreeExtension.RegexTreeMutator
+import weaponregex.internal.extension.MutationOptionsExtension.MutationOptionsConverter
+import weaponregex.internal.extension.RegexTreeExtension.RegexTreeMutator
+import weaponregex.internal.parser.Parser
 import weaponregex.model.MutationOptions
 import weaponregex.model.mutation.*
-import weaponregex.parser.Parser
 
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters.*
@@ -35,8 +35,8 @@ object WeaponRegeXJS {
     *   A JavaScript Array of [[weaponregex.model.mutation.Mutant]] if can be parsed, or throw an exception otherwise
     */
   @JSExportTopLevel("mutate")
-  def mutate(pattern: String, flags: js.UndefOr[String], options: MutationOptions): js.Array[MutantJS] = {
-    val (mutators, mutationLevels, flavor) = options.toScala
+  def mutate(pattern: String, flags: js.UndefOr[String], options: js.UndefOr[MutationOptions]): js.Array[MutantJS] = {
+    val (mutators, mutationLevels, flavor) = options.getOrElse(new MutationOptions).toScala
     val flagsOpt = flags.toOption.filterNot(_ == null).filterNot(_.isEmpty)
 
     Parser(pattern, flagsOpt, flavor) match {
@@ -44,25 +44,4 @@ object WeaponRegeXJS {
       case Left(msg)   => throw new RuntimeException(msg)
     }
   }
-
-  /** Mutate a regex pattern with the given options.
-    *
-    * @param pattern
-    *   Input regex string
-    * @param options
-    *   JavaScript object for Mutation options
-    *   {{{
-    * {
-    *   mutators: [Mutators to be used for mutation. If this is `null`, all built-in mutators will be used.],
-    *   mutationLevels: [Target mutation levels. If this is `null`, the `mutators`, will not be filtered.],
-    *   flavor: [Regex flavor. By the default, `ParerFlavorJS` will be used.]
-    * }
-    *   }}}
-    * @return
-    *   A JavaScript Array of [[weaponregex.model.mutation.Mutant]] if can be parsed, or throw an exception otherwise
-    */
-  @deprecated("Use `mutate(pattern, flags, options)` instead. This will be removed in the future.", "0.7.x")
-  @JSExportTopLevel("mutate")
-  def mutate(pattern: String, options: MutationOptions = new MutationOptions): js.Array[MutantJS] =
-    mutate(pattern, js.undefined, options)
 }

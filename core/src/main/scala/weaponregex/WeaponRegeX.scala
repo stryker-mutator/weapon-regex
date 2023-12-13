@@ -1,9 +1,10 @@
 package weaponregex
 
-import weaponregex.extension.RegexTreeExtension.RegexTreeMutator
-import weaponregex.model.mutation.*
+import weaponregex.internal.extension.RegexTreeExtension.RegexTreeMutator
+import weaponregex.internal.parser.Parser
+import weaponregex.model.mutation.{Mutant, TokenMutator}
 import weaponregex.mutator.BuiltinMutators
-import weaponregex.parser.{Parser, ParserFlavor, ParserFlavorJVM}
+import weaponregex.parser.{ParserFlavor, ParserFlavorJVM}
 
 /** The API facade of Weapon regeX for Scala/JVM
   */
