@@ -247,7 +247,7 @@
                 let mutants;
 
                 try {
-                  mutants = wrx.mutate(input.value, mutationOptions);
+                  mutants = wrx.mutate(input.value, undefined, mutationOptions);
                 } catch (error) {
                   console.error(error);
                   alertFailedMsg.innerText = error.message;
