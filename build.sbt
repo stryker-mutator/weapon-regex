@@ -1,7 +1,7 @@
 import org.scalajs.linker.interface.{ESFeatures, ESVersion}
 import org.typelevel.scalacoptions.{ScalaVersion, ScalacOption, ScalacOptions}
 import org.typelevel.sbt.tpolecat.DevMode
-import com.typesafe.tools.mima.core.{Problem, ProblemFilters}
+import com.typesafe.tools.mima.core.{MissingMethodProblem, MissingTypesProblem, Problem, ProblemFilters}
 
 // Skip publish root
 publish / skip := true
@@ -62,7 +62,10 @@ lazy val WeaponRegeX = projectMatrix
       .map(previousVersion => organization.value %% name.value % previousVersion)
       .toSet,
     mimaBinaryIssueFilters ++= Seq(
-      ProblemFilters.exclude[Problem]("weaponregex.internal.*")
+      ProblemFilters.exclude[Problem]("weaponregex.internal.*"),
+      // Adding fields to Mutant is not considered a breaking change
+      ProblemFilters.exclude[MissingMethodProblem]("weaponregex.model.mutation.Mutant.*"),
+      ProblemFilters.exclude[MissingTypesProblem]("weaponregex.model.mutation.Mutant$")
     )
   )
   .jvmPlatform(

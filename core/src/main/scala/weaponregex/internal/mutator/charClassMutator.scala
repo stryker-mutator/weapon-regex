@@ -21,7 +21,7 @@ object CharClassNegation extends TokenMutator {
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case cc: CharacterClass => Seq(cc.copy(isPositive = !cc.isPositive))
     case _                  => Nil
-  }) map (_.build.toMutantBeforeChildrenOf(token))
+  }) map (g => g.build.toMutantBeforeChildrenOf(token, replacement = g.prefix))
 }
 
 /** Mutator for character class child removal
@@ -40,6 +40,7 @@ object CharClassChildRemoval extends TokenMutator {
         .buildWhile(_ ne child)
         .toMutantOf(
           child,
+          replacement = "",
           description = Some(
             s"${child.location.show} Remove the child `${child.build}` from the character class `${token.build}`"
           )

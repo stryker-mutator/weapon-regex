@@ -24,7 +24,7 @@ object QuantifierRemoval extends TokenMutator {
     case q: OneOrMore  => Seq(q.expr)
     case q: Quantifier => Seq(q.expr)
     case _             => Nil
-  }) map (_.build.toMutantAfterChildrenOf(token))
+  }) map (m => m.build.toMutantAfterChildrenOf(token, replacement = ""))
 }
 
 /** Mutator for quantifier `{n}` to `{0,n}` and `{n,}` change
@@ -46,7 +46,7 @@ object QuantifierNChange extends TokenMutator {
         q.copy(isExact = false, max = Quantifier.Infinity)
       )
     case _ => Nil
-  }) map (_.build.toMutantAfterChildrenOf(token))
+  }) map (m => m.build.toMutantAfterChildrenOf(token, replacement = m.postfix))
 }
 
 /** Mutator for quantifier `{n,}` to `{n-1,}` and `{n+1,}` modification
@@ -66,7 +66,7 @@ object QuantifierNOrMoreModification extends TokenMutator {
       if (q.min < 1) Seq(q.copy(min = q.min + 1))
       else Seq(q.copy(min = q.min - 1), q.copy(min = q.min + 1))
     case _ => Nil
-  }) map (_.build.toMutantAfterChildrenOf(token))
+  }) map (m => m.build.toMutantAfterChildrenOf(token, replacement = m.postfix))
 }
 
 /** Mutator for quantifier `{n,}` to `{n}` change
@@ -84,7 +84,7 @@ object QuantifierNOrMoreChange extends TokenMutator {
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case q: Quantifier if !q.isExact && q.max == Quantifier.Infinity => Seq(q.copy(isExact = true))
     case _                                                           => Nil
-  }) map (_.build.toMutantAfterChildrenOf(token))
+  }) map (m => m.build.toMutantAfterChildrenOf(token, replacement = m.postfix))
 }
 
 /** Mutator for quantifier `{n,m}` modification (including `{n-1,m}`, `{n+1,m}`, `{n,m-1}`, and `{n,m+1}`)
@@ -119,7 +119,7 @@ object QuantifierNMModification extends TokenMutator {
           )
       }
     case _ => Nil
-  }) map (_.build.toMutantAfterChildrenOf(token))
+  }) map (m => m.build.toMutantAfterChildrenOf(token, replacement = m.postfix))
 }
 
 /** Mutator for short quantifier to `{n,}` or `{n,m}` modification
@@ -149,7 +149,7 @@ object QuantifierShortModification extends TokenMutator {
         Quantifier(q.expr, min = 2, max = Quantifier.Infinity, q.location, q.quantifierType)
       )
     case _ => Nil
-  }) map (_.build.toMutantAfterChildrenOf(token))
+  }) map (m => m.build.toMutantAfterChildrenOf(token, replacement = m.postfix))
 }
 
 /** Mutator for short quantifier `*` and `+` to `{n}` change
@@ -170,7 +170,7 @@ object QuantifierShortChange extends TokenMutator {
     case q: OneOrMore =>
       Seq(Quantifier(q.expr, exact = 1, q.location, q.quantifierType))
     case _ => Nil
-  }) map (_.build.toMutantAfterChildrenOf(token))
+  }) map (m => m.build.toMutantAfterChildrenOf(token, replacement = m.postfix))
 }
 
 /** Mutator for greedy quantifier to reluctant quantifier modification
@@ -195,5 +195,5 @@ object QuantifierReluctantAddition extends TokenMutator {
     case q: Quantifier if q.quantifierType == GreedyQuantifier =>
       Seq(q.copy(quantifierType = ReluctantQuantifier))
     case _ => Nil
-  }) map (_.build.toMutantAfterChildrenOf(token))
+  }) map (m => m.build.toMutantAfterChildrenOf(token, replacement = m.postfix))
 }

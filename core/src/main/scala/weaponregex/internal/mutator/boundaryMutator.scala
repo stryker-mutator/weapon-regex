@@ -21,7 +21,7 @@ object BOLRemoval extends TokenMutator {
   override def mutate(token: RegexTree): Seq[Mutant] = token match {
     case node: Node =>
       node.children flatMap {
-        case child: BOL => Seq(token.buildWhile(_ ne child).toMutantOf(child))
+        case child: BOL => Seq(token.buildWhile(_ ne child).toMutantOf(child, replacement = ""))
         case _          => Nil
       }
     case _ => Nil
@@ -43,7 +43,7 @@ object EOLRemoval extends TokenMutator {
   override def mutate(token: RegexTree): Seq[Mutant] = token match {
     case node: Node =>
       node.children flatMap {
-        case child: EOL => Seq(token.buildWhile(_ ne child).toMutantOf(child))
+        case child: EOL => Seq(token.buildWhile(_ ne child).toMutantOf(child, replacement = ""))
         case _          => Nil
       }
     case _ => Nil

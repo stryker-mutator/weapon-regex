@@ -1,12 +1,16 @@
 /// <reference types="mocha" />
+/// <reference types="node" />
+// @ts-check
+import * as wrx from '../../core/target/js-3/weapon-regex-fastopt/main.js';
+import assert from 'assert';
 
-import {
+// @ts-ignore
+/** @type {import('../../')} */ const {
   mutate,
   mutators,
   ParserFlavorJS,
   ParserFlavorJVM,
-} from '../../core/target/js-3/weapon-regex-fastopt/main.js';
-import assert from 'assert';
+} = wrx;
 
 describe('Weapon regeX', () => {
   describe('#mutate()', () => {
@@ -77,7 +81,7 @@ describe('Weapon regeX', () => {
     it('Catch an exception if the RegEx is invalid', () => {
       assert.throws(
         () => mutate('*(a|$]'),
-        (e) => e.message.startsWith('[Error] Parser: ')
+        (/** @type {Error} */ e) => e.message.startsWith('[Error] Parser: ')
       );
     });
   });
@@ -123,8 +127,16 @@ describe('Weapon regeX', () => {
       assert.strictEqual(mutants.length, 1);
       assert.strictEqual(
         mutants[0].description,
-          mutants[0].location.show + ' Remove the beginning of line character `^`'
+        mutants[0].location.show + ' Remove the beginning of line character `^`'
       );
+    });
+
+    it('Contains the mutator replacement', () => {
+      const mutants = mutate('^a$', undefined, { mutationLevels: [1] });
+
+      assert.strictEqual(mutants.length, 2);
+      assert.strictEqual(mutants[0].replacement, '');
+      assert.strictEqual(mutants[1].replacement, '');
     });
   });
 

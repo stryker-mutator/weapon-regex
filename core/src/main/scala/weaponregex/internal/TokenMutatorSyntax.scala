@@ -31,10 +31,15 @@ private[internal] trait TokenMutatorSyntax {
       * @return
       *   A [[weaponregex.model.mutation.Mutant]]
       */
-    def toMutantOf(token: RegexTree, location: Option[Location] = None, description: Option[String] = None): Mutant = {
+    def toMutantOf(
+        token: RegexTree,
+        replacement: String = pattern,
+        location: Option[Location] = None,
+        description: Option[String] = None
+    ): Mutant = {
       val loc: Location = location.getOrElse(token.location)
       val desc: String = description.getOrElse(self.description(token.build, pattern, loc))
-      Mutant(pattern, name, loc, levels, desc)
+      Mutant(pattern, name, loc, levels, desc, replacement)
     }
 
     /** Convert a mutated pattern string into a [[weaponregex.model.mutation.Mutant]] with the
@@ -49,12 +54,17 @@ private[internal] trait TokenMutatorSyntax {
       * @return
       *   A [[weaponregex.model.mutation.Mutant]]
       */
-    def toMutantBeforeChildrenOf(token: RegexTree, description: Option[String] = None): Mutant = {
-      val loc: Location = token match {
-        case node: Node if node.children.nonEmpty => Location(token.location.start, node.children.head.location.start)
-        case _                                    => token.location
+    def toMutantBeforeChildrenOf(
+        token: RegexTree,
+        replacement: String,
+        description: Option[String] = None
+    ): Mutant = {
+      val (loc: Location, r: String) = token match {
+        case node: Node if node.children.nonEmpty =>
+          (Location(token.location.start, node.children.head.location.start), replacement)
+        case _ => (token.location, pattern)
       }
-      toMutantOf(token, Some(loc), description)
+      toMutantOf(token, r, Some(loc), description)
     }
 
     /** Convert a mutated pattern string into a [[weaponregex.model.mutation.Mutant]] with the
@@ -69,12 +79,17 @@ private[internal] trait TokenMutatorSyntax {
       * @return
       *   A [[weaponregex.model.mutation.Mutant]]
       */
-    def toMutantAfterChildrenOf(token: RegexTree, description: Option[String] = None): Mutant = {
-      val loc: Location = token match {
-        case node: Node if node.children.nonEmpty => Location(node.children.last.location.end, token.location.end)
-        case _                                    => token.location
+    def toMutantAfterChildrenOf(
+        token: RegexTree,
+        replacement: String,
+        description: Option[String] = None
+    ): Mutant = {
+      val (loc: Location, r: String) = token match {
+        case node: Node if node.children.nonEmpty =>
+          (Location(node.children.last.location.end, token.location.end), replacement)
+        case _ => (token.location, pattern)
       }
-      toMutantOf(token, Some(loc), description)
+      toMutantOf(token, r, Some(loc), description)
     }
   }
 }
