@@ -13,5 +13,14 @@ import weaponregex.model.Location
   *   The mutation levels of the mutator
   * @param description
   *   Description on the mutation
+  * @param replacement
+  *   The part of the pattern that has been changed
   */
-case class Mutant(pattern: String, name: String, location: Location, levels: Seq[Int], description: String)
+case class Mutant(
+    pattern: String,
+    name: String,
+    location: Location,
+    levels: Seq[Int],
+    description: String,
+    replacement: String
+)

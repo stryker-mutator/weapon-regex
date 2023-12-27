@@ -1,15 +1,18 @@
 package weaponregex.internal.mutator
 
+import munit.Location
 import weaponregex.internal.extension.EitherExtension.LeftStringEitherTest
 import weaponregex.internal.extension.RegexTreeExtension.RegexTreeMutator
 import weaponregex.internal.model.regextree.RegexTree
 import weaponregex.internal.parser.Parser
+import weaponregex.model.mutation.Mutant
 import weaponregex.mutator.BuiltinMutators
 
 class RegexTreeMutatorTest extends munit.FunSuite {
 
+  val regex = """^(a*|b+(?=c)|[[c-z]XYZ]{3,}(ABC{4}DEF{5,9}\w)\p{Alpha})$"""
   val tree: RegexTree =
-    Parser("""^(a*|b+(?=c)|[[c-z]XYZ]{3,}(ABC{4}DEF{5,9}\w)\p{Alpha})$""").getOrFail
+    Parser(regex).getOrFail
 
   test("Filters mutators with level 1") {
     val levels = Seq(1)
@@ -126,4 +129,51 @@ class RegexTreeMutatorTest extends munit.FunSuite {
     val mutants = tree.mutate(Nil)
     assert(clue(mutants).isEmpty)
   }
+
+  test("Adds correct replacement") {
+    val regex = """^a{4,}[ab]$"""
+    val tree = Parser(regex).getOrFail
+    val mutants = tree.mutate(BuiltinMutators.atLevels(Seq(2)))
+
+    val expected = Seq[(String, String, Location)](
+      ("a{4,}[ab]$", "", implicitly),
+      ("^a{4,}[ab]", "", implicitly),
+      ("\\Aa{4,}[ab]$", "\\A", implicitly),
+      ("^a{3,}[ab]$", "{3,}", implicitly),
+      ("^a{5,}[ab]$", "{5,}", implicitly),
+      ("^a{4}[ab]$", "{4}", implicitly),
+      ("^a{4,}[b]$", "", implicitly),
+      ("^a{4,}[a]$", "", implicitly),
+      ("^a{4,}[\\w\\W]$", "[\\w\\W]", implicitly),
+      ("^a{4,}[ab]\\z", "\\z", implicitly)
+    )
+
+    assertEquals(mutants.length, expected.length, mutants.map(_.replacement))
+    expected.zipWithIndex.foreach { case ((pattern, replacement, loc), i) =>
+      implicit val location: Location = loc
+      val m = mutants(i)
+
+      assertEquals(m.pattern, pattern, clue = s"${m.name} ${m.description}")
+      assertEquals(m.replacement, replacement, clue = s"${m.name} ${m.description}")
+      assertReplacementPosition(m, regex, i)
+    }
+  }
+
+  test("replacement position is accurate") {
+    tree.mutate(BuiltinMutators.all).zipWithIndex.foreach { case (mutant, i) =>
+      assertReplacementPosition(mutant, regex, i)
+    }
+  }
+
+  def assertReplacementPosition(mutant: Mutant, regex: String, i: Int)(implicit loc: Location): Unit = {
+    val start = regex.substring(0, mutant.location.start.column)
+    val end = regex.substring(mutant.location.end.column)
+
+    assertNoDiff(
+      start + mutant.replacement + end,
+      mutant.pattern,
+      clue = s"$i: ${mutant.name} ${mutant.description}"
+    )
+  }
+
 }

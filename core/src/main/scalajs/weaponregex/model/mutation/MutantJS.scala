@@ -34,4 +34,8 @@ case class MutantJS(mutant: Mutant) {
   /** Description on the mutation
     */
   val description: String = mutant.description
+
+  /** The part of the pattern that has been changed
+    */
+  val replacement: String = mutant.replacement
 }

@@ -77,5 +77,5 @@ object UnicodeCharClassNegation extends TokenMutator {
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case ucc: UnicodeCharClass => Seq(ucc.copy(isPositive = !ucc.isPositive))
     case _                     => Nil
-  }) map (_.build.toMutantBeforeChildrenOf(token))
+  }) map (g => g.build.toMutantBeforeChildrenOf(token, replacement = g.prefix))
 }

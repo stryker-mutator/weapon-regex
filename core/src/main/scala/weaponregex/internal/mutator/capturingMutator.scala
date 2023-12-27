@@ -21,7 +21,7 @@ object GroupToNCGroup extends TokenMutator {
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case group @ Group(_, true, _) => Seq(group.copy(isCapturing = false))
     case _                         => Nil
-  }) map (_.build.toMutantBeforeChildrenOf(token))
+  }) map (g => g.build.toMutantBeforeChildrenOf(token, replacement = g.prefix))
 }
 
 /** Mutator for lookaround constructs (lookahead, lookbehind) negation
@@ -39,5 +39,5 @@ object LookaroundNegation extends TokenMutator {
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case la: Lookaround => Seq(la.copy(isPositive = !la.isPositive))
     case _              => Nil
-  }) map (_.build.toMutantBeforeChildrenOf(token))
+  }) map (g => g.build.toMutantBeforeChildrenOf(token, replacement = g.prefix))
 }

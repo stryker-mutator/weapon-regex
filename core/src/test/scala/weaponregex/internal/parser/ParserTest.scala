@@ -22,9 +22,10 @@ trait ParserTest {
   val octCharacters: String
   val predefCharClasses: String
 
-  def treeBuildTest(tree: RegexTree, pattern: String): Unit = assertEquals(tree.build, pattern)
+  def treeBuildTest(tree: RegexTree, pattern: String)(implicit loc: Location): Unit =
+    assertEquals(tree.build, pattern)
 
-  def parseErrorTest(pattern: String, flags: Option[String] = None): Unit = {
+  def parseErrorTest(pattern: String, flags: Option[String] = None)(implicit loc: Location): Unit = {
     val parsedTree = Parser(pattern, flags, parserFlavor)
 
     assert(clue(parsedTree) match {
@@ -640,6 +641,11 @@ trait ParserTest {
   test("Parser failure mid-regex") {
     val pattern = "abc(def"
     parseErrorTest(pattern)
+  }
+
+  test("Parse complex regular expression") {
+    val pattern = """^(a*|b+(?=c)|[[c-z]XYZ]{3,}(ABC{4}DEF{5,9}\w)\p{Alpha})$"""
+    treeBuildTest(Parser(pattern, parserFlavor).getOrFail, pattern)
   }
 
   implicit class RegexTreeCastExtension(tree: RegexTree) {
