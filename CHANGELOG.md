@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/stryker-mutator/weapon-regex/compare/v1.2.1...v1.3.0) (2023-12-27)
+
+
+### Features
+
+* add replacement field to Mutant ([#274](https://github.com/stryker-mutator/weapon-regex/issues/274)) ([2b2dfc8](https://github.com/stryker-mutator/weapon-regex/commit/2b2dfc8182f9d261f8a3b1c55a8b6bdbbfce2c72))
+
 ## [1.2.1](https://github.com/stryker-mutator/weapon-regex/compare/v1.2.0...v1.2.1) (2023-12-13)
 
 
