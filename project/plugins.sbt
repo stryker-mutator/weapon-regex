@@ -1,7 +1,7 @@
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.14.0")
 addSbtPlugin("com.eed3si9n" % "sbt-projectmatrix" % "0.9.2")
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.2")
-addSbtPlugin("io.stryker-mutator" % "sbt-stryker4s" % "0.15.2")
+addSbtPlugin("io.stryker-mutator" % "sbt-stryker4s" % "0.16.0")
 addSbtPlugin("com.github.sbt" % "sbt-ci-release" % "1.5.12")
 addSbtPlugin("org.scalameta" % "sbt-mdoc" % "2.5.2")
 addSbtPlugin("org.typelevel" % "sbt-tpolecat" % "0.5.0")
