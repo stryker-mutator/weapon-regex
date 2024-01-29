@@ -25,8 +25,8 @@ jobs:
         run: sbt "docs/mdoc"
       - name: Commit
         run: |
-          git config --global user.name 'Stryker Mutator NPA'
-          git config --global user.email 'stryker-mutator@users.noreply.github.com'
+          git config --global user.name "stryker-mutator[bot]"
+          git config --global user.email 158062761+stryker-mutator[bot]@users.noreply.github.com
           git pull
           git add .
           git commit -m "docs: update docs"
