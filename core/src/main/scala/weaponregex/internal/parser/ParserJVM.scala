@@ -97,6 +97,15 @@ private[weaponregex] class ParserJVM private[parser] (pattern: String) extends P
     )
       .map { case (loc, (hat, nodes)) => CharacterClass(nodes, loc, isPositive = hat.isEmpty) }
 
+  /** Parse a group name
+    * @return
+    *   the parsed name string
+    * @example
+    *   `"name1"`
+    */
+  override def groupName[A: P]: P[String] =
+    P(CharIn("a-z", "A-Z") ~ CharIn("a-z", "A-Z", "0-9").rep).!
+
   /** Intermediate parsing rule for special construct tokens which can parse either `namedGroup`, `nonCapturingGroup`,
     * `flagToggleGroup`, `flagNCGroup`, `lookaround` or `atomicGroup`
     * @return

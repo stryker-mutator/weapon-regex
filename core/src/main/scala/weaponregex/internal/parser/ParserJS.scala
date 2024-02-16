@@ -73,6 +73,15 @@ private[weaponregex] class ParserJS private[parser] (pattern: String, val flags:
     else
       P(preDefinedCharClass | metaCharacter | range | quoteChar | charClassCharLiteral)
 
+  /** Parse a group name
+    * @return
+    *   the parsed name string
+    * @example
+    *   `"name1"`
+    */
+  override def groupName[A: P]: P[String] =
+    P(CharIn("a-z", "A-Z", "_") ~ CharIn("a-z", "A-Z", "0-9", "_").rep).!
+
   /** Parse a quoted character (any character). If [[weaponregex.internal.parser.ParserJS unicodeMode]] is true, only
     * the following characters are allowed: `^ $ \ . * + ? ( ) [ ] { } |` or `/`
     * @return
