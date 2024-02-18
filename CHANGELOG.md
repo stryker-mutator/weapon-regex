@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.1](https://github.com/stryker-mutator/weapon-regex/compare/v1.3.0...v1.3.1) (2024-02-18)
+
+
+### Bug Fixes
+
+* **group-name:** Fix valid group name ([#300](https://github.com/stryker-mutator/weapon-regex/issues/300)) ([f9789b1](https://github.com/stryker-mutator/weapon-regex/commit/f9789b1cdf030fb221c7875e10de8a36dffb9955))
+* use correct git info for stryker-mutator bot ([#290](https://github.com/stryker-mutator/weapon-regex/issues/290)) ([ccdc34c](https://github.com/stryker-mutator/weapon-regex/commit/ccdc34c49862822d17e599fcdeb3298b2c8121a2))
+
 ## [1.3.0](https://github.com/stryker-mutator/weapon-regex/compare/v1.2.1...v1.3.0) (2023-12-27)
 
 
