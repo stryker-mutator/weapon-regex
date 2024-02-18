@@ -293,6 +293,48 @@ class ParserJSTest extends munit.FunSuite with ParserTest {
     treeBuildTest(parsedTree, pattern)
   }
 
+  test("Parse named capturing group with underscores in name") {
+    val pattern = "(?<group_Name_1>hello)(?<Group_Name_2>world)"
+    val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Concat]
+
+    assert(clue(parsedTree.children.head) match {
+      case NamedGroup(_: Concat, name, _) => name == "group_Name_1"
+      case _                              => false
+    })
+    assert(clue(parsedTree.children.last) match {
+      case NamedGroup(_: Concat, name, _) => name == "Group_Name_2"
+      case _                              => false
+    })
+
+    treeBuildTest(parsedTree, pattern)
+  }
+
+  test("Parse nested named capturing group with underscores in name") {
+    val pattern = "(?<group_Name_1>hello(?<Group_Name_2>world))"
+    val parsedTree = Parser(pattern, parserFlavor).getOrFail
+
+    assert(clue(parsedTree) match {
+      case NamedGroup(Concat(nodes, _), "group_Name_1", _) =>
+        assert(clue(nodes.last) match {
+          case NamedGroup(_: Concat, "Group_Name_2", _) => true
+          case _                                        => false
+        })
+        true
+      case _ => false
+    })
+
+    treeBuildTest(parsedTree, pattern)
+  }
+
+  test("Parse named reference with underscores in name") {
+    val pattern = """\k<name_1>"""
+    val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[NameReference]
+
+    assertEquals(parsedTree.name, "name_1")
+
+    treeBuildTest(parsedTree, pattern)
+  }
+
   test("Unparsable: flag toggle group i-i") {
     val pattern = "(?idmsuxU-idmsuxU)"
     parseErrorTest(pattern)

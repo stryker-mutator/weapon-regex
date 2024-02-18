@@ -441,13 +441,13 @@ abstract private[weaponregex] class Parser(val pattern: String) {
   def group[A: P]: P[Group] = Indexed("(" ~ RE ~ ")")
     .map { case (loc, expr) => Group(expr, isCapturing = true, loc) }
 
-  /** Parse a group name that starts with a letter and followed by zero or more alphanumeric characters
+  /** Parse a group name
     * @return
     *   the parsed name string
     * @example
     *   `"name1"`
     */
-  def groupName[A: P]: P[String] = P(CharIn("a-z", "A-Z") ~ CharIn("a-z", "A-Z", "0-9").rep).!
+  def groupName[A: P]: P[String]
 
   /** Parse a named-capturing group
     * @return
