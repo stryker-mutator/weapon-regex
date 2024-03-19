@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.2](https://github.com/stryker-mutator/weapon-regex/compare/v1.3.1...v1.3.2) (2024-03-19)
+
+
+### Build System
+
+* update scala.js to 1.16.0 ([#316](https://github.com/stryker-mutator/weapon-regex/issues/316)) ([6a30210](https://github.com/stryker-mutator/weapon-regex/commit/6a30210f9f1b78436670ced3982d62bebbb9bb51))
+
 ## [1.3.1](https://github.com/stryker-mutator/weapon-regex/compare/v1.3.0...v1.3.1) (2024-02-18)
 
 
