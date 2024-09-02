@@ -15,6 +15,6 @@
   },
   "devDependencies": {
     "@types/mocha": "^10.0.7",
-    "@types/node": "^22.5.1"
+    "@types/node": "^22.5.2"
   }
 }
