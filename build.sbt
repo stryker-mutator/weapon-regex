@@ -9,7 +9,7 @@ disablePlugins(MimaPlugin)
 
 val Scala212 = "2.12.20"
 val Scala213 = "2.13.15"
-val Scala3 = "3.3.4"
+val Scala3 = "3.5.1"
 
 inThisBuild(
   List(
