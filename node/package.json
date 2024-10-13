@@ -4,17 +4,14 @@
   "description": "Integration tests for the JS variant of Weapon regeX ",
   "private": true,
   "type": "module",
-  "main": "index.js",
+  "main": "test/api.js",
   "scripts": {
-    "test": "mocha"
+    "test": "node --test"
   },
   "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "mocha": "^10.7.3"
-  },
+  "license": "Apache-2.0",
+  "dependencies": {},
   "devDependencies": {
-    "@types/mocha": "^10.0.9",
     "@types/node": "^22.7.5"
   }
 }
