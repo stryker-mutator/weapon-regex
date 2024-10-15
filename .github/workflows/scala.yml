@@ -19,12 +19,7 @@ jobs:
         # Fetch all tags
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
       - run: git fetch --tags
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 21
-          cache: 'sbt'
+      - uses: ./.github/setup
       - name: Compile code
         run: sbt "compile; docs3/mdoc --check; mimaReportBinaryIssues"
 
@@ -32,12 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 21
-          cache: 'sbt'
+      - uses: ./.github/setup
       - name: Check formatting
         run: sbt scalafmtCheckAll
 
@@ -50,12 +40,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 21
-          cache: 'sbt'
+      - uses: ./.github/setup
       - name: Test
         run: sbt test
 
@@ -63,12 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 21
-          cache: 'sbt'
+      - uses: ./.github/setup
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -87,12 +67,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 21
-          cache: 'sbt'
+      - uses: ./.github/setup
       - name: Run stryker
         run: sbt 'project WeaponRegeX; stryker'
         env:
@@ -112,13 +87,8 @@ jobs:
           fetch-depth: 0
         # Fetch all tags
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 21
-          cache: 'sbt'
       - run: git fetch --tags
+      - uses: ./.github/setup
       - name: Set NPM Env
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
       - name: Publish code
