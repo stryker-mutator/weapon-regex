@@ -651,7 +651,7 @@ trait ParserTest {
   implicit class RegexTreeCastExtension(tree: RegexTree) {
     def to[T <: RegexTree](implicit ct: ClassTag[T], loc: Location): T = tree match {
       case t: T => t
-      case _ =>
+      case _    =>
         fail(s"Expected '${ct.runtimeClass.getSimpleName}', but got '${tree.getClass.getSimpleName}'", clues(tree))
     }
   }

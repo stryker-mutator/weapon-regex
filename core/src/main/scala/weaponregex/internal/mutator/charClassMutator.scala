@@ -118,7 +118,7 @@ object CharClassRangeModification extends TokenMutator {
       case range: Range =>
         (range.from.char, range.to.char) match {
           case (l, r) if !(l.isDigit && r.isDigit) && !(l.isLetter && r.isLetter) => Nil
-          case (l, r) if isRightBound(l) && isRightBound(r) =>
+          case (l, r) if isRightBound(l) && isRightBound(r)                       =>
             Seq(_mutate(range, isLeft = true, isIncrease = false))
           case (l, r) if isLeftBound(l) && isLeftBound(r) =>
             Seq(_mutate(range, isLeft = false, isIncrease = true))
