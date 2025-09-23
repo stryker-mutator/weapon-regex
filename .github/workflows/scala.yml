@@ -89,6 +89,9 @@ jobs:
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
       - run: git fetch --tags
       - uses: ./.github/setup
+      # Ensure npm 11.5.1 or later is installed
+      - name: Update npm
+        run: npm install -g npm@latest
       - name: Publish code
         run: sbt ci-release
         env:
