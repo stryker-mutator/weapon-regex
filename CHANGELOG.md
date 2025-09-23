@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.4](https://github.com/stryker-mutator/weapon-regex/compare/v1.3.3...v1.3.4) (2025-09-23)
+
+
+### Miscellaneous Chores
+
+* release 1.3.4 with OIDC publishing ([f73d6e3](https://github.com/stryker-mutator/weapon-regex/commit/f73d6e345325757b7f651a9c6c1bad5f91990f67))
+
 ## [1.3.3](https://github.com/stryker-mutator/weapon-regex/compare/v1.3.2...v1.3.3) (2025-08-04)
 
 
