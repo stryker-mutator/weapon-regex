@@ -12,6 +12,6 @@
   "license": "Apache-2.0",
   "dependencies": {},
   "devDependencies": {
-    "@types/node": "^24.6.0"
+    "@types/node": "^24.6.1"
   }
 }
