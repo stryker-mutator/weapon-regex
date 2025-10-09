@@ -6,7 +6,7 @@ private[weaponregex] object TokenMutatorExtension {
 
   /** The extension that filter a given sequence of [[weaponregex.model.mutation.TokenMutator]]
     */
-  implicit class TokenMutatorsFiltering(mutators: Seq[TokenMutator]) {
+  implicit class TokenMutatorsFiltering(val mutators: Seq[TokenMutator]) extends AnyVal {
 
     /** Filter token mutators based on the given mutation level
       * @param mutationLevel

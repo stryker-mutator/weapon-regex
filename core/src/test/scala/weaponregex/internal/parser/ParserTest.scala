@@ -648,7 +648,7 @@ trait ParserTest {
     treeBuildTest(Parser(pattern, parserFlavor).getOrFail, pattern)
   }
 
-  implicit class RegexTreeCastExtension(tree: RegexTree) {
+  implicit class RegexTreeCastExtension(val tree: RegexTree) extends AnyVal {
     def to[T <: RegexTree](implicit ct: ClassTag[T], loc: Location): T = tree match {
       case t: T => t
       case _    =>
