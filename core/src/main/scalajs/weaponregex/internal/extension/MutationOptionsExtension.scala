@@ -9,7 +9,7 @@ private[weaponregex] object MutationOptionsExtension {
 
   /** The extension that converts a given [[weaponregex.model.MutationOptions]]
     */
-  implicit class MutationOptionsConverter(mutationOptions: MutationOptions) {
+  implicit class MutationOptionsConverter(val mutationOptions: MutationOptions) extends AnyVal {
 
     /** Convert to a Scala tuple of (mutators, mutationLevels, flavor)
       * @return
