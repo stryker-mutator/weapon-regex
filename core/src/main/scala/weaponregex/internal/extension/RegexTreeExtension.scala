@@ -53,7 +53,7 @@ private[weaponregex] object RegexTreeExtension {
 
   /** The extension that traverses and mutates a given [[weaponregex.internal.model.regextree.RegexTree]]
     */
-  implicit class RegexTreeMutator(tree: RegexTree) {
+  implicit class RegexTreeMutator(val tree: RegexTree) extends AnyVal {
 
     /** Mutate using the given mutators in some specific mutation levels
       *

@@ -4,7 +4,7 @@ import fastparse.internal.Util
 import weaponregex.model.*
 
 private[weaponregex] object StringExtension {
-  implicit class StringIndexExtension(string: String) {
+  implicit class StringIndexExtension(val string: String) extends AnyVal {
 
     /** Convert an index of into row and column numbers in the given string.
       *
@@ -34,7 +34,7 @@ private[weaponregex] object StringExtension {
       *   A [[weaponregex.model.Position]]
       */
     final def positionOf(index: Int): Position = {
-      val (line, column) = string toLineCol index
+      val (line, column) = string.toLineCol(index)
       Position(line, column)
     }
 
@@ -46,10 +46,10 @@ private[weaponregex] object StringExtension {
       * @return
       *   A [[weaponregex.model.Location]]
       */
-    final def locationOf(start: Int, end: Int): Location = Location(string positionOf start, string positionOf end)
+    final def locationOf(start: Int, end: Int): Location = Location(string.positionOf(start), string.positionOf(end))
   }
 
-  implicit class StringStylingExtension(string: String) {
+  implicit class StringStylingExtension(val string: String) extends AnyVal {
 
     /** Character-wise toggling the case of a String
       * @return
