@@ -130,7 +130,7 @@ generatePackageJson := s"""{
                           |  },
                           |  "repository": {
                           |    "type": "git",
-                          |    "url": "${homepage.value.get}"
+                          |    "url": "git+${homepage.value.get}.git"
                           |  },
                           |  "keywords": [
                           |    "regex",
