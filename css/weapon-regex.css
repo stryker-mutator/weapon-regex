@@ -1,46 +1,57 @@
 :root {
-    --stryker-red: #e84b39;
-    --stryker-yellow: #f1c413;
-    --mutant-text: black;
-    --mutant-removed: var(--stryker-red);
-    --mutant-added: green;
-    --bg-light: white;
-    --bg-light-1: #E9EDEE;
+  --stryker-red: #e84b39;
+  --stryker-yellow: #f1c413;
+  --mutant-text: var(--bs-body-color);
+  --mutant-removed: var(--bs-red);
+  --mutant-added: var(--bs-green);
 }
 
 .main-content {
-    padding-top: 5%;
+  padding-top: 5%;
 }
 
 .card {
-    margin-bottom: 1rem;
+  margin-bottom: 1rem;
 }
 
 .mutant-decompose {
-    font-weight: bold;
+  font-weight: bold;
+}
+
+.mutant-regex {
+  font-family: monospace;
 }
 
 .mut-pre {
-    display: inline-block;
-    color: var(--mutant-text);
+  display: inline-block;
+  color: var(--mutant-text);
 }
 
 .mut-rem {
-    display: inline-block;
-    color: var(--mutant-removed);
-    text-decoration: line-through;
+  display: inline-block;
+  color: var(--mutant-removed);
+  text-decoration: line-through;
 }
 
 .mut-add {
-    display: inline-block;
-    color: var(--mutant-added);
+  display: inline-block;
+  color: var(--mutant-added);
 }
 
 .mut-pos {
-    display: inline-block;
-    color: var(--mutant-text);
+  display: inline-block;
+  color: var(--mutant-text);
 }
 
 .btn:hover .gh-logo {
+  filter: invert(1);
+}
+
+[data-bs-theme='dark'] {
+  .btn .gh-logo {
     filter: invert(1);
+  }
+  .btn:hover .gh-logo {
+    filter: invert(0);
+  }
 }
