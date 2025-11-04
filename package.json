@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/stryker-mutator/weapon-regex"
+    "url": "git+https://github.com/stryker-mutator/weapon-regex.git"
   },
   "keywords": [
     "regex",
