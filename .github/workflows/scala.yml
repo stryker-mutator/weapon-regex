@@ -12,7 +12,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           # Fetch all commits, used by sbt-dynver plugin to determine version
           fetch-depth: 0
@@ -26,7 +26,7 @@ jobs:
   formatting:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ./.github/setup
       - name: Check formatting
         run: sbt scalafmtCheckAll
@@ -39,7 +39,7 @@ jobs:
         os: ['ubuntu-latest', 'windows-latest']
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ./.github/setup
       - name: Test
         run: sbt test
@@ -47,7 +47,7 @@ jobs:
   test-js:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ./.github/setup
       - uses: actions/setup-node@v6
         with:
@@ -66,7 +66,7 @@ jobs:
   mutation-testing:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           # Fetch all commits, used by sbt-dynver plugin to determine version
           fetch-depth: 0
@@ -84,7 +84,7 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           # Fetch all commits, used by sbt-dynver plugin to determine version
           fetch-depth: 0
