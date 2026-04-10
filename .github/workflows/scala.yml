@@ -51,7 +51,7 @@ jobs:
       - uses: ./.github/setup
       - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 'lts/*'
           cache: 'npm'
           cache-dependency-path: node/package-lock.json
       - name: Generate JS
