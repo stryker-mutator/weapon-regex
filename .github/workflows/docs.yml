@@ -18,7 +18,7 @@ jobs:
         id: generate-token
         uses: actions/create-github-app-token@v3
         with:
-          app-id: ${{ vars.STRYKER_MUTATOR_APP_ID }}
+          client-id: ${{ vars.STRYKER_MUTATOR_CLIENT_ID }}
           private-key: ${{ secrets.STRYKER_MUTATOR_NPA_KEY }}
       - uses: ./.github/setup
       - name: Compile docs
