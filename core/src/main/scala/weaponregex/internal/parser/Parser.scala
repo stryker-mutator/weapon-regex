@@ -1,13 +1,12 @@
 package weaponregex.internal.parser
 
-import fastparse.*
+import cats.parse.Rfc5234.*
+import cats.parse.{Numbers, Parser as P, Parser0 as P0}
+import cats.syntax.show.*
 import weaponregex.internal.constant.ErrorMessage
-import weaponregex.internal.extension.StringExtension.StringIndexExtension
 import weaponregex.internal.model.regextree.*
 import weaponregex.model.*
 import weaponregex.parser.*
-
-import NoWhitespace.*
 
 /** Companion object for [[weaponregex.internal.parser.Parser]] class that instantiates flavor-specific parsers
   * instances
@@ -27,8 +26,8 @@ private[weaponregex] object Parser {
     flavor match {
       case ParserFlavorJVM =>
         if (flags.isDefined) Left(ErrorMessage.jvmWithStringFlags)
-        else new ParserJVM(pattern).parse
-      case ParserFlavorJS => new ParserJS(pattern, flags).parse
+        else ParserJVM.parse(pattern)
+      case ParserFlavorJS => ParserJS(flags).parse(pattern)
       case null           => Left(ErrorMessage.unsupportedFlavor)
     }
 
@@ -44,42 +43,40 @@ private[weaponregex] object Parser {
 }
 
 /** The based abstract parser
-  * @param pattern
-  *   The regex pattern to be parsed
   * @note
   *   The parsing rules methods inside this class is created based on the defined grammar
   */
-abstract private[weaponregex] class Parser(val pattern: String) {
+abstract private[weaponregex] class Parser {
 
   /** Regex special characters
     */
-  val specialChars: String
+  protected val specialChars: String
 
   /** Special characters within a character class
     */
-  val charClassSpecialChars: String
+  protected val charClassSpecialChars: String
 
   /** Allowed boundary meta-characters
     */
-  val boundaryMetaChars: String
+  protected val boundaryMetaChars: String
 
   /** Allowed escape characters
     */
-  val escapeChars: String
+  protected val escapeChars: String
 
   /** Allowed predefined character class characters
     */
-  val predefCharClassChars: String
+  protected val predefCharClassChars: String
 
   /** Minimum number of character class items of a valid character class
     */
-  val minCharClassItem: Int
+  protected val minCharClassItem: Int
 
   /** The escape character used with a code point
     * @example
     *   `\ x{h..h}` or `\ u{h..h}`
     */
-  val codePointEscChar: String
+  protected val codePointEscChar: Char
 
   /** A higher order parser that add [[weaponregex.model.Location]] index information of the parse of the given parser
     * @param p
@@ -87,8 +84,19 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @return
     *   A tuple of the [[weaponregex.model.Location]] of the parse, and the return of the given parser `p`
     */
-  def Indexed[A: P, T](p: => P[T]): P[(Location, T)] = P(Index ~ p ~ Index)
-    .map { case (i, t, j) => (pattern.locationOf(i, j), t) }
+  protected def indexed[A](p: P[A]): P[(Location, A)] =
+    (P.caret.with1 ~ p ~ P.caret).map { case ((i, a), j) => (Location.fromCaret(i, j), a) }
+
+  /** A higher order parser that add [[weaponregex.model.Location]] index information of the parse of the given parser
+    * @param p
+    *   the parser to be indexed
+    * @return
+    *   A tuple of the [[weaponregex.model.Location]] of the parse, and the return of the given parser `p`
+    */
+  protected def indexed0[A](p: P0[A]): P0[(Location, A)] =
+    (P.caret ~ p ~ P.caret).map { case ((i, a), j) => (Location.fromCaret(i, j), a) }
+
+  protected val backslash: P[Unit] = P.char('\\')
 
   /** Parse an integer with any number of digits between 0 and 9
     * @return
@@ -96,13 +104,13 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @example
     *   `"123"`
     */
-  def number[A: P]: P[Int] = P(CharIn("0-9").rep(1).!) map (_.toInt)
+  protected val number: P[Int] = Numbers.nonNegativeIntString.map(_.toInt)
 
   /** Parse special cases of a character literal
     * @return
     *   The captured character as a string
     */
-  def charLiteralSpecialCases[A: P]: P[String] = Fail
+  protected val charLiteralSpecialCases: P[Char] = P.fail
 
   /** Parse a single literal character that is not a regex special character
     * @return
@@ -112,15 +120,16 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @see
     *   [[weaponregex.internal.parser.Parser.specialChars]]
     */
-  def charLiteral[A: P]: P[Character] =
-    Indexed(CharPred(!specialChars.contains(_)).! | charLiteralSpecialCases)
-      .map { case (loc, c) => Character(c.head, loc) }
+  protected val charLiteral: P[Character] =
+    indexed(
+      P.defer(P.charWhere(c => !specialChars.contains(c)) | charLiteralSpecialCases)
+    ).map { case (loc, c) => Character(c, loc) }
 
   /** Intermediate parsing rule for character-related tokens which can parse either `metaCharacter` or `charLiteral`
     * @return
     *   [[weaponregex.internal.model.regextree.RegexTree]] (sub)tree
     */
-  def character[A: P]: P[RegexTree] = P(metaCharacter | charLiteral)
+  protected val character: P[RegexTree] = P.defer(metaCharacter.backtrack) | charLiteral
 
   /** Parse a beginning of line character (`^`)
     * @return
@@ -128,8 +137,7 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @example
     *   `"^"`
     */
-  def bol[A: P]: P[BOL] = Indexed(P("^"))
-    .map { case (loc, _) => BOL(loc) }
+  protected val bol: P[BOL] = indexed(P.char('^')).map { case (loc, _) => BOL(loc) }
 
   /** Parse a beginning of line character (`$`)
     * @return
@@ -137,8 +145,7 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @example
     *   `"$"`
     */
-  def eol[A: P]: P[EOL] = Indexed(P("$"))
-    .map { case (loc, _) => EOL(loc) }
+  protected val eol: P[EOL] = indexed(P.char('$')).map { case (loc, _) => EOL(loc) }
 
   /** Parse a boundary meta-character character
     * @return
@@ -148,22 +155,31 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @see
     *   [[weaponregex.internal.parser.Parser.boundaryMetaChars]]
     */
-  def boundaryMetaChar[A: P]: P[Boundary] = Indexed("""\""" ~ CharPred(boundaryMetaChars.contains(_)).!)
-    .map { case (loc, b) => Boundary(b, loc) }
+  protected val boundaryMetaChar: P[Boundary] =
+    indexed(backslash *> P.defer(P.charIn(boundaryMetaChars)))
+      .map { case (loc, b) => Boundary(b, loc) }
 
   /** Intermediate parsing rule for boundary tokens which can parse either `bol`, `eol` or `boundaryMetaChar`
     * @return
     *   [[weaponregex.internal.model.regextree.RegexTree]] (sub)tree
     */
-  def boundary[A: P]: P[RegexTree] = P(bol | eol | boundaryMetaChar)
+  protected val boundary: P[RegexTree] = bol | eol | boundaryMetaChar.backtrack
 
   /** Intermediate parsing rule for meta-character tokens which can parse either `charOct`, `charHex`, `charUnicode`,
     * `charHexBrace` or `escapeChar`
     * @return
     *   [[weaponregex.internal.model.regextree.RegexTree]] (sub)tree
     */
-  def metaCharacter[A: P]: P[RegexTree] = P(
-    charOct | charHex | charUnicode | charCodePoint | hexEscCharConsumer | escapeChar | controlChar
+  protected val metaCharacter: P[RegexTree] = P.defer(
+    P.oneOf(
+      charOct.backtrack ::
+        charHex.backtrack ::
+        charUnicode.backtrack ::
+        charCodePoint.backtrack ::
+        hexEscCharConsumer ::
+        escapeChar.backtrack ::
+        controlChar.backtrack :: Nil
+    )
   )
 
   /** Parse an escape meta-character
@@ -174,9 +190,9 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @see
     *   [[weaponregex.internal.parser.Parser.escapeChars]]
     */
-  def escapeChar[A: P]: P[MetaChar] =
-    Indexed("""\""" ~ CharPred(escapeChars.contains(_)).!)
-      .map { case (loc, c) => MetaChar(c, loc) }
+  protected val escapeChar: P[MetaChar] =
+    indexed(backslash *> P.defer(P.charIn(escapeChars)))
+      .map { case (loc, c) => MetaChar(c.toString(), loc) }
 
   /** Parse an control meta-character based on caret notation
     * @return
@@ -186,8 +202,8 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @see
     *   [[https://en.wikipedia.org/wiki/Caret_notation]]
     */
-  def controlChar[A: P]: P[ControlChar] =
-    Indexed("""\c""" ~ CharIn("a-zA-Z").!)
+  protected val controlChar: P[ControlChar] =
+    indexed(P.string("\\c") *> alpha)
       .map { case (loc, c) => ControlChar(c, loc) }
 
   /** Parse a character with octal value
@@ -196,15 +212,7 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @example
     *   `"\012"`
     */
-  def charOct[A: P]: P[MetaChar]
-
-  /** Parse a single hexadecimal digit
-    * @return
-    *   the parsed hexadecimal digit as a `String`
-    * @example
-    *   `"F"`
-    */
-  def hexDigit[A: P]: P[String] = P(CharIn("0-9a-fA-F").!)
+  protected val charOct: P[MetaChar]
 
   /** Parse a character with hexadecimal value `\xhh`
     * @return
@@ -212,8 +220,9 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @example
     *   `"\x01"`
     */
-  def charHex[A: P]: P[MetaChar] = Indexed("""\x""" ~ hexDigit.rep(exactly = 2).!)
-    .map { case (loc, hexDigits) => MetaChar("x" + hexDigits, loc) }
+  protected val charHex: P[MetaChar] =
+    indexed(P.string("\\x") *> hexdig.repExactlyAs[String](2))
+      .map { case (loc, hexDigits) => MetaChar("x" + hexDigits, loc) }
 
   /** Parse a unicode character `\ uhhhh`
     * @return
@@ -221,8 +230,9 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @example
     *   `"\ u0020"`
     */
-  def charUnicode[A: P]: P[MetaChar] = Indexed("\\u" ~ hexDigit.rep(exactly = 4).!)
-    .map { case (loc, hexDigits) => MetaChar("u" + hexDigits, loc) }
+  protected val charUnicode: P[MetaChar] =
+    indexed(P.string("\\u") *> hexdig.repExactlyAs[String](4))
+      .map { case (loc, hexDigits) => MetaChar("u" + hexDigits, loc) }
 
   /** Parse a character with a code point `\x{h...h}`, where Character.MIN_CODE_POINT <= 0xh...h <=
     * Character.MAX_CODE_POINT and x is [[weaponregex.internal.parser.Parser#codePointEscChar]]
@@ -233,14 +243,12 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @see
     *   [[weaponregex.internal.parser.Parser#codePointEscChar]]
     */
-  def charCodePoint[A: P]: P[MetaChar] =
-    Indexed(s"\\$codePointEscChar" ~ "{" ~ hexDigit.rep(1).! ~ "}")
-      .map {
-        case (loc, hexDigits) if java.lang.Character.isValidCodePoint(Integer.parseInt(hexDigits, 16)) =>
-          MetaChar(s"$codePointEscChar{$hexDigits}", loc)
-        case _ =>
-          Fail
-          null
+  protected val charCodePoint: P[MetaChar] =
+    indexed(P.defer(hexdig.rep.string.between(P.string(s"\\$codePointEscChar{"), P.char('}'))))
+      .flatMap { case (loc, hexDigits) =>
+        if (java.lang.Character.isValidCodePoint(Integer.parseInt(hexDigits, 16)))
+          P.pure(MetaChar(s"$codePointEscChar{$hexDigits}", loc))
+        else P.failWith(s"Invalid code point: $hexDigits")
       }
 
   /** Used to consume a hexadecimal escape character `\ x` or `\ u` when all other hex related cases are checked and
@@ -248,10 +256,8 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @return
     *   a `null` dummy
     */
-  def hexEscCharConsumer[A: P]: P[RegexTree] = {
-    P("\\" ~ CharIn("xu"))./
-    null
-  }
+  protected val hexEscCharConsumer: P[RegexTree] =
+    P.stringIn(Set("\\x", "\\u")).void.flatMap(_ => P.fail)
 
   /** Parse a character range inside a character class
     * @return
@@ -259,14 +265,15 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @example
     *   `"a-z"`
     */
-  def range[A: P]: P[Range] = Indexed(charClassCharLiteral ~ "-" ~ charClassCharLiteral)
-    .map { case (loc, (from, to)) => Range(from, to, loc) }
+  protected val range: P[Range] = indexed(
+    P.defer(charClassCharLiteral ~ (P.char('-') *> charClassCharLiteral))
+  ).map { case (loc, (from, to)) => Range(from, to, loc) }
 
   /** Parse special cases of a character literal in a character class
     * @return
     *   The captured character as a string
     */
-  def charClassCharLiteralSpecialCases[A: P]: P[String] = Fail
+  protected val charClassCharLiteralSpecialCases: P[Char] = P.fail
 
   /** Parse a single literal character that is allowed to be in a character class
     * @return
@@ -276,17 +283,25 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @see
     *   [[weaponregex.internal.parser.Parser.charClassSpecialChars]]
     */
-  def charClassCharLiteral[A: P]: P[Character] =
-    Indexed(CharPred(!charClassSpecialChars.contains(_)).! | charClassCharLiteralSpecialCases)
-      .map { case (loc, c) => Character(c.head, loc) }
+  protected val charClassCharLiteral: P[Character] = indexed(
+    P.defer(P.charWhere(c => !charClassSpecialChars.contains(c)) | charClassCharLiteralSpecialCases)
+  ).map { case (loc, c) => Character(c, loc) }
 
   /** Intermediate parsing rule for character class item tokens which can parse either `charClass`,
     * `preDefinedCharClass`, `metaCharacter`, `range`, `quoteChar`, or `charClassCharLiteral`
     * @return
     *   [[weaponregex.internal.model.regextree.RegexTree]] (sub)tree
     */
-  def classItem[A: P]: P[RegexTree] = P(
-    charClass | preDefinedCharClass | unicodeCharClass | metaCharacter | range | quoteChar | charClassCharLiteral
+  protected val classItem: P[RegexTree] = P.defer(
+    P.oneOf(
+      charClass.backtrack ::
+        preDefinedCharClass.backtrack ::
+        unicodeCharClass.backtrack ::
+        metaCharacter.backtrack ::
+        range.backtrack ::
+        quoteChar.backtrack ::
+        charClassCharLiteral :: Nil
+    )
   )
 
   /** Parse a character class
@@ -295,8 +310,15 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @example
     *   `"[abc]"`
     */
-  def charClass[A: P]: P[CharacterClass] = Indexed("[" ~ "^".!.? ~ classItem.rep(minCharClassItem) ~ "]")
-    .map { case (loc, (hat, nodes)) => CharacterClass(nodes, loc, isPositive = hat.isEmpty) }
+  protected val charClass: P[CharacterClass] = {
+    val items: P0[List[RegexTree]] = P.defer0(
+      if (minCharClassItem == 0) classItem.rep0
+      else classItem.rep.map(_.toList)
+    )
+    indexed((P.char('^').? ~ items).with1.between(P.char('['), P.char(']'))).map { case (loc, (hat, nodes)) =>
+      CharacterClass(nodes, loc, isPositive = hat.isEmpty)
+    }
+  }
 
   /** Parse an any(dot) (`.`) predefined character class
     * @return
@@ -304,8 +326,7 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @example
     *   `"."`
     */
-  def anyDot[A: P]: P[AnyDot] = Indexed(P("."))
-    .map { case (loc, _) => AnyDot(loc) }
+  protected val anyDot: P[AnyDot] = indexed(P.char('.').void).map { case (loc, _) => AnyDot(loc) }
 
   /** Parse a predefined character class
     * @return
@@ -315,9 +336,13 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @see
     *   [[weaponregex.internal.parser.Parser.predefCharClassChars]]
     */
-  def preDefinedCharClass[A: P]: P[PredefinedCharClass] =
-    Indexed("""\""" ~ CharPred(predefCharClassChars.contains(_)).!)
+  protected val preDefinedCharClass: P[PredefinedCharClass] =
+    indexed(backslash *> P.defer(P.charIn(predefCharClassChars)))
       .map { case (loc, c) => PredefinedCharClass(c, loc) }
+
+  protected val propName: P[String] =
+    (alpha.void ~
+      (alpha.void | digit.void | P.char('_')).rep).string
 
   /** Parse a unicode character class with lone property
     *
@@ -328,12 +353,10 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @note
     *   This does not check for the validity of the property inside `\p{}`
     */
-  def unicodeCharClassLoneProperty[A: P]: P[UnicodeCharClass] =
-    Indexed(
-      """\""" ~ CharIn("pP").! ~ "{" ~
-        (CharIn("a-z", "A-Z") ~ CharIn("a-z", "A-Z", "0-9", "_").rep).! ~ "}"
-    )
-      .map { case (loc, (p, property)) => UnicodeCharClass(property, loc, p == "p") }
+  protected val unicodeCharClassLoneProperty: P[UnicodeCharClass] =
+    indexed(
+      backslash *> P.charIn('p', 'P') ~ (propName.between(P.char('{'), P.char('}')))
+    ).map { case (loc, (p, property)) => UnicodeCharClass(property, loc, p == 'p') }
 
   /** Parse a unicode character class with property and value
     *
@@ -344,13 +367,14 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @note
     *   This does not check for the validity of the property inside `\p{}`
     */
-  def unicodeCharClassPropertyValue[A: P]: P[UnicodeCharClass] =
-    Indexed(
-      """\""" ~ CharIn("pP").! ~ "{" ~
-        (CharIn("a-z", "A-Z") ~ CharIn("a-z", "A-Z", "0-9", "_").rep).! ~ "=" ~
-        (CharIn("a-z", "A-Z") ~ CharIn("a-z", "A-Z", "0-9", "_").rep).! ~ "}"
-    )
-      .map { case (loc, (p, property, propValue)) => UnicodeCharClass(property, loc, p == "p", Some(propValue)) }
+  protected val unicodeCharClassPropertyValue: P[UnicodeCharClass] = {
+    indexed(
+      backslash *> P.charIn('p', 'P') ~
+        ((propName <* P.char('=')) ~ propName).between(P.char('{'), P.char('}'))
+    ).map { case (loc, (p, (property, propValue))) =>
+      UnicodeCharClass(property, loc, p == 'p', Some(propValue))
+    }
+  }
 
   /** Parse a unicode character class
     *
@@ -361,7 +385,8 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @note
     *   This does not check for the validity of the property inside `\p{}`
     */
-  def unicodeCharClass[A: P]: P[UnicodeCharClass] = P(unicodeCharClassPropertyValue | unicodeCharClassLoneProperty)
+  protected val unicodeCharClass: P[UnicodeCharClass] =
+    unicodeCharClassPropertyValue.backtrack | unicodeCharClassLoneProperty
 
   /** A higher order parser that add [[weaponregex.internal.model.regextree.QuantifierType]] information of the parse of
     * the given (quantifier) parser
@@ -371,13 +396,13 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     *   A tuple of the return of the given (quantifier) parser `p`, and its
     *   [[weaponregex.internal.model.regextree.QuantifierType]]
     */
-  def quantifierType[A: P, T](p: => P[T]): P[(T, QuantifierType)] = P(p ~ CharIn("?+").!.?)
-    .map { case (pp, optionQType) =>
+  protected def quantifierType[A](p: P[A]): P[(A, QuantifierType)] =
+    (p ~ P.charIn('?', '+').?).map { case (result, optQ) =>
       (
-        pp,
-        optionQType match {
-          case Some("?") => ReluctantQuantifier
-          case Some("+") => PossessiveQuantifier
+        result,
+        optQ match {
+          case Some('?') => ReluctantQuantifier
+          case Some('+') => PossessiveQuantifier
           case _         => GreedyQuantifier
         }
       )
@@ -389,23 +414,25 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @example
     *   `"a*"`
     */
-  def quantifierShort[A: P]: P[RegexTree] = Indexed(quantifierType(elementaryRE ~ CharIn("?*+").!))
-    .map { case (loc, ((expr, q), quantifierType)) =>
-      q match {
-        case "?"   => ZeroOrOne(expr, loc, quantifierType)
-        case "*"   => ZeroOrMore(expr, loc, quantifierType)
-        case "+"   => OneOrMore(expr, loc, quantifierType)
-        case other =>
-          // This case should never happen since the parser only allows "?", "*", or "+" as `q`
-          throw new IllegalStateException(s"Unexpected quantifier character: $other")
+  protected val quantifierShort: P[RegexTree] =
+    indexed(quantifierType(P.defer(elementaryRE) ~ P.charIn('?', '*', '+')))
+      .flatMap { case (loc, ((expr, q), quantifierType)) =>
+        q match {
+          case '?'   => P.pure(ZeroOrOne(expr, loc, quantifierType))
+          case '*'   => P.pure(ZeroOrMore(expr, loc, quantifierType))
+          case '+'   => P.pure(OneOrMore(expr, loc, quantifierType))
+          case other =>
+            // This case should never happen since the parser only allows "?", "*", or "+" as `q`
+            P.failWith(s"Unexpected quantifier character: $other")
+        }
       }
-    }
 
   /** Parse the tail part of a long quantifier
     * @return
     *   A tuple of the quantifier minimum and optional maximum part
     */
-  def quantifierLongTail[A: P]: P[(Int, Option[Option[Int]])] = number ~ ("," ~ number.?).? ~ "}"
+  protected val quantifierLongTail: P[(Int, Option[Option[Int]])] =
+    number ~ (P.char(',') *> number.?).? <* P.char('}')
 
   /** Parse a (full) quantifier (`{n}`, `{n,}`, `{n,m}`)
     * @return
@@ -413,27 +440,25 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @example
     *   `"a{1}"`
     */
-  // `.filter()` function from fastparse is wrongly mutated by Stryker4s into `.filterNot()` which does not exist in fastparse
-  @SuppressWarnings(Array("stryker4s.mutation.MethodExpression"))
-  def quantifierLong[A: P]: P[Quantifier] =
-    Indexed(quantifierType(elementaryRE ~ "{" ~ quantifierLongTail))
-      .filter {
-        case (_, ((_, (min, Some(Some(max)))), _)) => min <= max
-        case _                                     => true
-      }
-      .map { case (loc, ((expr, (num, optionMax)), quantifierType)) =>
-        optionMax match {
-          case None            => Quantifier(expr, num, loc, quantifierType)
-          case Some(None)      => Quantifier(expr, num, Quantifier.Infinity, loc, quantifierType)
-          case Some(Some(max)) => Quantifier(expr, num, max, loc, quantifierType)
-        }
+  protected val quantifierLong: P[Quantifier] =
+    indexed(quantifierType(P.defer(elementaryRE) ~ (P.char('{') *> quantifierLongTail)))
+      .flatMap {
+        case (_, ((_, (num, Some(Some(max)))), _)) if num > max =>
+          P.failWith(s"Invalid quantifier: minimum $num is greater than maximum $max")
+        case (loc, ((expr, (num, optionMax)), qt)) =>
+          val q = optionMax match {
+            case None            => Quantifier(expr, num, loc, qt)
+            case Some(None)      => Quantifier(expr, num, Quantifier.Infinity, loc, qt)
+            case Some(Some(max)) => Quantifier(expr, num, max, loc, qt)
+          }
+          P.pure(q)
       }
 
   /** Intermediate parsing rule for quantifier tokens which can parse either `quantifierShort` or `quantifierLong`
     * @return
     *   [[weaponregex.internal.model.regextree.RegexTree]] (sub)tree
     */
-  def quantifier[A: P]: P[RegexTree] = P(quantifierShort | quantifierLong)
+  protected val quantifier: P[RegexTree] = quantifierShort.backtrack | quantifierLong.backtrack
 
   /** Parse a capturing group
     * @return
@@ -441,8 +466,9 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @example
     *   `"(a)"`
     */
-  def group[A: P]: P[Group] = Indexed("(" ~ RE ~ ")")
-    .map { case (loc, expr) => Group(expr, isCapturing = true, loc) }
+  protected val group: P[Group] =
+    indexed(P.defer0(RE).with1.between(P.char('('), P.char(')')))
+      .map { case (loc, expr) => Group(expr, isCapturing = true, loc) }
 
   /** Parse a group name
     * @return
@@ -450,7 +476,7 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @example
     *   `"name1"`
     */
-  def groupName[A: P]: P[String]
+  protected val groupName: P[String]
 
   /** Parse a named-capturing group
     * @return
@@ -458,8 +484,12 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @example
     *   `"(?<name1>hello)"`
     */
-  def namedGroup[A: P]: P[NamedGroup] = Indexed("(?<" ~ groupName ~ ">" ~ RE ~ ")")
-    .map { case (loc, (name, expr)) => NamedGroup(expr, name, loc) }
+  protected val namedGroup: P[NamedGroup] =
+    indexed(
+      (P.defer(groupName).between(P.char('<'), P.char('>')) ~ P.defer0(RE))
+        .between(P.string("(?"), P.char(')'))
+    )
+      .map { case (loc, (name, expr)) => NamedGroup(expr, name, loc) }
 
   /** Parse a non-capturing group
     * @return
@@ -467,8 +497,9 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @example
     *   `"(?:hello)"`
     */
-  def nonCapturingGroup[A: P]: P[Group] = Indexed("(?:" ~ RE ~ ")")
-    .map { case (loc, expr) => Group(expr, isCapturing = false, loc) }
+  protected val nonCapturingGroup: P[Group] =
+    indexed(P.defer0(RE).with1.between(P.string("(?:"), P.char(')')))
+      .map { case (loc, expr) => Group(expr, isCapturing = false, loc) }
 
   /** Parse flag literal characters given a string contains all allowed flags
     * @param fs
@@ -480,10 +511,11 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @note
     *   This is a Scala/Java-only regex syntax
     */
-  // `.filter()` function from fastparse is wrongly mutated by Stryker4s into `.filterNot()` which does not exist in fastparse
+  // `.filter()` function from cats-parse is wrongly mutated by Stryker4s into `.filterNot()` which does not exist in cats-parse
   @SuppressWarnings(Array("stryker4s.mutation.MethodExpression"))
-  def flags[A: P](fs: String): P[Flags] = Indexed(charLiteral.filter(c => fs.contains(c.char)).rep)
-    .map { case (loc, fs) => Flags(fs, loc) }
+  protected def flags(fs: String): P0[Flags] =
+    indexed0(charLiteral.filter(c => fs.contains(c.char)).backtrack.rep0)
+      .map { case (loc, fs) => Flags(fs, loc) }
 
   /** Parse a flag toggle (`idmsuxU-idmsuxU`)
     * @return
@@ -493,8 +525,9 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @note
     *   This is a Scala/Java-only regex syntax
     */
-  def flagToggle[A: P](fs: String): P[FlagToggle] = Indexed(flags(fs) ~ "-".!.? ~ flags(fs))
-    .map { case (loc, (onFlags, dash, offFlags)) => FlagToggle(onFlags, dash.isDefined, offFlags, loc) }
+  protected def flagToggle(fs: String): P0[FlagToggle] =
+    indexed0((flags(fs) ~ P.char('-').? ~ flags(fs)).map { case ((on, dash), off) => (on, dash, off) })
+      .map { case (loc, (onFlags, dash, offFlags)) => FlagToggle(onFlags, dash.isDefined, offFlags, loc) }
 
   /** Parse a flag toggle group
     * @return
@@ -504,8 +537,9 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @note
     *   This is a Scala/Java-only regex syntax
     */
-  def flagToggleGroup[A: P]: P[FlagToggleGroup] = Indexed("(?" ~ flagToggle("idmsuxU") ~ ")")
-    .map { case (loc, ft) => FlagToggleGroup(ft, loc) }
+  protected val flagToggleGroup: P[FlagToggleGroup] =
+    indexed(flagToggle("idmsuxU").with1.between(P.string("(?"), P.char(')')))
+      .map { case (loc, ft) => FlagToggleGroup(ft, loc) }
 
   /** Parse a non-capturing group with flags
     * @return
@@ -515,8 +549,9 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @note
     *   This is a Scala/Java-only regex syntax
     */
-  def flagNCGroup[A: P]: P[FlagNCGroup] = Indexed("(?" ~ flagToggle("idmsux") ~ ":" ~ RE ~ ")")
-    .map { case (loc, (ft, expr)) => FlagNCGroup(ft, expr, loc) }
+  protected val flagNCGroup: P[FlagNCGroup] =
+    indexed((flagToggle("idmsux") ~ (P.char(':') *> P.defer0(RE))).with1.between(P.string("(?"), P.char(')')))
+      .map { case (loc, (ft, expr)) => FlagNCGroup(ft, expr, loc) }
 
   /** Parse a positive or negative lookahead or lookbehind
     * @return
@@ -524,8 +559,11 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @example
     *   `"(?=abc)"` (positive lookahead)
     */
-  def lookaround[A: P]: P[Lookaround] = Indexed("(?" ~ "<".!.? ~ CharIn("=!").! ~ RE ~ ")")
-    .map { case (loc, (angleBracket, posNeg, expr)) => Lookaround(expr, posNeg == "=", angleBracket.isEmpty, loc) }
+  protected val lookaround: P[Lookaround] =
+    indexed((P.char('<').? ~ P.charIn('=', '!') ~ P.defer0(RE)).with1.between(P.string("(?"), P.char(')'))).map {
+      case (loc, ((angleBracket, posNeg), expr)) =>
+        Lookaround(expr, posNeg == '=', angleBracket.isEmpty, loc)
+    }
 
   /** Parse an independent non-capturing group
     *
@@ -536,23 +574,23 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @note
     *   This is a Scala/Java-only regex syntax
     */
-  def atomicGroup[A: P]: P[AtomicGroup] = Indexed("(?>" ~ RE ~ ")")
-    .map { case (loc, expr) => AtomicGroup(expr, loc) }
+  protected val atomicGroup: P[AtomicGroup] =
+    indexed(P.defer0(RE).with1.between(P.string("(?>"), P.char(')')))
+      .map { case (loc, expr) => AtomicGroup(expr, loc) }
 
   /** Intermediate parsing rule for special construct tokens which can parse either `namedGroup`, `nonCapturingGroup` or
     * `lookaround`
     * @return
     *   [[weaponregex.internal.model.regextree.RegexTree]] (sub)tree
     */
-  def specialConstruct[A: P]: P[RegexTree] = P(
-    namedGroup | nonCapturingGroup | lookaround
-  )
+  protected val specialConstruct: P[RegexTree] =
+    P.oneOf(namedGroup.backtrack :: nonCapturingGroup.backtrack :: lookaround.backtrack :: Nil)
 
   /** Intermediate parsing rule for capturing-related tokens which can parse either `group` or `specialConstruct`
     * @return
     *   [[weaponregex.internal.model.regextree.RegexTree]] (sub)tree
     */
-  def capturing[A: P]: P[RegexTree] = P(group | specialConstruct)
+  protected val capturing: P[RegexTree] = P.defer(group.backtrack | specialConstruct)
 
   /** Parse a reference to a named capturing group
     * @return
@@ -560,8 +598,9 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @example
     *   `"\k<name1>"`
     */
-  def nameReference[A: P]: P[NameReference] = Indexed("""\k<""" ~ groupName ~ ">")
-    .map { case (loc, name) => NameReference(name, loc) }
+  protected val nameReference: P[NameReference] =
+    indexed(P.defer(groupName).between(P.string("\\k<"), P.char('>')))
+      .map { case (loc, name) => NameReference(name, loc) }
 
   /** Parse a numbered reference to a capture group
     * @return
@@ -569,14 +608,15 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @example
     *   `"\13"`
     */
-  def numReference[A: P]: P[NumberReference] = Indexed("""\""" ~ (CharIn("1-9") ~ CharIn("0-9").rep).!)
-    .map { case (loc, num) => NumberReference(num.toInt, loc) }
+  protected val numReference: P[NumberReference] =
+    indexed(backslash *> (Numbers.nonZeroDigit ~ Numbers.digit.rep0).string)
+      .map { case (loc, num) => NumberReference(num.toInt, loc) }
 
   /** Intermediate parsing rule for reference tokens which can parse either `nameReference` or `numReference`
     * @return
     *   [[weaponregex.internal.model.regextree.RegexTree]] (sub)tree
     */
-  def reference[A: P]: P[RegexTree] = P(nameReference | numReference)
+  protected val reference: P[RegexTree] = nameReference.backtrack | numReference.backtrack
 
   /** Parse a quoted character (any character)
     * @return
@@ -584,8 +624,9 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @example
     *   `"\$"`
     */
-  def quoteChar[A: P]: P[QuoteChar] = Indexed("""\""" ~ AnyChar.!)
-    .map { case (loc, char) => QuoteChar(char.head, loc) }
+  protected val quoteChar: P[QuoteChar] =
+    indexed(backslash *> P.anyChar)
+      .map { case (loc, char) => QuoteChar(char, loc) }
 
   /** Parse a 'long' quote, using `\Q` and `\E`
     * @return
@@ -593,29 +634,44 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @example
     *   `"\Qquoted\E"`
     */
-  def quoteLong[A: P]: P[Quote] = Indexed("""\Q""" ~ (!"""\E""" ~ AnyChar).rep.! ~ """\E""".!.?)
-    .map { case (loc, (str, end)) => Quote(str, end.isDefined, loc) }
+  protected val quoteLong: P[Quote] =
+    indexed(
+      P.string("\\Q") *>
+        (P.until0(P.string("\\E")) ~ P.string("\\E").?)
+    ).map { case (loc, (str, end)) => Quote(str, end.isDefined, loc) }
 
   /** Intermediate parsing rule for quoting tokens which can parse either `quoteLong` or `quoteChar`
     * @return
     *   [[weaponregex.internal.model.regextree.RegexTree]] (sub)tree
     */
-  def quote[A: P]: P[RegexTree] = P(quoteLong | quoteChar)
+  protected val quote: P[RegexTree] = quoteLong.backtrack | quoteChar
 
   /** Intermediate parsing rule which can parse either `capturing`, `anyDot`, `preDefinedCharClass`, `boundary`,
     * `charClass`, `reference`, `character` or `quote`
     * @return
     *   [[weaponregex.internal.model.regextree.RegexTree]] (sub)tree
     */
-  def elementaryRE[A: P]: P[RegexTree] = P(
-    capturing | anyDot | preDefinedCharClass | unicodeCharClass | boundary | charClass | reference | character | quote
-  )
+  protected val elementaryRE: P[RegexTree] =
+    P.defer(
+      P.oneOf(
+        capturing.backtrack ::
+          anyDot ::
+          preDefinedCharClass.backtrack ::
+          unicodeCharClass.backtrack ::
+          boundary.backtrack ::
+          charClass.backtrack ::
+          reference.backtrack ::
+          character.backtrack ::
+          hexEscCharConsumer ::
+          quote :: Nil
+      )
+    )
 
   /** Intermediate parsing rule which can parse either `quantifier` or `elementaryRE`
     * @return
     *   [[weaponregex.internal.model.regextree.RegexTree]] (sub)tree
     */
-  def basicRE[A: P]: P[RegexTree] = P(quantifier | elementaryRE)
+  protected val basicRE: P[RegexTree] = P.defer(quantifier.backtrack | elementaryRE)
 
   /** Parse a concatenation of `basicRE`s
     * @return
@@ -623,8 +679,9 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @example
     *   `"abc"`
     */
-  def concat[A: P]: P[Concat] = Indexed(basicRE.rep(2))
-    .map { case (loc, nodes) => Concat(nodes, loc) }
+  protected val concat: P[Concat] =
+    indexed(basicRE.rep(min = 2))
+      .map { case (loc, nodes) => Concat(nodes.toList, loc) }
 
   /** Parse an empty string
     *
@@ -633,14 +690,14 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @example
     *   `""`
     */
-  def empty[A: P]: P[Empty] = Indexed("")
-    .map { case (loc, _) => Empty(loc) }
+  protected val empty: P0[Empty] =
+    indexed0(P.unit).map { case (loc, _) => Empty(loc) }
 
   /** Intermediate parsing rule which can parse either `concat`, `basicRE` or `empty`
     * @return
     *   [[weaponregex.internal.model.regextree.RegexTree]] (sub)tree
     */
-  def simpleRE[A: P]: P[RegexTree] = P(concat | basicRE | empty)
+  protected val simpleRE: P0[RegexTree] = concat.backtrack | basicRE | empty
 
   /** Parse an 'or' (`|`) of `simpleRE`
     * @return
@@ -648,8 +705,10 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @example
     *   `"a|b|c"`
     */
-  def or[A: P]: P[Or] = Indexed(simpleRE.rep(2, sep = "|"))
-    .map { case (loc, nodes) => Or(nodes, loc) }
+  protected val or: P[Or] =
+    indexed(
+      simpleRE.with1 ~ (P.char('|') *> simpleRE).rep
+    ).map { case (loc, (first, rest)) => Or(first :: rest.toList, loc) }
 
   /** The top-level parsing rule which can parse either `or` or `simpleRE`
     * @return
@@ -657,21 +716,13 @@ abstract private[weaponregex] class Parser(val pattern: String) {
     * @example
     *   any supported regex
     */
-  def RE[A: P]: P[RegexTree] = P(or | simpleRE)
-
-  /** The entry point of the parser that should parse from the start to the end of the regex string
-    * @return
-    *   [[weaponregex.internal.model.regextree.RegexTree]] tree
-    */
-  def entry[A: P]: P[RegexTree] = P(Start ~ RE ~ End)
+  protected val RE: P0[RegexTree] = or.backtrack | simpleRE
 
   /** Parse the given regex pattern
     * @return
     *   A `Right` of parsed [[weaponregex.internal.model.regextree.RegexTree]] if can be parsed, a `Left` with the error
     *   message otherwise
     */
-  def parse: Either[String, RegexTree] = fastparse.parse(pattern, entry(_)) match {
-    case Parsed.Success(regexTree: RegexTree, _) => Right(regexTree)
-    case f: Parsed.Failure                       => Left(ErrorMessage.parserErrorHeader + f.msg)
-  }
+  final def parse(pattern: String): Either[String, RegexTree] =
+    RE.parseAll(pattern).left.map(err => ErrorMessage.parserErrorHeader + err.show)
 }

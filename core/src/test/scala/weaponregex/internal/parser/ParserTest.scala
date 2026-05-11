@@ -127,8 +127,8 @@ trait ParserTest {
 
     pattern.replace("""\""", "") zip parsedTree.children foreach { case (char, child) =>
       assert(clue(child) match {
-        case Boundary(str, _) => str.head == char
-        case _                => false
+        case Boundary(ch, _) => ch == char
+        case _               => false
       })
     }
 
@@ -211,7 +211,7 @@ trait ParserTest {
 
     pattern.init.tail.replace("""\""", "") zip parsedTree.children foreach { case (char, child) =>
       assert(clue(child) match {
-        case PredefinedCharClass(charClass, _) => charClass.head == char
+        case PredefinedCharClass(charClass, _) => charClass == char
         case _                                 => false
       })
     }
@@ -282,7 +282,7 @@ trait ParserTest {
 
     controlChars zip parsedTree.children foreach { case (char, child) =>
       assert(clue(child) match {
-        case ControlChar(controlChar, _) => controlChar.head == char
+        case ControlChar(controlChar, _) => controlChar == char
         case _                           => false
       })
     }
@@ -325,7 +325,7 @@ trait ParserTest {
     pattern.replace("""\""", "") zip parsedTree.children foreach { case (char, child) =>
       assert(clue(child) match {
         case _: AnyDot                         => char == '.'
-        case PredefinedCharClass(charClass, _) => charClass.head == char
+        case PredefinedCharClass(charClass, _) => charClass == char
         case _                                 => false
       })
     }

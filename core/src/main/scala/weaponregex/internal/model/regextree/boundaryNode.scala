@@ -21,4 +21,4 @@ case class EOL(override val location: Location) extends Leaf('$', location)
   * @param location
   *   The [[weaponregex.model.Location]] of the node in the regex string
   */
-case class Boundary(boundary: String, override val location: Location) extends Leaf(boundary, location, """\""")
+case class Boundary(boundary: Char, override val location: Location) extends Leaf(boundary, location, """\""")

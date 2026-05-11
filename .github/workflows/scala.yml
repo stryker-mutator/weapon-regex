@@ -72,7 +72,7 @@ jobs:
           fetch-depth: 0
       - uses: ./.github/setup
       - name: Run stryker
-        run: sbt 'project WeaponRegeX; stryker --reporters console --reporters dashboard'
+        run: sbt 'WeaponRegeX/stryker --reporters console --reporters dashboard'
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
 

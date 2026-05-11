@@ -63,7 +63,7 @@ object BOL2BOI extends TokenMutator {
     location.show + """ Change the beginning of line `^` to beginning of input `\A`"""
 
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
-    case _: BOL => Seq(Boundary("A", token.location))
+    case _: BOL => Seq(Boundary('A', token.location))
     case _      => Nil
   }) map (_.build.toMutantOf(token))
 }
@@ -81,7 +81,7 @@ object EOL2EOI extends TokenMutator {
     location.show + """ Change the end of line `$` to end of input `\z`"""
 
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
-    case _: EOL => Seq(Boundary("z", token.location))
+    case _: EOL => Seq(Boundary('z', token.location))
     case _      => Nil
   }) map (_.build.toMutantOf(token))
 }

@@ -70,7 +70,7 @@ object CharClassAnyChar extends TokenMutator {
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case cc: CharacterClass =>
       Seq(
-        CharacterClass(Seq(PredefinedCharClass("w", cc.location), PredefinedCharClass("W", cc.location)), cc.location)
+        CharacterClass(Seq(PredefinedCharClass('w', cc.location), PredefinedCharClass('W', cc.location)), cc.location)
       )
     case _ => Nil
   }) map (_.build.toMutantOf(token))
