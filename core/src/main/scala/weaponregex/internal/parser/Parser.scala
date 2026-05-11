@@ -392,9 +392,12 @@ abstract private[weaponregex] class Parser(val pattern: String) {
   def quantifierShort[A: P]: P[RegexTree] = Indexed(quantifierType(elementaryRE ~ CharIn("?*+").!))
     .map { case (loc, ((expr, q), quantifierType)) =>
       q match {
-        case "?" => ZeroOrOne(expr, loc, quantifierType)
-        case "*" => ZeroOrMore(expr, loc, quantifierType)
-        case "+" => OneOrMore(expr, loc, quantifierType)
+        case "?"   => ZeroOrOne(expr, loc, quantifierType)
+        case "*"   => ZeroOrMore(expr, loc, quantifierType)
+        case "+"   => OneOrMore(expr, loc, quantifierType)
+        case other =>
+          // This case should never happen since the parser only allows "?", "*", or "+" as `q`
+          throw new IllegalStateException(s"Unexpected quantifier character: $other")
       }
     }
 
