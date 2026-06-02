@@ -50,7 +50,7 @@ lazy val WeaponRegeX = projectMatrix
   .settings(
     name := "weapon-regex",
     libraryDependencies += "org.typelevel" %%% "cats-parse" % "1.1.0",
-    libraryDependencies += "org.scalameta" %%% "munit" % "1.3.1" % Test,
+    libraryDependencies += "org.scalameta" %%% "munit" % "1.3.2" % Test,
     tpolecatScalacOptions ++= Set(
       ScalacOptions.source3,
       ScalacOptions.release("8"),
