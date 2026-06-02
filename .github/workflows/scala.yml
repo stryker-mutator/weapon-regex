@@ -92,6 +92,11 @@ jobs:
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
       - run: git fetch --tags
       - uses: ./.github/setup
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 'lts/**'
+          registry-url: 'https://registry.npmjs.org'
+          package-manager-cache: false
       - name: Publish code
         run: sbt ci-release
         env:
