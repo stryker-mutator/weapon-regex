@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/stryker-mutator/weapon-regex/compare/v1.3.6...v1.4.0) (2026-06-02)
+
+
+### Features
+
+* **parser:** switch over to cats-parse ([#642](https://github.com/stryker-mutator/weapon-regex/issues/642)) ([431a22c](https://github.com/stryker-mutator/weapon-regex/commit/431a22c511c5ab776695874fe023addd6be0c485))
+
 ## [1.3.6](https://github.com/stryker-mutator/weapon-regex/compare/v1.3.5...v1.3.6) (2025-09-23)
 
 
