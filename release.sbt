@@ -6,14 +6,9 @@ commands ++= List(
   )
 )
 
-lazy val publishNpmNext = taskKey[Unit]("Publish to npm with next tag")
-publishNpmNext := runNpmPublish("next")
-
-lazy val publishNpmLatest = taskKey[Unit]("Publish to npm with latest tag")
-publishNpmLatest := runNpmPublish("latest")
-
-def runNpmPublish(tag: String): Unit = {
-  val command = Seq("npm", "publish", "--tag", tag)
+lazy val publishNpmLatest = taskKey[Unit]("Publish to npm")
+publishNpmLatest := {
+  val command = Seq("npm", "publish")
   val os = sys.props("os.name").toLowerCase
   val panderToWindows = os match {
     case n if n contains "windows" => Seq("cmd", "/C") ++ command
