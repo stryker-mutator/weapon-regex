@@ -15,7 +15,7 @@ class BoundaryNodeTest extends munit.FunSuite {
   }
 
   test("Boundary build") {
-    val node1 = Boundary("G", LOCATION)
+    val node1 = Boundary('G', LOCATION)
     assertEquals(node1.build, """\G""")
   }
 }

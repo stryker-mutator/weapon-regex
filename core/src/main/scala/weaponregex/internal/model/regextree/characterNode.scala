@@ -37,8 +37,7 @@ case class MetaChar(metaChar: String, override val location: Location) extends L
   *   This is technically a meta-character, but because it has an additional target character and a `\c` prefix, it is
   *   handled separately here
   */
-case class ControlChar(controlChar: String, override val location: Location)
-    extends Leaf(controlChar, location, """\c""")
+case class ControlChar(controlChar: Char, override val location: Location) extends Leaf(controlChar, location, """\c""")
 
 /** Empty string (nothing, null) leaf
   * @param location

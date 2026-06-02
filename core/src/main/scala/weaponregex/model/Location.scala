@@ -1,5 +1,7 @@
 package weaponregex.model
 
+import cats.parse.Caret
+
 import scala.scalajs.js.annotation.*
 
 /** A location in the source code which can span multiple lines and/or columns.
@@ -19,4 +21,8 @@ case class Location(start: Position, end: Position) {
 object Location {
   def apply(startLine: Int, startColumn: Int)(endLine: Int, endColumn: Int): Location =
     Location(Position(startLine, startColumn), Position(endLine, endColumn))
+
+  def fromCaret(start: Caret, end: Caret): Location =
+    Location(Position(start.line, start.col), Position(end.line, end.col))
+
 }

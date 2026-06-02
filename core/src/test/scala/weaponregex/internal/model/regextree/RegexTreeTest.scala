@@ -11,7 +11,7 @@ class RegexTreeTest extends munit.FunSuite {
       Seq(
         BOL(loc),
         OneOrMore(
-          PredefinedCharClass("w", loc),
+          PredefinedCharClass('w', loc),
           loc,
           GreedyQuantifier
         ),

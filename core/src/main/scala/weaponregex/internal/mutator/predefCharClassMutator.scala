@@ -2,7 +2,7 @@ package weaponregex.internal.mutator
 
 import weaponregex.internal.TokenMutator
 import weaponregex.internal.extension.RegexTreeExtension.RegexTreeStringBuilder
-import weaponregex.internal.extension.StringExtension.StringStylingExtension
+import weaponregex.internal.extension.StringExtension.*
 import weaponregex.internal.model.regextree.*
 import weaponregex.model.Location
 import weaponregex.model.mutation.Mutant
@@ -40,7 +40,7 @@ object PredefCharClassNullification extends TokenMutator {
   override def mutate(token: RegexTree): Seq[Mutant] = (token match {
     case pdcc: PredefinedCharClass => Seq(pdcc.charClass)
     case _                         => Nil
-  }) map (_.toMutantOf(token))
+  }) map (_.toString.toMutantOf(token))
 }
 
 /** Mutator for predefined character class to character class with its negation change

@@ -5,12 +5,12 @@ import weaponregex.internal.extension.RegexTreeExtension.RegexTreeStringBuilder
 
 class PredefinedCharClassNodeTest extends munit.FunSuite {
   test("PredefinedCharClass build") {
-    val node1 = PredefinedCharClass("w", LOCATION)
+    val node1 = PredefinedCharClass('w', LOCATION)
     assertEquals(node1.build, """\w""")
   }
 
   test("PredefinedCharClass build negated") {
-    val node2 = PredefinedCharClass("W", LOCATION)
+    val node2 = PredefinedCharClass('W', LOCATION)
     assertEquals(node2.build, """\W""")
   }
 

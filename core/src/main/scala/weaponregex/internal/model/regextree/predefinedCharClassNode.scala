@@ -9,7 +9,7 @@ import weaponregex.model.Location
   * @param location
   *   The [[weaponregex.model.Location]] of the node in the regex string
   */
-case class PredefinedCharClass(charClass: String, override val location: Location)
+case class PredefinedCharClass(charClass: Char, override val location: Location)
     extends Leaf(charClass, location, """\""")
 
 /** Unicode character class leaf node
