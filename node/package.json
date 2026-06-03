@@ -6,7 +6,7 @@
   "type": "module",
   "main": "test/api.js",
   "scripts": {
-    "test": "node --test"
+    "test": "node --enable-source-maps --test"
   },
   "author": "",
   "license": "Apache-2.0",

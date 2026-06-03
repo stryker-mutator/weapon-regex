@@ -51,11 +51,12 @@ private[weaponregex] object ParserJVM extends Parser {
     */
   override protected val charOct: P[MetaChar] =
     indexed(
-      P.string("\\0") *> (
-        (P.charIn('0' to '3') ~ P.charIn('0' to '7').repExactlyAs[String](2)).string.backtrack |
-          P.charIn('0' to '7').rep(1, 2).string
-      )
-    ).map { case (loc, octDigits) => MetaChar("0" + octDigits, loc) }
+      P.string("\\0") *> ((P.charIn('0' to '3') ~ P
+        .charIn('0' to '7')
+        .repExactlyAs[String](2)).string.backtrack | P.charIn('0' to '7').rep(1, 2).string)
+    )
+      .map { case (loc, octDigits) => MetaChar("0" + octDigits, loc) }
+      .withContext("octal character")
 
   /** Parse special cases of a character literal in a character class
     * @return
@@ -93,9 +94,9 @@ private[weaponregex] object ParserJVM extends Parser {
     */
   override protected val charClass: P[CharacterClass] = {
     val content: P0[List[RegexTree]] = charClassIntersection.backtrack.map(ci => List(ci)) | classItem.rep.map(_.toList)
-    indexed(
-      (P.char('^').? ~ content).with1.between(P.char('['), P.char(']'))
-    ).map { case (loc, (hat, nodes)) => CharacterClass(nodes, loc, isPositive = hat.isEmpty) }
+    indexed((P.char('^').? ~ content).with1.between(P.char('['), P.char(']')))
+      .map { case (loc, (hat, nodes)) => CharacterClass(nodes, loc, isPositive = hat.isEmpty) }
+      .withContext("character class")
   }
 
   /** Parse a group name

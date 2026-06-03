@@ -101,6 +101,7 @@ private[weaponregex] class ParserJS private[parser] (unicodeMode: Boolean) exten
     if (unicodeMode)
       indexed(P.char('\\') *> P.charIn("""^$\.*+?()[]{}|/"""))
         .map { case (loc, char) => QuoteChar(char, loc) }
+        .withContext("quoted character")
     else quoteChar
 
   /** Parse a character with octal value `\n`, `\nn`, `\mnn` (0 <= m,n <= 9)
@@ -116,6 +117,7 @@ private[weaponregex] class ParserJS private[parser] (unicodeMode: Boolean) exten
   override protected val charOct: P[MetaChar] =
     indexed(P.char('\\') *> Numbers.digit.rep(1, 3).string)
       .map { case (loc, octDigits) => MetaChar(octDigits, loc) }
+      .withContext("octal character")
 
   /** Intermediate parsing rule for reference tokens which can parse only `nameReference`
     * @return
