@@ -1,7 +1,7 @@
 // @ts-check
 /// <reference types="node" />
 import assert from 'assert';
-import { describe, it, } from 'node:test';
+import { describe, it } from 'node:test';
 import * as wrx from '../../core/target/js-3/weapon-regex-fastopt/main.js';
 
 // @ts-ignore
@@ -80,7 +80,7 @@ describe('#mutate()', () => {
   it('Catch an exception if the RegEx is invalid', () => {
     assert.throws(
       () => mutate('*(a|$]'),
-      (/** @type {Error} */ e) => e.message.startsWith('[Error] Parser: ')
+      (/** @type {Error} */ e) => e.message.startsWith('*(a|$]'),
     );
   });
 });
@@ -99,7 +99,7 @@ describe('Mutant', () => {
     assert.strictEqual(mutants.length, 1);
     assert.strictEqual(
       mutants[0].name,
-      'Beginning of line character `^` removal'
+      'Beginning of line character `^` removal',
     );
   });
 
@@ -126,7 +126,7 @@ describe('Mutant', () => {
     assert.strictEqual(mutants.length, 1);
     assert.strictEqual(
       mutants[0].description,
-      mutants[0].location.show + ' Remove the beginning of line character `^`'
+      mutants[0].location.show + ' Remove the beginning of line character `^`',
     );
   });
 

@@ -1,7 +1,6 @@
 package weaponregex.internal.parser
 
 import munit.Location
-import weaponregex.internal.constant.ErrorMessage
 import weaponregex.internal.extension.EitherExtension.LeftStringEitherTest
 import weaponregex.internal.extension.RegexTreeExtension.RegexTreeStringBuilder
 import weaponregex.internal.model.regextree.*
@@ -25,13 +24,23 @@ trait ParserTest {
   def treeBuildTest(tree: RegexTree, pattern: String)(implicit loc: Location): Unit =
     assertEquals(tree.build, pattern)
 
-  def parseErrorTest(pattern: String, flags: Option[String] = None)(implicit loc: Location): Unit = {
+  def parseErrorTest(
+      pattern: String,
+      expectedMsg: String,
+      flags: Option[String] = None,
+      context: Seq[String] = Seq.empty
+  )(implicit loc: Location): Unit = {
     val parsedTree = Parser(pattern, flags, parserFlavor)
 
-    assert(clue(parsedTree) match {
-      case Left(msg) => msg.startsWith(ErrorMessage.parserErrorHeader)
-      case _         => false
-    })
+    assertMatches(parsedTree) { case Left(msg) =>
+      assertNoDiff(msg.take(expectedMsg.length), expectedMsg)
+
+      context foreach { ctx =>
+        assert(clue(msg).contains("context: " + clue(ctx)))
+      }
+
+      true
+    }
   }
 
   test("Parse concat of characters") {
@@ -39,10 +48,9 @@ trait ParserTest {
     val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Concat]
 
     pattern zip parsedTree.children foreach { case (char, child) =>
-      assert(clue(child) match {
-        case Character(c, _) => c == char
-        case _               => false
-      })
+      assertMatches(clue(child)) { case Character(c, _) =>
+        c == char
+      }
     }
 
     treeBuildTest(parsedTree, pattern)
@@ -53,10 +61,9 @@ trait ParserTest {
     val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Concat]
 
     assert(parsedTree.children.head.isInstanceOf[Quantifier])
-    assert(parsedTree.children.last match {
-      case Character('}', _) => true
-      case _                 => false
-    })
+    assertMatches(parsedTree.children.last) { case Character('}', _) =>
+      true
+    }
 
     treeBuildTest(parsedTree, pattern)
   }
@@ -66,10 +73,9 @@ trait ParserTest {
     val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Concat]
 
     assert(parsedTree.children.head.isInstanceOf[CharacterClass])
-    assert(parsedTree.children.last match {
-      case Character(']', _) => true
-      case _                 => false
-    })
+    assertMatches(parsedTree.children.last) { case Character(']', _) =>
+      true
+    }
 
     treeBuildTest(parsedTree, pattern)
   }
@@ -79,10 +85,9 @@ trait ParserTest {
     val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Or]
 
     pattern.replace("|", "") zip parsedTree.children foreach { case (char, child) =>
-      assert(clue(child) match {
-        case Character(c, _) => c == char
-        case _               => false
-      })
+      assertMatches(clue(child)) { case Character(c, _) =>
+        c == char
+      }
     }
 
     treeBuildTest(parsedTree, pattern)
@@ -92,7 +97,7 @@ trait ParserTest {
     val pattern = "|h|e||l|||l|o|"
     val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Or]
 
-    assert(clue(parsedTree.children) match {
+    assertMatches(clue(parsedTree.children)) {
       case Seq(
             Empty(_),
             Character('h', _),
@@ -106,8 +111,7 @@ trait ParserTest {
             Empty(_)
           ) =>
         true
-      case _ => false
-    })
+    }
 
     treeBuildTest(parsedTree, pattern)
   }
@@ -126,10 +130,9 @@ trait ParserTest {
     val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Concat]
 
     pattern.replace("""\""", "") zip parsedTree.children foreach { case (char, child) =>
-      assert(clue(child) match {
-        case Boundary(ch, _) => ch == char
-        case _               => false
-      })
+      assertMatches(clue(child)) { case Boundary(ch, _) =>
+        ch == char
+      }
     }
 
     treeBuildTest(parsedTree, pattern)
@@ -149,7 +152,7 @@ trait ParserTest {
       case Character('a', _) => true
       case _                 => false
     } zip (0 to 5) foreach { case (node, n) =>
-      assert(clue(node).location.start.line == n)
+      assertEquals(clue(node).location.start.line, n)
     }
 
     treeBuildTest(parsedTree, pattern)
@@ -160,10 +163,9 @@ trait ParserTest {
     val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[CharacterClass]
 
     pattern.init.tail zip parsedTree.children foreach { case (char, child) =>
-      assert(clue(child) match {
-        case Character(c, _) => c == char
-        case _               => false
-      })
+      assertMatches(clue(child)) { case Character(c, _) =>
+        c == char
+      }
     }
 
     treeBuildTest(parsedTree, pattern)
@@ -173,15 +175,13 @@ trait ParserTest {
     val pattern = "[^abc]"
     val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Node]
 
-    assert(parsedTree match {
-      case CharacterClass(_, _, false) => true
-      case _                           => false
-    })
+    assertMatches(parsedTree) { case CharacterClass(_, _, false) =>
+      true
+    }
     pattern.drop(2).init zip parsedTree.children foreach { case (char, child) =>
-      assert(clue(child) match {
-        case Character(c, _) => c == char
-        case _               => false
-      })
+      assertMatches(clue(child)) { case Character(c, _) =>
+        c == char
+      }
     }
 
     treeBuildTest(parsedTree, pattern)
@@ -196,10 +196,9 @@ trait ParserTest {
     val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[CharacterClass]
 
     ranges zip parsedTree.children foreach { case (range, child) =>
-      assert(clue(child) match {
-        case Range(Character(l, _), Character(r, _), _) => l == range.head && r == range.last
-        case _                                          => false
-      })
+      assertMatches(clue(child)) { case Range(Character(l, _), Character(r, _), _) =>
+        l == range.head && r == range.last
+      }
     }
 
     treeBuildTest(parsedTree, pattern)
@@ -210,10 +209,9 @@ trait ParserTest {
     val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[CharacterClass]
 
     pattern.init.tail.replace("""\""", "") zip parsedTree.children foreach { case (char, child) =>
-      assert(clue(child) match {
-        case PredefinedCharClass(charClass, _) => charClass == char
-        case _                                 => false
-      })
+      assertMatches(clue(child)) { case PredefinedCharClass(charClass, _) =>
+        charClass == char
+      }
     }
 
     treeBuildTest(parsedTree, pattern)
@@ -223,10 +221,9 @@ trait ParserTest {
     val pattern = """[\]]"""
     val parsedTree = Parser(pattern, parserFlavor).getOrFail
 
-    assert(clue(parsedTree) match {
-      case CharacterClass(nodes, _, true) => nodes.head.isInstanceOf[QuoteChar]
-      case _                              => false
-    })
+    assertMatches(clue(parsedTree)) { case CharacterClass(nodes, _, true) =>
+      nodes.head.isInstanceOf[QuoteChar]
+    }
 
     treeBuildTest(parsedTree, pattern)
   }
@@ -237,10 +234,9 @@ trait ParserTest {
 
     // A backslash is added back in to represent the backslash in the pattern
     """\""" + pattern.tail.init.replace("""\""", "") zip parsedTree.children foreach { case (char, child) =>
-      assert(clue(child) match {
-        case MetaChar(metaChar, _) => metaChar.head == char
-        case _                     => false
-      })
+      assertMatches(clue(child)) { case MetaChar(metaChar, _) =>
+        metaChar.head == char
+      }
     }
 
     treeBuildTest(parsedTree, pattern)
@@ -251,10 +247,9 @@ trait ParserTest {
     val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[CharacterClass]
 
     pattern.tail.init zip parsedTree.children foreach { case (char, child) =>
-      assert(clue(child) match {
-        case Character(c, _) => c == char
-        case _               => false
-      })
+      assertMatches(clue(child)) { case Character(c, _) =>
+        c == char
+      }
     }
 
     treeBuildTest(parsedTree, pattern)
@@ -266,10 +261,9 @@ trait ParserTest {
 
     // A backslash is added back in to represent the backslash in the pattern
     """\""" + pattern.replace("""\""", "") zip parsedTree.children foreach { case (char, child) =>
-      assert(clue(child) match {
-        case MetaChar(metaChar, _) => metaChar.head == char
-        case _                     => false
-      })
+      assertMatches(clue(child)) { case MetaChar(metaChar, _) =>
+        metaChar.head == char
+      }
     }
 
     treeBuildTest(parsedTree, pattern)
@@ -281,10 +275,10 @@ trait ParserTest {
     val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Concat]
 
     controlChars zip parsedTree.children foreach { case (char, child) =>
-      assert(clue(child) match {
+      assertMatches(clue(child)) {
         case ControlChar(controlChar, _) => controlChar == char
         case _                           => false
-      })
+      }
     }
 
     treeBuildTest(parsedTree, pattern)
@@ -295,10 +289,10 @@ trait ParserTest {
     val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Concat]
 
     pattern.split("""\\""").tail zip parsedTree.children foreach { case (str, child) =>
-      assert(clue(child) match {
+      assertMatches(clue(child)) {
         case MetaChar(metaChar, _) => metaChar == str
         case _                     => false
-      })
+      }
     }
 
     treeBuildTest(parsedTree, pattern)
@@ -309,10 +303,9 @@ trait ParserTest {
     val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Concat]
 
     pattern.split("""\\""").tail zip parsedTree.children foreach { case (str, child) =>
-      assert(clue(child) match {
-        case MetaChar(metaChar, _) => metaChar == str
-        case _                     => false
-      })
+      assertMatches(clue(child)) { case MetaChar(metaChar, _) =>
+        metaChar == str
+      }
     }
 
     treeBuildTest(parsedTree, pattern)
@@ -323,11 +316,11 @@ trait ParserTest {
     val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Concat]
 
     pattern.replace("""\""", "") zip parsedTree.children foreach { case (char, child) =>
-      assert(clue(child) match {
+      assertMatches(clue(child)) {
         case _: AnyDot                         => char == '.'
         case PredefinedCharClass(charClass, _) => charClass == char
         case _                                 => false
-      })
+      }
     }
 
     treeBuildTest(parsedTree, pattern)
@@ -342,12 +335,11 @@ trait ParserTest {
     assert(clue(parsedTree.children(2)).isInstanceOf[ZeroOrOne])
 
     pattern.split("""[*?+]""") zip parsedTree.children foreach { case (str, child) =>
-      assert(clue(child) match {
+      assertMatches(clue(child)) {
         case ZeroOrMore(Character(c, _), _, t) => c == str.head && t == GreedyQuantifier
         case OneOrMore(Character(c, _), _, t)  => c == str.head && t == GreedyQuantifier
         case ZeroOrOne(Character(c, _), _, t)  => c == str.head && t == GreedyQuantifier
-        case _                                 => false
-      })
+      }
     }
 
     treeBuildTest(parsedTree, pattern)
@@ -362,12 +354,11 @@ trait ParserTest {
     assert(clue(parsedTree.children(2)).isInstanceOf[ZeroOrOne])
 
     pattern.split("""[*?+]+""") zip parsedTree.children foreach { case (str, child) =>
-      assert(clue(child) match {
+      assertMatches(clue(child)) {
         case ZeroOrMore(Character(c, _), _, t) => c == str.head && t == ReluctantQuantifier
         case OneOrMore(Character(c, _), _, t)  => c == str.head && t == ReluctantQuantifier
         case ZeroOrOne(Character(c, _), _, t)  => c == str.head && t == ReluctantQuantifier
-        case _                                 => false
-      })
+      }
     }
 
     treeBuildTest(parsedTree, pattern)
@@ -382,12 +373,11 @@ trait ParserTest {
     assert(clue(parsedTree.children(2)).isInstanceOf[ZeroOrOne])
 
     pattern.split("""[*?+]+""") zip parsedTree.children foreach { case (str, child) =>
-      assert(clue(child) match {
+      assertMatches(clue(child)) {
         case ZeroOrMore(Character(c, _), _, t) => c == str.head && t == PossessiveQuantifier
         case OneOrMore(Character(c, _), _, t)  => c == str.head && t == PossessiveQuantifier
         case ZeroOrOne(Character(c, _), _, t)  => c == str.head && t == PossessiveQuantifier
-        case _                                 => false
-      })
+      }
     }
 
     treeBuildTest(parsedTree, pattern)
@@ -397,20 +387,17 @@ trait ParserTest {
     val pattern = "a{1}b{1,}c{1,2}"
     val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Concat]
 
-    assert(parsedTree.children(0) match {
-      case Quantifier(Character('a', _), 1, 1, _, GreedyQuantifier, true) => true
-      case _                                                              => false
-    })
+    assertMatches(parsedTree.children(0)) { case Quantifier(Character('a', _), 1, 1, _, GreedyQuantifier, true) =>
+      true
+    }
 
-    assert(parsedTree.children(1) match {
+    assertMatches(parsedTree.children(1)) {
       case Quantifier(Character('b', _), 1, Quantifier.Infinity, _, GreedyQuantifier, false) => true
-      case _                                                                                 => false
-    })
+    }
 
-    assert(parsedTree.children(2) match {
-      case Quantifier(Character('c', _), 1, 2, _, GreedyQuantifier, false) => true
-      case _                                                               => false
-    })
+    assertMatches(parsedTree.children(2)) { case Quantifier(Character('c', _), 1, 2, _, GreedyQuantifier, false) =>
+      true
+    }
 
     treeBuildTest(parsedTree, pattern)
   }
@@ -419,20 +406,17 @@ trait ParserTest {
     val pattern = "a{1}?b{1,}?c{1,2}?"
     val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Concat]
 
-    assert(parsedTree.children(0) match {
-      case Quantifier(Character('a', _), 1, 1, _, ReluctantQuantifier, true) => true
-      case _                                                                 => false
-    })
+    assertMatches(parsedTree.children(0)) { case Quantifier(Character('a', _), 1, 1, _, ReluctantQuantifier, true) =>
+      true
+    }
 
-    assert(parsedTree.children(1) match {
+    assertMatches(parsedTree.children(1)) {
       case Quantifier(Character('b', _), 1, Quantifier.Infinity, _, ReluctantQuantifier, false) => true
-      case _                                                                                    => false
-    })
+    }
 
-    assert(parsedTree.children(2) match {
-      case Quantifier(Character('c', _), 1, 2, _, ReluctantQuantifier, false) => true
-      case _                                                                  => false
-    })
+    assertMatches(parsedTree.children(2)) { case Quantifier(Character('c', _), 1, 2, _, ReluctantQuantifier, false) =>
+      true
+    }
 
     treeBuildTest(parsedTree, pattern)
   }
@@ -441,27 +425,28 @@ trait ParserTest {
     val pattern = "a{1}+b{1,}+c{1,2}+"
     val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Concat]
 
-    assert(parsedTree.children(0) match {
-      case Quantifier(Character('a', _), 1, 1, _, PossessiveQuantifier, true) => true
-      case _                                                                  => false
-    })
+    assertMatches(parsedTree.children(0)) { case Quantifier(Character('a', _), 1, 1, _, PossessiveQuantifier, true) =>
+      true
+    }
 
-    assert(parsedTree.children(1) match {
+    assertMatches(parsedTree.children(1)) {
       case Quantifier(Character('b', _), 1, Quantifier.Infinity, _, PossessiveQuantifier, false) => true
-      case _                                                                                     => false
-    })
+    }
 
-    assert(parsedTree.children(2) match {
-      case Quantifier(Character('c', _), 1, 2, _, PossessiveQuantifier, false) => true
-      case _                                                                   => false
-    })
+    assertMatches(parsedTree.children(2)) { case Quantifier(Character('c', _), 1, 2, _, PossessiveQuantifier, false) =>
+      true
+    }
 
     treeBuildTest(parsedTree, pattern)
   }
 
   test("Unparsable: long quantifier with min > max") {
     val pattern = "a{2,1}"
-    parseErrorTest(pattern)
+    parseErrorTest(
+      pattern,
+      """|a{2,1}
+         | ^""".stripMargin
+    )
   }
 
   test("Parse capturing group") {
@@ -469,13 +454,9 @@ trait ParserTest {
     val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Concat]
 
     parsedTree.children foreach (child =>
-      assert(
-        child match {
-          case Group(_: Concat, true, _) => true
-          case _                         => false
-        },
-        clue = parsedTree.children
-      )
+      assertMatches(child) { case Group(_: Concat, true, _) =>
+        true
+      }
     )
 
     treeBuildTest(parsedTree, pattern)
@@ -485,15 +466,12 @@ trait ParserTest {
     val pattern = "(hello(world))"
     val parsedTree = Parser(pattern, parserFlavor).getOrFail
 
-    assert(clue(parsedTree) match {
-      case Group(Concat(nodes, _), true, _) =>
-        assert(clue(nodes.last) match {
-          case Group(_: Concat, true, _) => true
-          case _                         => false
-        })
+    assertMatches(clue(parsedTree)) { case Group(Concat(nodes, _), true, _) =>
+      assertMatches(clue(nodes.last)) { case Group(_: Concat, true, _) =>
         true
-      case _ => false
-    })
+      }
+      true
+    }
 
     treeBuildTest(parsedTree, pattern)
   }
@@ -502,14 +480,12 @@ trait ParserTest {
     val pattern = "(?<groupName1>hello)(?<GroupName2>world)"
     val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Concat]
 
-    assert(clue(parsedTree.children.head) match {
-      case NamedGroup(_: Concat, name, _) => name == "groupName1"
-      case _                              => false
-    })
-    assert(clue(parsedTree.children.last) match {
-      case NamedGroup(_: Concat, name, _) => name == "GroupName2"
-      case _                              => false
-    })
+    assertMatches(clue(parsedTree.children.head)) { case NamedGroup(_: Concat, name, _) =>
+      name == "groupName1"
+    }
+    assertMatches(clue(parsedTree.children.last)) { case NamedGroup(_: Concat, name, _) =>
+      name == "GroupName2"
+    }
 
     treeBuildTest(parsedTree, pattern)
   }
@@ -518,15 +494,12 @@ trait ParserTest {
     val pattern = "(?<groupName1>hello(?<GroupName2>world))"
     val parsedTree = Parser(pattern, parserFlavor).getOrFail
 
-    assert(clue(parsedTree) match {
-      case NamedGroup(Concat(nodes, _), "groupName1", _) =>
-        assert(clue(nodes.last) match {
-          case NamedGroup(_: Concat, "GroupName2", _) => true
-          case _                                      => false
-        })
+    assertMatches(clue(parsedTree)) { case NamedGroup(Concat(nodes, _), "groupName1", _) =>
+      assertMatches(clue(nodes.last)) { case NamedGroup(_: Concat, "GroupName2", _) =>
         true
-      case _ => false
-    })
+      }
+      true
+    }
 
     treeBuildTest(parsedTree, pattern)
   }
@@ -536,13 +509,9 @@ trait ParserTest {
     val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Concat]
 
     parsedTree.children foreach (child =>
-      assert(
-        child match {
-          case Group(_: Concat, false, _) => true
-          case _                          => false
-        },
-        clue = parsedTree.children
-      )
+      assertMatches(child) { case Group(_: Concat, false, _) =>
+        true
+      }
     )
 
     treeBuildTest(parsedTree, pattern)
@@ -552,15 +521,12 @@ trait ParserTest {
     val pattern = "(?:hello(?:world))"
     val parsedTree = Parser(pattern, parserFlavor).getOrFail
 
-    assert(clue(parsedTree) match {
-      case Group(Concat(nodes, _), false, _) =>
-        assert(clue(nodes.last) match {
-          case Group(_: Concat, false, _) => true
-          case _                          => false
-        })
+    assertMatches(clue(parsedTree)) { case Group(Concat(nodes, _), false, _) =>
+      assertMatches(clue(nodes.last)) { case Group(_: Concat, false, _) =>
         true
-      case _ => false
-    })
+      }
+      true
+    }
 
     treeBuildTest(parsedTree, pattern)
   }
@@ -569,10 +535,9 @@ trait ParserTest {
     val pattern = "(?=hello)"
     val parsedTree = Parser(pattern, parserFlavor).getOrFail
 
-    assert(clue(parsedTree) match {
-      case Lookaround(_: Concat, true, true, _) => true
-      case _                                    => false
-    })
+    assertMatches(clue(parsedTree)) { case Lookaround(_: Concat, true, true, _) =>
+      true
+    }
 
     treeBuildTest(parsedTree, pattern)
   }
@@ -581,10 +546,9 @@ trait ParserTest {
     val pattern = "(?!hello)"
     val parsedTree = Parser(pattern, parserFlavor).getOrFail
 
-    assert(clue(parsedTree) match {
-      case Lookaround(_: Concat, false, true, _) => true
-      case _                                     => false
-    })
+    assertMatches(clue(parsedTree)) { case Lookaround(_: Concat, false, true, _) =>
+      true
+    }
 
     treeBuildTest(parsedTree, pattern)
   }
@@ -593,10 +557,9 @@ trait ParserTest {
     val pattern = "(?<=hello)"
     val parsedTree = Parser(pattern, parserFlavor).getOrFail
 
-    assert(clue(parsedTree) match {
-      case Lookaround(_: Concat, true, false, _) => true
-      case _                                     => false
-    })
+    assertMatches(clue(parsedTree)) { case Lookaround(_: Concat, true, false, _) =>
+      true
+    }
 
     treeBuildTest(parsedTree, pattern)
   }
@@ -625,22 +588,62 @@ trait ParserTest {
     val pattern = """stuff\$hit"""
     val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Concat]
 
-    assert(clue(parsedTree.children(5)) match {
-      case QuoteChar('$', _) => true
-      case _                 => false
-    })
+    assertMatches(clue(parsedTree.children(5))) { case QuoteChar('$', _) =>
+      true
+    }
 
     treeBuildTest(parsedTree, pattern)
   }
 
   test("Parser failure at start") {
     val pattern = "("
-    parseErrorTest(pattern)
+    parseErrorTest(
+      pattern,
+      """|(
+         |^""".stripMargin
+    )
+  }
+
+  test("adds context to parser failure") {
+    val pattern = "(a{1,2}"
+    parseErrorTest(
+      pattern,
+      """|(a{1,2}
+         |^""".stripMargin,
+      context = Seq(
+        "character literal",
+        "beginning of line",
+        "end of line",
+        "boundary meta-character",
+        "escape character",
+        "control character",
+        "hexadecimal character",
+        "any dot",
+        "predefined character class",
+        "short quantifier",
+        "long quantifier",
+        "capturing group",
+        "named capturing group",
+        "non-capturing group",
+        "lookaround",
+        "named reference",
+        "quoted character",
+        "concatenation",
+        "or",
+        "quoted character",
+        "octal character",
+        "character class"
+      )
+    )
   }
 
   test("Parser failure mid-regex") {
     val pattern = "abc(def"
-    parseErrorTest(pattern)
+    parseErrorTest(
+      pattern,
+      """|abc(def
+         |   ^""".stripMargin
+    )
   }
 
   test("Parse complex regular expression") {
