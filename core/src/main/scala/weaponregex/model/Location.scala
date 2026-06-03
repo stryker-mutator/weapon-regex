@@ -1,6 +1,9 @@
 package weaponregex.model
 
 import cats.parse.Caret
+import cats.syntax.order.*
+import cats.{Order, Show}
+import weaponregex.model.Position.*
 
 import scala.scalajs.js.annotation.*
 
@@ -13,6 +16,7 @@ import scala.scalajs.js.annotation.*
   */
 @JSExportAll
 case class Location(start: Position, end: Position) {
+  require(end >= start, s"Location end ${end.show} must be >= start ${start.show}")
   def show: String = s"[${start.show}, ${end.show})"
 }
 
@@ -24,5 +28,9 @@ object Location {
 
   def fromCaret(start: Caret, end: Caret): Location =
     Location(Position(start.line, start.col), Position(end.line, end.col))
+
+  implicit val showLocation: Show[Location] = _.show
+
+  implicit val locationOrder: Order[Location] = Order.by(l => (l.start, l.end))
 
 }
