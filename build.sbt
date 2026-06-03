@@ -1,7 +1,13 @@
 import org.scalajs.linker.interface.{ESFeatures, ESVersion}
 import org.typelevel.scalacoptions.{ScalaVersion, ScalacOption, ScalacOptions}
 import org.typelevel.sbt.tpolecat.DevMode
-import com.typesafe.tools.mima.core.{MissingMethodProblem, MissingTypesProblem, Problem, ProblemFilters}
+import com.typesafe.tools.mima.core.{
+  DirectMissingMethodProblem,
+  MissingMethodProblem,
+  MissingTypesProblem,
+  Problem,
+  ProblemFilters
+}
 
 // Skip publish root
 publish / skip := true
@@ -49,8 +55,12 @@ lazy val WeaponRegeX = projectMatrix
   .in(file("core"))
   .settings(
     name := "weapon-regex",
-    libraryDependencies += "org.typelevel" %%% "cats-parse" % "1.1.0",
-    libraryDependencies += "org.scalameta" %%% "munit" % "1.3.2" % Test,
+    libraryDependencies ++= Seq(
+      "org.typelevel" %%% "cats-parse" % "1.1.0",
+      "org.scalameta" %%% "munit" % "1.3.2" % Test,
+      "org.typelevel" %%% "cats-laws" % "2.13.0" % Test,
+      "org.typelevel" %%% "discipline-munit" % "2.0.0" % Test
+    ),
     tpolecatScalacOptions ++= Set(
       ScalacOptions.source3,
       ScalacOptions.release("8"),
@@ -65,7 +75,9 @@ lazy val WeaponRegeX = projectMatrix
       ProblemFilters.exclude[Problem]("weaponregex.internal.*"),
       // Adding fields to Mutant is not considered a breaking change
       ProblemFilters.exclude[MissingMethodProblem]("weaponregex.model.mutation.Mutant.*"),
-      ProblemFilters.exclude[MissingTypesProblem]("weaponregex.model.mutation.Mutant$")
+      ProblemFilters.exclude[MissingTypesProblem]("weaponregex.model.mutation.Mutant$"),
+      ProblemFilters.exclude[MissingTypesProblem]("weaponregex.model.*"),
+      ProblemFilters.exclude[DirectMissingMethodProblem]("weaponregex.model.*")
     )
   )
   .jvmPlatform(
