@@ -1,5 +1,6 @@
 package weaponregex.internal.mutator
 
+import cats.data.NonEmptyList
 import weaponregex.internal.extension.EitherExtension.LeftStringEitherTest
 import weaponregex.internal.extension.RegexTreeExtension.RegexTreeMutator
 import weaponregex.internal.parser.Parser
@@ -10,28 +11,28 @@ class CapturingMutatorTest extends munit.FunSuite {
     val pattern = "(hello)"
     val parsedTree = Parser(pattern).getOrFail
 
-    val mutants: Seq[Mutant] = parsedTree.mutate(Seq(GroupToNCGroup))
+    val mutants: Seq[Mutant] = parsedTree.mutate(NonEmptyList.one(GroupToNCGroup))
 
     val expected: Seq[String] = Seq("(?:hello)")
 
     assertEquals(clue(mutants).length, expected.length)
-    assertEquals(clue(mutants) map (_.pattern), expected)
+    assertEquals(clue(mutants).map(_.pattern), expected)
   }
 
   test("Does not change escaped capturing groups") {
     val pattern = "\\(hello\\)"
     val parsedTree = Parser(pattern).getOrFail
 
-    val mutants: Seq[Mutant] = parsedTree.mutate(Seq(GroupToNCGroup))
+    val mutants: Seq[Mutant] = parsedTree.mutate(NonEmptyList.one(GroupToNCGroup))
 
-    assertEquals(clue(mutants), Nil)
+    assertEquals(mutants, Nil)
   }
 
   test("Negates lookaround constructs") {
     val pattern = "(?=abc)(?!abc)(?<=abc)(?<!abc)"
     val parsedTree = Parser(pattern).getOrFail
 
-    val mutants: Seq[String] = parsedTree.mutate(Seq(LookaroundNegation)) map (_.pattern)
+    val mutants: Seq[String] = parsedTree.mutate(NonEmptyList.one(LookaroundNegation)).map(_.pattern)
 
     val expected: Seq[String] = Seq(
       "(?!abc)(?!abc)(?<=abc)(?<!abc)",
@@ -41,6 +42,6 @@ class CapturingMutatorTest extends munit.FunSuite {
     )
 
     assertEquals(clue(mutants).length, expected.length)
-    expected foreach (m => assert(clue(mutants) contains clue(m)))
+    expected.foreach(m => assert(clue(mutants).contains(clue(m))))
   }
 }

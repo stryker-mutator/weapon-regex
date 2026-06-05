@@ -36,7 +36,7 @@ object WeaponRegeXJS {
     */
   @JSExportTopLevel("mutate")
   def mutate(pattern: String, flags: js.UndefOr[String], options: js.UndefOr[MutationOptions]): js.Array[MutantJS] = {
-    val (mutators, mutationLevels, flavor) = options.getOrElse(new MutationOptions).toScala
+    val (mutators, mutationLevels, flavor) = options.toOption.flatMap(Option(_)).getOrElse(new MutationOptions).toScala
     val flagsOpt = flags.toOption.filterNot(_ == null).filterNot(_.isEmpty)
 
     Parser(pattern, flagsOpt, flavor) match {

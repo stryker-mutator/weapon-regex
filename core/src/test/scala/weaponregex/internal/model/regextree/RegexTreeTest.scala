@@ -1,5 +1,6 @@
 package weaponregex.internal.model.regextree
 
+import cats.data.NonEmptyList
 import weaponregex.internal.constant.RegexTreeStubs.LOCATION
 import weaponregex.internal.extension.RegexTreeExtension.RegexTreeStringBuilder
 
@@ -8,7 +9,7 @@ class RegexTreeTest extends munit.FunSuite {
     val pattern: String = """^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$"""
     val loc = LOCATION
     val tree: RegexTree = Concat(
-      Seq(
+      NonEmptyList.of(
         BOL(loc),
         OneOrMore(
           PredefinedCharClass('w', loc),

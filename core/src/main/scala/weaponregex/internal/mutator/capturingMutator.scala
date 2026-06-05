@@ -1,5 +1,6 @@
 package weaponregex.internal.mutator
 
+import cats.data.NonEmptySet
 import weaponregex.internal.TokenMutator
 import weaponregex.internal.extension.RegexTreeExtension.RegexTreeStringBuilder
 import weaponregex.internal.model.regextree.*
@@ -14,7 +15,7 @@ import weaponregex.model.mutation.Mutant
   */
 object GroupToNCGroup extends TokenMutator {
   override val name: String = "Capturing group to non-capturing group modification"
-  override val levels: Seq[Int] = Seq(2, 3)
+  override val levels: NonEmptySet[Int] = NonEmptySet.of(2, 3)
   override def description(original: String, mutated: String, location: Location): String =
     s"${location.show} Modify the capturing group `$original` to non-capturing group `$mutated`"
 
@@ -32,7 +33,7 @@ object GroupToNCGroup extends TokenMutator {
   */
 object LookaroundNegation extends TokenMutator {
   override val name: String = "Lookaround constructs (lookahead, lookbehind) negation"
-  override val levels: Seq[Int] = Seq(1, 2, 3)
+  override val levels: NonEmptySet[Int] = NonEmptySet.of(1, 2, 3)
   override def description(original: String, mutated: String, location: Location): String =
     s"${location.show} Negate the lookaround construct `$original` to `$mutated`"
 

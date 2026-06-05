@@ -1,5 +1,6 @@
 package weaponregex.internal.mutator
 
+import cats.data.NonEmptyList
 import weaponregex.internal.extension.EitherExtension.LeftStringEitherTest
 import weaponregex.internal.extension.RegexTreeExtension.RegexTreeMutator
 import weaponregex.internal.parser.Parser
@@ -9,7 +10,7 @@ class PredefCharClassMutatorTest extends munit.FunSuite {
     val pattern = """\w\W\d\D\s\S"""
     val parsedTree = Parser(pattern).getOrFail
 
-    val mutants: Seq[String] = parsedTree.mutate(Seq(PredefCharClassNegation)) map (_.pattern)
+    val mutants: Seq[String] = parsedTree.mutate(NonEmptyList.one(PredefCharClassNegation)).map(_.pattern)
 
     val expected: Seq[String] = Seq(
       """\W\W\d\D\s\S""",
@@ -21,22 +22,22 @@ class PredefCharClassMutatorTest extends munit.FunSuite {
     )
 
     assertEquals(clue(mutants).length, expected.length)
-    expected foreach (m => assert(clue(mutants) contains clue(m)))
+    expected.foreach(m => assert(clue(mutants).contains(clue(m))))
   }
 
   test("Does not mutate (negate) similar characters") {
     val pattern = "wWdDsS"
     val parsedTree = Parser(pattern).getOrFail
 
-    val mutants: Seq[String] = parsedTree.mutate(Seq(PredefCharClassNegation)) map (_.pattern)
-    assertEquals(clue(mutants), Nil)
+    val mutants: Seq[String] = parsedTree.mutate(NonEmptyList.one(PredefCharClassNegation)).map(_.pattern)
+    assertEquals(mutants, Nil)
   }
 
   test("Nullifies Predefined Character Class") {
     val pattern = """\w\W\d\D\s\S"""
     val parsedTree = Parser(pattern).getOrFail
 
-    val mutants: Seq[String] = parsedTree.mutate(Seq(PredefCharClassNullification)) map (_.pattern)
+    val mutants: Seq[String] = parsedTree.mutate(NonEmptyList.one(PredefCharClassNullification)).map(_.pattern)
 
     val expected: Seq[String] = Seq(
       """w\W\d\D\s\S""",
@@ -48,22 +49,22 @@ class PredefCharClassMutatorTest extends munit.FunSuite {
     )
 
     assertEquals(clue(mutants).length, expected.length)
-    expected foreach (m => assert(clue(mutants) contains clue(m)))
+    expected.foreach(m => assert(clue(mutants).contains(clue(m))))
   }
 
   test("Does not mutate (nullify) similar characters") {
     val pattern = "wWdDsS"
     val parsedTree = Parser(pattern).getOrFail
 
-    val mutants: Seq[String] = parsedTree.mutate(Seq(PredefCharClassNullification)) map (_.pattern)
-    assertEquals(clue(mutants), Nil)
+    val mutants: Seq[String] = parsedTree.mutate(NonEmptyList.one(PredefCharClassNullification)).map(_.pattern)
+    assertEquals(mutants, Nil)
   }
 
   test("Changes Predefined Character Class to Any Char") {
     val pattern = """\w\W\d\D\s\S"""
     val parsedTree = Parser(pattern).getOrFail
 
-    val mutants: Seq[String] = parsedTree.mutate(Seq(PredefCharClassAnyChar)) map (_.pattern)
+    val mutants: Seq[String] = parsedTree.mutate(NonEmptyList.one(PredefCharClassAnyChar)).map(_.pattern)
 
     val expected: Seq[String] = Seq(
       """[\w\W]\W\d\D\s\S""",
@@ -75,22 +76,22 @@ class PredefCharClassMutatorTest extends munit.FunSuite {
     )
 
     assertEquals(clue(mutants).length, expected.length)
-    expected foreach (m => assert(clue(mutants) contains clue(m)))
+    expected.foreach(m => assert(clue(mutants).contains(clue(m))))
   }
 
   test("Does not mutate (change) similar characters") {
     val pattern = "wWdDsS"
     val parsedTree = Parser(pattern).getOrFail
 
-    val mutants: Seq[String] = parsedTree.mutate(Seq(PredefCharClassAnyChar)) map (_.pattern)
-    assertEquals(clue(mutants), Nil)
+    val mutants: Seq[String] = parsedTree.mutate(NonEmptyList.one(PredefCharClassAnyChar)).map(_.pattern)
+    assertEquals(mutants, Nil)
   }
 
   test("Negates Unicode Character Class with lone property") {
     val pattern = """\p{Alpha}\P{Alpha}"""
     val parsedTree = Parser(pattern).getOrFail
 
-    val mutants: Seq[String] = parsedTree.mutate(Seq(UnicodeCharClassNegation)) map (_.pattern)
+    val mutants: Seq[String] = parsedTree.mutate(NonEmptyList.one(UnicodeCharClassNegation)).map(_.pattern)
 
     val expected: Seq[String] = Seq(
       """\P{Alpha}\P{Alpha}""",
@@ -98,14 +99,14 @@ class PredefCharClassMutatorTest extends munit.FunSuite {
     )
 
     assertEquals(clue(mutants).length, expected.length)
-    expected foreach (m => assert(clue(mutants) contains clue(m)))
+    expected.foreach(m => assert(clue(mutants).contains(clue(m))))
   }
 
   test("Negates Unicode Character Class with property and value") {
     val pattern = """\p{Script_Extensions=Latin}\P{Script_Extensions=Latin}"""
     val parsedTree = Parser(pattern).getOrFail
 
-    val mutants: Seq[String] = parsedTree.mutate(Seq(UnicodeCharClassNegation)) map (_.pattern)
+    val mutants: Seq[String] = parsedTree.mutate(NonEmptyList.one(UnicodeCharClassNegation)).map(_.pattern)
 
     val expected: Seq[String] = Seq(
       """\P{Script_Extensions=Latin}\P{Script_Extensions=Latin}""",
@@ -113,6 +114,6 @@ class PredefCharClassMutatorTest extends munit.FunSuite {
     )
 
     assertEquals(clue(mutants).length, expected.length)
-    expected foreach (m => assert(clue(mutants) contains clue(m)))
+    expected.foreach(m => assert(clue(mutants).contains(clue(m))))
   }
 }

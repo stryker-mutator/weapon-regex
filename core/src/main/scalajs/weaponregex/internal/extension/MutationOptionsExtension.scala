@@ -1,5 +1,7 @@
 package weaponregex.internal.extension
 
+import cats.data.{NonEmptyList, NonEmptySet}
+import cats.syntax.all.*
 import weaponregex.model.MutationOptions
 import weaponregex.model.mutation.TokenMutator
 import weaponregex.mutator.BuiltinMutators
@@ -15,16 +17,16 @@ private[weaponregex] object MutationOptionsExtension {
       * @return
       *   A tuple of (mutators, mutationLevels, flavor)
       */
-    def toScala: (Seq[TokenMutator], Seq[Int], ParserFlavor) = {
-      val mutators: Seq[TokenMutator] =
+    def toScala: (NonEmptyList[TokenMutator], Option[NonEmptySet[Int]], ParserFlavor) = {
+      val mutators: NonEmptyList[TokenMutator] =
         if (mutationOptions.hasOwnProperty("mutators") && mutationOptions.mutators != null)
-          mutationOptions.mutators.toSeq map (_.tokenMutator)
+          mutationOptions.mutators.toList.map(_.tokenMutator).toNel.getOrElse(BuiltinMutators.all)
         else BuiltinMutators.all
 
-      val mutationLevels: Seq[Int] =
+      val mutationLevels: Option[NonEmptySet[Int]] =
         if (mutationOptions.hasOwnProperty("mutationLevels") && mutationOptions.mutationLevels != null)
-          mutationOptions.mutationLevels.toSeq
-        else null
+          mutationOptions.mutationLevels.toList.toNel.map(_.toNes)
+        else None
 
       val flavor: ParserFlavor =
         if (mutationOptions.hasOwnProperty("flavor") && mutationOptions.flavor != null)

@@ -1,5 +1,6 @@
 package weaponregex.internal.mutator
 
+import cats.data.NonEmptySet
 import weaponregex.internal.TokenMutator
 import weaponregex.internal.extension.RegexTreeExtension.RegexTreeStringBuilder
 import weaponregex.internal.model.regextree.*
@@ -14,7 +15,7 @@ import weaponregex.model.mutation.Mutant
   */
 object BOLRemoval extends TokenMutator {
   override val name: String = "Beginning of line character `^` removal"
-  override val levels: Seq[Int] = Seq(1, 2, 3)
+  override val levels: NonEmptySet[Int] = NonEmptySet.of(1, 2, 3)
   override def description(original: String, mutated: String, location: Location): String =
     location.show + " Remove the beginning of line character `^`"
 
@@ -36,7 +37,7 @@ object BOLRemoval extends TokenMutator {
   */
 object EOLRemoval extends TokenMutator {
   override val name: String = "End of line character `$` removal"
-  override val levels: Seq[Int] = Seq(1, 2, 3)
+  override val levels: NonEmptySet[Int] = NonEmptySet.of(1, 2, 3)
   override def description(original: String, mutated: String, location: Location): String =
     location.show + " Remove the end of line character `$`"
 
@@ -58,7 +59,7 @@ object EOLRemoval extends TokenMutator {
   */
 object BOL2BOI extends TokenMutator {
   override val name: String = """Beginning of line `^` to beginning of input `\A` change"""
-  override val levels: Seq[Int] = Seq(2, 3)
+  override val levels: NonEmptySet[Int] = NonEmptySet.of(2, 3)
   override def description(original: String, mutated: String, location: Location): String =
     location.show + """ Change the beginning of line `^` to beginning of input `\A`"""
 
@@ -76,7 +77,7 @@ object BOL2BOI extends TokenMutator {
   */
 object EOL2EOI extends TokenMutator {
   override val name: String = """End of line `$` to end of input `\z` change"""
-  override val levels: Seq[Int] = Seq(2, 3)
+  override val levels: NonEmptySet[Int] = NonEmptySet.of(2, 3)
   override def description(original: String, mutated: String, location: Location): String =
     location.show + """ Change the end of line `$` to end of input `\z`"""
 

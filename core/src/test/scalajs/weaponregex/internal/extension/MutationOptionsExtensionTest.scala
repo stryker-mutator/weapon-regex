@@ -1,5 +1,7 @@
 package weaponregex.internal.extension
 
+import cats.data.NonEmptySet
+import cats.syntax.all.*
 import weaponregex.internal.extension.MutationOptionsExtension.MutationOptionsConverter
 import weaponregex.model.MutationOptions
 import weaponregex.mutator.{BuiltinMutators, BuiltinMutatorsJS}
@@ -13,7 +15,7 @@ class MutationOptionsExtensionTest extends munit.FunSuite {
     val (mutators, mutationLevels, flavor) = options.toScala
 
     assertEquals(mutators, BuiltinMutators.all)
-    assertEquals(mutationLevels, null)
+    assertEquals(mutationLevels, None)
     assertEquals(flavor, ParserFlavorJS)
   }
 
@@ -24,8 +26,8 @@ class MutationOptionsExtensionTest extends munit.FunSuite {
     val options = new MutationOptions(mutators = mutatorsIn)
     val (mutators, mutationLevels, flavor) = options.toScala
 
-    assertEquals(mutators, BuiltinMutators.all.take(numMutators))
-    assertEquals(mutationLevels, null)
+    assertEquals(mutators.toList, BuiltinMutators.all.take(numMutators))
+    assertEquals(mutationLevels, None)
     assertEquals(flavor, ParserFlavorJS)
   }
 
@@ -36,7 +38,7 @@ class MutationOptionsExtensionTest extends munit.FunSuite {
     val (mutators, mutationLevels, flavor) = options.toScala
 
     assertEquals(mutators, BuiltinMutators.all)
-    assertEquals(mutationLevels, levelsIn.toSeq)
+    assertEquals(mutationLevels, NonEmptySet.of(2, 3).some)
     assertEquals(flavor, ParserFlavorJS)
   }
 
@@ -47,7 +49,7 @@ class MutationOptionsExtensionTest extends munit.FunSuite {
     val (mutators, mutationLevels, flavor) = options.toScala
 
     assertEquals(mutators, BuiltinMutators.all)
-    assertEquals(mutationLevels, null)
+    assertEquals(mutationLevels, None)
     assertEquals(flavor, flavorIn)
   }
 
@@ -60,8 +62,8 @@ class MutationOptionsExtensionTest extends munit.FunSuite {
     val options = new MutationOptions(mutatorsIn, levelsIn, flavorIn)
     val (mutators, mutationLevels, flavor) = options.toScala
 
-    assertEquals(mutators, BuiltinMutators.all.take(numMutators))
-    assertEquals(mutationLevels, levelsIn.toSeq)
+    assertEquals(mutators.toList, BuiltinMutators.all.take(numMutators))
+    assertEquals(mutationLevels, NonEmptySet.of(2, 3).some)
     assertEquals(flavor, flavorIn)
   }
 }
