@@ -1,6 +1,6 @@
 package weaponregex.internal.model.regextree
 
-import weaponregex.model.Location
+import mutationtesting.Location
 
 /** Beginning of Line (BOL) leaf node
   *

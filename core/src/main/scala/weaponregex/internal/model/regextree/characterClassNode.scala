@@ -1,6 +1,6 @@
 package weaponregex.internal.model.regextree
 
-import weaponregex.model.Location
+import mutationtesting.Location
 
 /** Character class node
   *
