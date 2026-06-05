@@ -1,5 +1,24 @@
 # Changelog
 
+## [2.0.0](https://github.com/stryker-mutator/weapon-regex/compare/v1.4.1...v2.0.0) (2026-06-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* use `mutationtesting.{Location, Position}` instead of `weaponregex.model.{Location, Position}` ([#653](https://github.com/stryker-mutator/weapon-regex/issues/653))
+* use cats NonEmpty data structures for mutators and mutation levels ([#652](https://github.com/stryker-mutator/weapon-regex/issues/652))
+
+### Features
+
+* improve `Position`/`Location` checks and tests ([#650](https://github.com/stryker-mutator/weapon-regex/issues/650)) ([5cd7bea](https://github.com/stryker-mutator/weapon-regex/commit/5cd7bea646117bab228d3ca505ed2fe3e366d64d))
+* use `mutationtesting.{Location, Position}` instead of `weaponregex.model.{Location, Position}` ([#653](https://github.com/stryker-mutator/weapon-regex/issues/653)) ([f0fe938](https://github.com/stryker-mutator/weapon-regex/commit/f0fe93845f868e88fc841ebb9a9bf19e8ec610e7))
+* use cats NonEmpty data structures for mutators and mutation levels ([#652](https://github.com/stryker-mutator/weapon-regex/issues/652)) ([af7e6c5](https://github.com/stryker-mutator/weapon-regex/commit/af7e6c5e82185d9c27a168cd3a597e2714cc28ee))
+
+
+### Bug Fixes
+
+* add parser context for improved error messages ([#648](https://github.com/stryker-mutator/weapon-regex/issues/648)) ([881a7e3](https://github.com/stryker-mutator/weapon-regex/commit/881a7e3f90b1a8bc1f9119fe2b19f400f7d02361))
+
 ## [1.4.1](https://github.com/stryker-mutator/weapon-regex/compare/v1.4.0...v1.4.1) (2026-06-02)
 
 
