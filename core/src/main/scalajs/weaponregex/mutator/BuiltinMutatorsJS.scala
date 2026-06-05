@@ -1,5 +1,7 @@
 package weaponregex.mutator
 
+import cats.data.NonEmptyList
+import cats.syntax.all.*
 import weaponregex.model.mutation.{TokenMutator, TokenMutatorJS}
 
 import scala.scalajs.js
@@ -19,23 +21,23 @@ object BuiltinMutatorsJS {
     * @return
     *   A JS array of [[weaponregex.model.mutation.TokenMutatorJS]]
     */
-  private def toTokenMutatorJSArray(mutators: Seq[TokenMutator]): js.Array[TokenMutatorJS] =
-    mutators.map(TokenMutatorJS(_)).toJSArray
+  private def toTokenMutatorJSArray(mutators: Option[NonEmptyList[TokenMutator]]): js.Array[TokenMutatorJS] =
+    mutators.map(_.toList.map(TokenMutatorJS(_))).orEmpty.toJSArray
 
   /** JS Array of all built-in token mutators
     */
-  val all: js.Array[TokenMutatorJS] = toTokenMutatorJSArray(BuiltinMutators.all)
+  val all: js.Array[TokenMutatorJS] = toTokenMutatorJSArray(BuiltinMutators.all.some)
 
   /** JS Map that maps from a token mutator class names to the associating token mutator
     */
   @JSExportTopLevel("mutators")
   val byName: js.Map[String, TokenMutatorJS] =
-    (BuiltinMutators.byName transform ((_, mutator) => TokenMutatorJS(mutator))).toJSMap
+    BuiltinMutators.byName.transform((_, mutator) => TokenMutatorJS(mutator)).toSortedMap.toJSMap
 
   /** JS Map that maps from mutation level number to token mutators in that level
     */
   lazy val byLevel: js.Map[Int, js.Array[TokenMutatorJS]] =
-    (BuiltinMutators.byLevel transform ((_, mutators) => toTokenMutatorJSArray(mutators))).toJSMap
+    BuiltinMutators.byLevel.transform((_, mutators) => toTokenMutatorJSArray(mutators.some)).toSortedMap.toJSMap
 
   /** Get all the token mutators in the given mutation level
     * @param mutationLevel
@@ -53,5 +55,7 @@ object BuiltinMutatorsJS {
     *   Array of all the tokens mutators in that levels, if any
     */
   def atLevels(mutationLevels: js.Array[Int]): js.Array[TokenMutatorJS] =
-    toTokenMutatorJSArray(BuiltinMutators.atLevels(mutationLevels.toSeq))
+    mutationLevels.toList.toNel
+      .fold(js.Array[TokenMutatorJS]())(levels => toTokenMutatorJSArray(BuiltinMutators.atLevels(levels.toNes)))
+
 }

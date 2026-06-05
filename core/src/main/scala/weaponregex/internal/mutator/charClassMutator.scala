@@ -1,5 +1,6 @@
 package weaponregex.internal.mutator
 
+import cats.data.NonEmptySet
 import weaponregex.internal.TokenMutator
 import weaponregex.internal.extension.RegexTreeExtension.RegexTreeStringBuilder
 import weaponregex.internal.model.regextree.*
@@ -14,7 +15,7 @@ import weaponregex.model.mutation.Mutant
   */
 object CharClassNegation extends TokenMutator {
   override val name = "Character class negation"
-  override val levels: Seq[Int] = Seq(1)
+  override val levels: NonEmptySet[Int] = NonEmptySet.of(1)
   override def description(original: String, mutated: String, location: Location): String =
     s"${location.show} Negate the character class `$original` to `$mutated`"
 
@@ -32,7 +33,7 @@ object CharClassNegation extends TokenMutator {
   */
 object CharClassChildRemoval extends TokenMutator {
   override val name: String = "Character class child removal"
-  override val levels: Seq[Int] = Seq(2, 3)
+  override val levels: NonEmptySet[Int] = NonEmptySet.of(2, 3)
 
   override def mutate(token: RegexTree): Seq[Mutant] = {
     def _mutate(token: Node): Seq[Mutant] = token.children map (child =>
@@ -63,7 +64,7 @@ object CharClassChildRemoval extends TokenMutator {
   */
 object CharClassAnyChar extends TokenMutator {
   override val name = """Character class to `[\w\W]` change"""
-  override val levels: Seq[Int] = Seq(2, 3)
+  override val levels: NonEmptySet[Int] = NonEmptySet.of(2, 3)
   override def description(original: String, mutated: String, location: Location): String =
     s"${location.show} Change the character class `$original` to match any character `[\\w\\W]`"
 
@@ -84,7 +85,7 @@ object CharClassAnyChar extends TokenMutator {
   */
 object CharClassRangeModification extends TokenMutator {
   override val name = "Character class range modification"
-  override val levels: Seq[Int] = Seq(3)
+  override val levels: NonEmptySet[Int] = NonEmptySet.of(3)
 
   // [b-y] -> [a-y] or [c-y] or [b-z] or [b-x]
   // [a-y] -> [b-y] or [a-z] or [a-x]

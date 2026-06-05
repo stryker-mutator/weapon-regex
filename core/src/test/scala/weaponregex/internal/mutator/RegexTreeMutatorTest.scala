@@ -1,5 +1,7 @@
 package weaponregex.internal.mutator
 
+import cats.data.NonEmptySet
+import cats.syntax.all.*
 import munit.Location
 import weaponregex.internal.extension.EitherExtension.LeftStringEitherTest
 import weaponregex.internal.extension.RegexTreeExtension.RegexTreeMutator
@@ -15,64 +17,64 @@ class RegexTreeMutatorTest extends munit.FunSuite {
     Parser(regex).getOrFail
 
   test("Filters mutators with level 1") {
-    val levels = Seq(1)
-    val mutants = tree.mutate(BuiltinMutators.all, levels)
+    val levels = NonEmptySet.of(1)
+    val mutants = tree.mutate(BuiltinMutators.all, levels.some)
 
-    mutants foreach (mutant => assert(levels exists (clue(mutant).levels contains _)))
+    mutants.foreach(mutant => assert(levels.exists(clue(mutant).levels.contains(_))))
     assert(clue(mutants) exists (_.levels.length != 1))
   }
 
   test("Filters mutators with level 2") {
-    val levels = Seq(2)
-    val mutants = tree.mutate(BuiltinMutators.all, levels)
+    val levels = NonEmptySet.of(2)
+    val mutants = tree.mutate(BuiltinMutators.all, levels.some)
 
-    mutants foreach (mutant => assert(levels exists (clue(mutant).levels contains _)))
+    mutants.foreach(mutant => assert(levels.exists(clue(mutant).levels.contains(_))))
     assert(clue(mutants) exists (_.levels.length != 1))
   }
 
   test("Filters mutators with level 3") {
-    val levels = Seq(3)
-    val mutants = tree.mutate(BuiltinMutators.all, levels)
+    val levels = NonEmptySet.of(3)
+    val mutants = tree.mutate(BuiltinMutators.all, levels.some)
 
-    mutants foreach (mutant => assert(levels exists (clue(mutant).levels contains _)))
+    mutants.foreach(mutant => assert(levels.exists(clue(mutant).levels.contains(_))))
     assert(clue(mutants) exists (_.levels.length != 1))
   }
 
   test("Filters mutators with levels 1, 2") {
-    val levels = Seq(1, 2)
-    val mutants = tree.mutate(BuiltinMutators.all, levels)
+    val levels = NonEmptySet.of(1, 2)
+    val mutants = tree.mutate(BuiltinMutators.all, levels.some)
 
-    mutants foreach (mutant => assert(levels exists (clue(mutant).levels contains _)))
+    mutants.foreach(mutant => assert(levels.exists(clue(mutant).levels.contains(_))))
     assert(clue(mutants) exists (_.levels.length == 1))
   }
 
   test("Filters mutators with levels 2, 3") {
-    val levels = Seq(2, 3)
-    val mutants = tree.mutate(BuiltinMutators.all, levels)
+    val levels = NonEmptySet.of(2, 3)
+    val mutants = tree.mutate(BuiltinMutators.all, levels.some)
 
-    mutants foreach (mutant => assert(levels exists (clue(mutant).levels contains _)))
+    mutants.foreach(mutant => assert(levels.exists(clue(mutant).levels.contains(_))))
     assert(clue(mutants) exists (_.levels.length == 1))
   }
 
   test("Filters mutators with levels 1, 3") {
-    val levels = Seq(1, 3)
-    val mutants = tree.mutate(BuiltinMutators.all, levels)
+    val levels = NonEmptySet.of(1, 3)
+    val mutants = tree.mutate(BuiltinMutators.all, levels.some)
 
-    mutants foreach (mutant => assert(levels exists (clue(mutant).levels contains _)))
+    mutants.foreach(mutant => assert(levels.exists(clue(mutant).levels.contains(_))))
     assert(clue(mutants) exists (_.levels.length == 1))
   }
 
   test("Filters mutators with levels 1, 2, 3") {
-    val levels = Seq(1, 2, 3)
-    val mutants = tree.mutate(BuiltinMutators.all, levels)
+    val levels = NonEmptySet.of(1, 2, 3)
+    val mutants = tree.mutate(BuiltinMutators.all, levels.some)
 
-    mutants foreach (mutant => assert(levels exists (clue(mutant).levels contains _)))
+    mutants.foreach(mutant => assert(levels.exists(clue(mutant).levels.contains(_))))
     assert(clue(mutants) exists (_.levels.length == 1))
   }
 
   test("Filters mutators with unsupported levels") {
-    val levels = Seq(100, 1000)
-    val mutants = tree.mutate(BuiltinMutators.all, levels)
+    val levels = NonEmptySet.of(100, 1000)
+    val mutants = tree.mutate(BuiltinMutators.all, levels.some)
 
     assert(clue(mutants).isEmpty)
   }
@@ -80,7 +82,7 @@ class RegexTreeMutatorTest extends munit.FunSuite {
   test("Mutates with all mutators by default") {
     val mutants = tree.mutate()
     val mutantNames = mutants.map(_.name)
-    BuiltinMutators.all foreach (mutator =>
+    BuiltinMutators.all.toList.foreach(mutator =>
       assert(mutantNames contains mutator.name, clue = (mutator.name, mutantNames))
     )
   }
@@ -89,15 +91,15 @@ class RegexTreeMutatorTest extends munit.FunSuite {
     val mutants = tree.mutate(BuiltinMutators.all)
     val mutantNames = mutants.map(_.name)
 
-    BuiltinMutators.all foreach (mutator =>
+    BuiltinMutators.all.toList.foreach(mutator =>
       assert(mutantNames contains mutator.name, clue = (mutator.name, mutantNames))
     )
   }
 
   test("Uses only the given mutators") {
     val usedMutators = BuiltinMutators.all.take(5)
-    val excludedMutators = BuiltinMutators.all.drop(5)
-    val mutants = tree.mutate(usedMutators)
+    val excludedMutators = BuiltinMutators.all.toList.drop(5)
+    val mutants = tree.mutate(usedMutators.toNel.get)
     val mutantNames = mutants.map(_.name)
 
     usedMutators foreach (mutator => assert(mutantNames contains mutator.name, clue = (mutator.name, mutantNames)))
@@ -109,12 +111,12 @@ class RegexTreeMutatorTest extends munit.FunSuite {
 
   test("Uses only the given mutators with mutation levels filtering") {
     val usedMutators = BuiltinMutators.all.take(5)
-    val excludedMutators = BuiltinMutators.all.drop(5)
-    val levels = Seq(2, 3)
-    val mutants = tree.mutate(usedMutators, levels)
+    val excludedMutators = BuiltinMutators.all.toList.drop(5)
+    val levels = NonEmptySet.of(2, 3)
+    val mutants = tree.mutate(usedMutators.toNel.get, levels.some)
     val mutantNames = mutants.map(_.name)
 
-    usedMutators.filter(_.levels exists (levels contains _)) foreach (mutator =>
+    usedMutators.filter(_.levels.exists(levels.contains(_))) foreach (mutator =>
       assert(mutantNames contains mutator.name, clue = (mutator.name, mutantNames))
     )
 
@@ -122,18 +124,13 @@ class RegexTreeMutatorTest extends munit.FunSuite {
       assert(!(mutantNames contains mutator.name), clue = (mutator.name, mutantNames))
     )
 
-    mutants foreach (mutant => assert(levels exists (clue(mutant).levels contains _)))
-  }
-
-  test("Used empty sequence of mutators") {
-    val mutants = tree.mutate(Nil)
-    assert(clue(mutants).isEmpty)
+    mutants.foreach(mutant => assert(levels.exists(clue(mutant).levels.contains(_))))
   }
 
   test("Adds correct replacement") {
     val regex = """^a{4,}[ab]$"""
     val tree = Parser(regex).getOrFail
-    val mutants = tree.mutate(BuiltinMutators.atLevels(Seq(2)))
+    val mutants = tree.mutate(BuiltinMutators.atLevels(NonEmptySet.one(2)).get)
 
     val expected = Seq[(String, String, Location)](
       ("a{4,}[ab]$", "", implicitly),

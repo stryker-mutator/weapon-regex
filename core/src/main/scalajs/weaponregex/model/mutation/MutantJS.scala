@@ -29,7 +29,7 @@ case class MutantJS(mutant: Mutant) {
 
   /** The mutation levels of the mutator
     */
-  val levels: js.Array[Int] = mutant.levels.toJSArray
+  val levels: js.Array[Int] = mutant.levels.toSortedSet.toJSArray
 
   /** Description on the mutation
     */

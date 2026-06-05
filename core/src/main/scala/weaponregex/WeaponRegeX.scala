@@ -1,5 +1,6 @@
 package weaponregex
 
+import cats.data.{NonEmptyList, NonEmptySet}
 import weaponregex.internal.extension.RegexTreeExtension.RegexTreeMutator
 import weaponregex.internal.parser.Parser
 import weaponregex.model.mutation.{Mutant, TokenMutator}
@@ -16,15 +17,15 @@ object WeaponRegeX {
     * @param mutators
     *   Mutators to be used for mutation
     * @param mutationLevels
-    *   Target mutation levels. If this is `null`, the `mutators` will not be filtered.
+    *   Target mutation levels. If this is `None`, the `mutators` will not be filtered.
     * @return
     *   A `Right` of a sequence of [[weaponregex.model.mutation.Mutant]] if can be parsed, a `Left` with the error
     *   message otherwise
     */
   def mutate(
       pattern: String,
-      mutators: Seq[TokenMutator] = BuiltinMutators.all,
-      mutationLevels: Seq[Int] = null,
+      mutators: NonEmptyList[TokenMutator] = BuiltinMutators.all,
+      mutationLevels: Option[NonEmptySet[Int]] = None,
       flavor: ParserFlavor = ParserFlavorJVM
   ): Either[String, Seq[Mutant]] = Parser(pattern, flavor) map (_.mutate(mutators, mutationLevels))
 }

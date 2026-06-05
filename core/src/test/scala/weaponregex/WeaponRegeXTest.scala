@@ -1,5 +1,7 @@
 package weaponregex
 
+import cats.data.NonEmptySet
+import cats.syntax.all.*
 import weaponregex.internal.extension.EitherExtension.LeftStringEitherTest
 import weaponregex.model.mutation.Mutant
 import weaponregex.mutator.BuiltinMutators
@@ -19,29 +21,22 @@ class WeaponRegeXTest extends munit.FunSuite {
     assertEquals(mutations.length, 2)
   }
 
-  test("Can mutate with empty sequence of mutators as option") {
-    val mutations = WeaponRegeX.mutate("^a", Nil).getOrFail
-
-    assert(mutations.isInstanceOf[Seq[Mutant]])
-    assertEquals(mutations, Nil)
-  }
-
   test("Can mutate with only levels as option") {
-    val mutations = WeaponRegeX.mutate("^a", mutationLevels = Seq(1)).getOrFail
+    val mutations = WeaponRegeX.mutate("^a", mutationLevels = NonEmptySet.of(1).some).getOrFail
 
     assert(mutations.isInstanceOf[Seq[Mutant]])
     assertEquals(mutations.length, 1)
   }
 
   test("Can mutate with unsupported levels as option") {
-    val mutations = WeaponRegeX.mutate("^a", mutationLevels = Seq(100, 1000)).getOrFail
+    val mutations = WeaponRegeX.mutate("^a", mutationLevels = NonEmptySet.of(100, 1000).some).getOrFail
 
     assert(mutations.isInstanceOf[Seq[Mutant]])
     assertEquals(mutations, Nil)
   }
 
   test("Can mutate with both mutators and levels as option") {
-    val mutations = WeaponRegeX.mutate("^a", BuiltinMutators.all, Seq(1)).getOrFail
+    val mutations = WeaponRegeX.mutate("^a", BuiltinMutators.all, NonEmptySet.of(1).some).getOrFail
 
     assert(mutations.isInstanceOf[Seq[Mutant]])
     assertEquals(mutations.length, 1)

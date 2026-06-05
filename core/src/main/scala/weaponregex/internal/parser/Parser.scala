@@ -702,7 +702,7 @@ abstract private[weaponregex] class Parser {
     */
   protected val concat: P[Concat] =
     indexed(basicRE.rep(min = 2))
-      .map { case (loc, nodes) => Concat(nodes.toList, loc) }
+      .map { case (loc, nodes) => Concat(nodes, loc) }
       .withContext("concatenation")
 
   /** Parse an empty string
@@ -731,7 +731,7 @@ abstract private[weaponregex] class Parser {
   protected val or: P[Or] =
     indexed(
       (simpleRE | empty).with1 ~ (P.char('|') *> (simpleRE | empty)).rep
-    ).map { case (loc, (first, rest)) => Or(first :: rest.toList, loc) }
+    ).map { case (loc, (first, rest)) => Or(first :: rest, loc) }
       .withContext("or")
 
   /** The top-level parsing rule which can parse either `or` or `simpleRE`

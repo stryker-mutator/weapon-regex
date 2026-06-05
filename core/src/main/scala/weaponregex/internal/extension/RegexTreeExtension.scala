@@ -1,5 +1,6 @@
 package weaponregex.internal.extension
 
+import cats.data.{NonEmptyList, NonEmptySet}
 import weaponregex.internal.extension.TokenMutatorExtension.TokenMutatorsFiltering
 import weaponregex.internal.model.regextree.*
 import weaponregex.model.mutation.{Mutant, TokenMutator}
@@ -60,22 +61,27 @@ private[weaponregex] object RegexTreeExtension {
       * @param mutators
       *   Mutators to be used for mutation
       * @param mutationLevels
-      *   Target mutation levels. If this is `null`, the `mutators` will not be filtered.
+      *   Target mutation levels. If this is `None`, the `mutators` will not be filtered.
       * @return
       *   A sequence of [[weaponregex.model.mutation.Mutant]]
       */
-    def mutate(mutators: Seq[TokenMutator] = BuiltinMutators.all, mutationLevels: Seq[Int] = null): Seq[Mutant] = {
-      if (mutationLevels != null) return mutate(mutators.atLevels(mutationLevels))
-
-      val rootMutants: Seq[Mutant] = mutators.flatMap(_.mutate(tree))
-      val childrenMutants: Seq[Mutant] = tree match {
-        case node: Node =>
-          node.children.flatMap { child =>
-            child.mutate(mutators).map(mutant => mutant.copy(pattern = tree.buildWith(child, mutant.pattern)))
+    def mutate(
+        mutators: NonEmptyList[TokenMutator] = BuiltinMutators.all,
+        mutationLevels: Option[NonEmptySet[Int]] = None
+    ): Seq[Mutant] = {
+      mutationLevels match {
+        case Some(levels) => mutators.atLevels(levels).map(mutate(_)).getOrElse(Nil)
+        case None         =>
+          val rootMutants: Seq[Mutant] = mutators.toList.flatMap(_.mutate(tree))
+          val childrenMutants: Seq[Mutant] = tree match {
+            case node: Node =>
+              node.children.flatMap { child =>
+                child.mutate(mutators).map(mutant => mutant.copy(pattern = tree.buildWith(child, mutant.pattern)))
+              }
+            case _ => Seq.empty
           }
-        case _ => Seq.empty
+          rootMutants ++ childrenMutants
       }
-      rootMutants ++ childrenMutants
     }
   }
 }

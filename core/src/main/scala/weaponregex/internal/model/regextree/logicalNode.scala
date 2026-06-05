@@ -1,5 +1,6 @@
 package weaponregex.internal.model.regextree
 
+import cats.data.NonEmptyList
 import weaponregex.model.Location
 
 /** Concatenation node
@@ -9,7 +10,7 @@ import weaponregex.model.Location
   * @param location
   *   The [[weaponregex.model.Location]] of the node in the regex string
   */
-case class Concat(nodes: Seq[RegexTree], override val location: Location) extends Node(nodes, location)
+case class Concat(nodes: NonEmptyList[RegexTree], override val location: Location) extends Node(nodes.toList, location)
 
 /** Or node (e.g. `a|b|c`)
   * @param nodes
@@ -17,4 +18,5 @@ case class Concat(nodes: Seq[RegexTree], override val location: Location) extend
   * @param location
   *   The [[weaponregex.model.Location]] of the node in the regex string
   */
-case class Or(nodes: Seq[RegexTree], override val location: Location) extends Node(nodes, location, sep = "|")
+case class Or(nodes: NonEmptyList[RegexTree], override val location: Location)
+    extends Node(nodes.toList, location, sep = "|")

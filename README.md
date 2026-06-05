@@ -36,7 +36,7 @@ Mutate!
 import weaponregex.WeaponRegeX
 
 WeaponRegeX.mutate("^abc(d+|[xyz])$") match {
-    case Right(mutants) => mutants map (_.pattern)
+    case Right(mutants) => mutants.map(_.pattern)
     case Left(e)        => throw new RuntimeException(e)
 }
 // res0: Seq[String] = List(
@@ -74,7 +74,7 @@ import wrx from 'weapon-regex';
 let mutants = wrx.mutate('^abc(d+|[xyz])$');
 
 mutants.forEach((mutant) => {
-    console.log(mutant.pattern);
+  console.log(mutant.pattern);
 });
 ```
 
@@ -89,16 +89,17 @@ Note: as of 1.0.0 weapon-regex uses ES Modules.
 The `mutate` function has the following signature:
 
 ```scala
+import cats.data.{NonEmptyList, NonEmptySet}
 import weaponregex.model.mutation._
 import weaponregex.mutator.BuiltinMutators
 import weaponregex.parser.{ParserFlavor, ParserFlavorJVM}
 
 def mutate(
-              pattern       : String,
-              mutators      : Seq[TokenMutator] = BuiltinMutators.all,
-              mutationLevels: Seq[Int] = null,
-              flavor        : ParserFlavor = ParserFlavorJVM
-          ): Either[String, Seq[Mutant]] = ???
+    pattern       : String,
+    mutators      : NonEmptyList[TokenMutator] = BuiltinMutators.all,
+    mutationLevels: Option[NonEmptySet[Int]] = None,
+    flavor        : ParserFlavor = ParserFlavorJVM
+): Either[String, Seq[Mutant]] = ???
 ```
 
 With the `mutators` argument you can give a select list of mutators that should be used in
@@ -123,9 +124,9 @@ which parser flavor should be used in the mutation process:
 import wrx from 'weapon-regex';
 
 let mutants = wrx.mutate('^abc(d+|[xyz])$', 'u', {
-    mutators: Array.from(wrx.mutators.values()),
-    mutationLevels: [1, 2, 3],
-    flavor: wrx.ParserFlavorJS,
+  mutators: Array.from(wrx.mutators.values()),
+  mutationLevels: [1, 2, 3],
+  flavor: wrx.ParserFlavorJS,
 });
 ```
 
@@ -140,30 +141,30 @@ This function will return a JavaScript Array of `Mutant` if it can be parsed, or
 
 All the supported mutators and at which mutation level they appear are shown in the table below.
 
-| Name                                                            | 1 | 2 | 3 |
-|-----------------------------------------------------------------|---|---|---|
-| [BOLRemoval](#bolremoval)                                       | ✅ | ✅ | ✅ |
-| [EOLRemoval](#eolremoval)                                       | ✅ | ✅ | ✅ |
-| [BOL2BOI](#bol2boi)                                             |   | ✅ | ✅ |
-| [EOL2EOI](#eol2eoi)                                             |   | ✅ | ✅ |
-| [CharClassNegation](#charclassnegation)                         | ✅ |
-| [CharClassChildRemoval](#charclasschildremoval)                 |   | ✅ | ✅ |
-| [CharClassAnyChar](#charclassanychar)                           |   | ✅ | ✅ |
-| [CharClassRangeModification](#charclassrangemodification)       |   |   | ✅ |
-| [PredefCharClassNegation](#predefcharclassnegation)             | ✅ |
-| [PredefCharClassNullification](#predefcharclassnullification)   |   | ✅ | ✅ |
-| [PredefCharClassAnyChar](#predefcharclassanychar)               |   | ✅ | ✅ |
-| [UnicodeCharClassNegation](#unicodecharclassnegation)           | ✅ |
-| [QuantifierRemoval](#quantifierremoval)                         | ✅ |
-| [QuantifierNChange](#quantifiernchange)                         |   | ✅ | ✅ |
-| [QuantifierNOrMoreModification](#quantifiernormoremodification) |   | ✅ | ✅ |
-| [QuantifierNOrMoreChange](#quantifiernormorechange)             |   | ✅ | ✅ |
-| [QuantifierNMModification](#quantifiernmmodification)           |   | ✅ | ✅ |
-| [QuantifierShortModification](#quantifiershortmodification)     |   | ✅ | ✅ |
-| [QuantifierShortChange](#quantifiershortchange)                 |   | ✅ | ✅ |
-| [QuantifierReluctantAddition](#quantifierreluctantaddition)     |   |   | ✅ |
-| [GroupToNCGroup](#grouptoncgroup)                               |   | ✅ | ✅ |
-| [LookaroundNegation](#lookaroundnegation)                       | ✅ | ✅ | ✅ |
+| Name                                                            | 1   | 2   | 3   |
+| --------------------------------------------------------------- | --- | --- | --- |
+| [BOLRemoval](#bolremoval)                                       | ✅  | ✅  | ✅  |
+| [EOLRemoval](#eolremoval)                                       | ✅  | ✅  | ✅  |
+| [BOL2BOI](#bol2boi)                                             |     | ✅  | ✅  |
+| [EOL2EOI](#eol2eoi)                                             |     | ✅  | ✅  |
+| [CharClassNegation](#charclassnegation)                         | ✅  |
+| [CharClassChildRemoval](#charclasschildremoval)                 |     | ✅  | ✅  |
+| [CharClassAnyChar](#charclassanychar)                           |     | ✅  | ✅  |
+| [CharClassRangeModification](#charclassrangemodification)       |     |     | ✅  |
+| [PredefCharClassNegation](#predefcharclassnegation)             | ✅  |
+| [PredefCharClassNullification](#predefcharclassnullification)   |     | ✅  | ✅  |
+| [PredefCharClassAnyChar](#predefcharclassanychar)               |     | ✅  | ✅  |
+| [UnicodeCharClassNegation](#unicodecharclassnegation)           | ✅  |
+| [QuantifierRemoval](#quantifierremoval)                         | ✅  |
+| [QuantifierNChange](#quantifiernchange)                         |     | ✅  | ✅  |
+| [QuantifierNOrMoreModification](#quantifiernormoremodification) |     | ✅  | ✅  |
+| [QuantifierNOrMoreChange](#quantifiernormorechange)             |     | ✅  | ✅  |
+| [QuantifierNMModification](#quantifiernmmodification)           |     | ✅  | ✅  |
+| [QuantifierShortModification](#quantifiershortmodification)     |     | ✅  | ✅  |
+| [QuantifierShortChange](#quantifiershortchange)                 |     | ✅  | ✅  |
+| [QuantifierReluctantAddition](#quantifierreluctantaddition)     |     |     | ✅  |
+| [GroupToNCGroup](#grouptoncgroup)                               |     | ✅  | ✅  |
+| [LookaroundNegation](#lookaroundnegation)                       | ✅  | ✅  | ✅  |
 
 ## Boundary Mutators
 
@@ -172,7 +173,7 @@ All the supported mutators and at which mutation level they appear are shown in 
 Remove the beginning of line character `^`.
 
 | Original | Mutated |
-|----------|---------|
+| -------- | ------- |
 | `^abc`   | `abc`   |
 
 [Back to table 🔝](#supported-mutators)
@@ -182,7 +183,7 @@ Remove the beginning of line character `^`.
 Remove the end of line character `$`.
 
 | Original | Mutated |
-|----------|---------|
+| -------- | ------- |
 | `abc$`   | `abc`   |
 
 [Back to table 🔝](#supported-mutators)
@@ -192,7 +193,7 @@ Remove the end of line character `$`.
 Change the beginning of line character `^` to a beginning of input character `\A`.
 
 | Original | Mutated |
-|----------|---------|
+| -------- | ------- |
 | `^abc`   | `\Aabc` |
 
 [Back to table 🔝](#supported-mutators)
@@ -202,7 +203,7 @@ Change the beginning of line character `^` to a beginning of input character `\A
 Change the end of line character `^` to a end of input character `\z`.
 
 | Original | Mutated |
-|----------|---------|
+| -------- | ------- |
 | `abc$`   | `abc\z` |
 
 [Back to table 🔝](#supported-mutators)
@@ -214,7 +215,7 @@ Change the end of line character `^` to a end of input character `\z`.
 Flips the sign of a character class.
 
 | Original | Mutated  |
-|----------|----------|
+| -------- | -------- |
 | `[abc]`  | `[^abc]` |
 | `[^abc]` | `[abc]`  |
 
@@ -225,7 +226,7 @@ Flips the sign of a character class.
 Remove a child of a character class.
 
 | Original | Mutated |
-|----------|---------|
+| -------- | ------- |
 | `[abc]`  | `[bc]`  |
 | `[abc]`  | `[ac]`  |
 | `[abc]`  | `[ab]`  |
@@ -237,7 +238,7 @@ Remove a child of a character class.
 Change a character class to a character class which matches any character.
 
 | Original | Mutated  |
-|----------|----------|
+| -------- | -------- |
 | `[abc]`  | `[\w\W]` |
 
 [Back to table 🔝](#supported-mutators)
@@ -247,7 +248,7 @@ Change a character class to a character class which matches any character.
 Change the high and low of a range by one in both directions if possible.
 
 | Original | Mutated |
-|----------|---------|
+| -------- | ------- |
 | `[b-y]`  | `[a-y]` |
 | `[b-y]`  | `[c-y]` |
 | `[b-y]`  | `[b-z]` |
@@ -262,7 +263,7 @@ Change the high and low of a range by one in both directions if possible.
 Flips the sign of a predefined character class. All the predefined character classes are shown in the table below.
 
 | Original | Mutated |
-|----------|---------|
+| -------- | ------- |
 | `\d`     | `\D`    |
 | `\D`     | `\d`    |
 | `\s`     | `\S`    |
@@ -277,7 +278,7 @@ Flips the sign of a predefined character class. All the predefined character cla
 Remove the backslash from a predefined character class such as `\w`.
 
 | Original | Mutated |
-|----------|---------|
+| -------- | ------- |
 | `\d`     | `d`     |
 | `\D`     | `D`     |
 | `\s`     | `s`     |
@@ -293,7 +294,7 @@ Change a predefined character class to a character class containing the predefin
 negation.
 
 | Original | Mutated  |
-|----------|----------|
+| -------- | -------- |
 | `\d`     | `[\d\D]` |
 | `\D`     | `[\D\d]` |
 | `\s`     | `[\s\S]` |
@@ -308,7 +309,7 @@ negation.
 Flips the sign of a Unicode character class.
 
 | Original    | Mutated     |
-|-------------|-------------|
+| ----------- | ----------- |
 | `\p{Alpha}` | `\P{Alpha}` |
 | `\P{Alpha}` | `\p{Alpha}` |
 
@@ -322,7 +323,7 @@ Remove a quantifier. This is done for all possible quantifiers, even ranges, and
 and possessive variants.
 
 | Original    | Mutated |
-|-------------|---------|
+| ----------- | ------- |
 | `abc?`      | `abc`   |
 | `abc*`      | `abc`   |
 | `abc+`      | `abc`   |
@@ -343,7 +344,7 @@ and possessive variants.
 Change the fixed amount quantifier to a couple of range variants.
 
 | Original | Mutated    |
-|----------|------------|
+| -------- | ---------- |
 | `abc{9}` | `abc{0,9}` |
 | `abc{9}` | `abc{9,}`  |
 
@@ -355,7 +356,7 @@ Change the `n` to infinity range quantifier to a couple of variants where the lo
 incremented and decremented by one.
 
 | Original  | Mutated    |
-|-----------|------------|
+| --------- | ---------- |
 | `abc{9,}` | `abc{8,}`  |
 | `abc{9,}` | `abc{10,}` |
 
@@ -366,7 +367,7 @@ incremented and decremented by one.
 Turn an `n` or more range quantifier into a fixed number quantifier.
 
 | Original  | Mutated  |
-|-----------|----------|
+| --------- | -------- |
 | `abc{9,}` | `abc{9}` |
 
 [Back to table 🔝](#supported-mutators)
@@ -377,7 +378,7 @@ Alter the `n` to `m` range quantifier by decrementing or incrementing the high a
 range by one.
 
 | Original   | Mutated     |
-|------------|-------------|
+| ---------- | ----------- |
 | `abc{3,9}` | `abc{2,9}`  |
 | `abc{3,9}` | `abc{4,9}`  |
 | `abc{3,9}` | `abc{3,8}`  |
@@ -392,7 +393,7 @@ variant (`{0,1}`, `{0,}`, `{1,}`), and applies the same mutations as mentioned i
 above.
 
 | Original | Mutated    |
-|----------|------------|
+| -------- | ---------- |
 | `abc?`   | `abc{1,1}` |
 | `abc?`   | `abc{0,0}` |
 | `abc?`   | `abc{0,2}` |
@@ -407,7 +408,7 @@ above.
 Change the shorthand quantifiers `*` and `+` to their fixed range quantifier variant.
 
 | Original | Mutated  |
-|----------|----------|
+| -------- | -------- |
 | `abc*`   | `abc{0}` |
 | `abc+`   | `abc{1}` |
 
@@ -418,7 +419,7 @@ Change the shorthand quantifiers `*` and `+` to their fixed range quantifier var
 Change greedy quantifiers to reluctant quantifiers.
 
 | Original    | Mutated      |
-|-------------|--------------|
+| ----------- | ------------ |
 | `abc?`      | `abc??`      |
 | `abc*`      | `abc*?`      |
 | `abc+`      | `abc+?`      |
@@ -435,7 +436,7 @@ Change greedy quantifiers to reluctant quantifiers.
 Change a normal group to a non-capturing group.
 
 | Original | Mutated   |
-|----------|-----------|
+| -------- | --------- |
 | `(abc)`  | `(?:abc)` |
 
 [Back to table 🔝](#supported-mutators)
@@ -445,7 +446,7 @@ Change a normal group to a non-capturing group.
 Flips the sign of a lookaround (lookahead, lookbehind) construct.
 
 | Original   | Mutated    |
-|------------|------------|
+| ---------- | ---------- |
 | `(?=abc)`  | `(?!abc)`  |
 | `(?!abc)`  | `(?=abc)`  |
 | `(?<=abc)` | `(?<!abc)` |

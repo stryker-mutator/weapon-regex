@@ -1,5 +1,6 @@
 package weaponregex.model.mutation
 
+import cats.data.NonEmptySet
 import weaponregex.model.Location
 
 /** A mutation made by the mutator.
@@ -20,7 +21,7 @@ case class Mutant(
     pattern: String,
     name: String,
     location: Location,
-    levels: Seq[Int],
+    levels: NonEmptySet[Int],
     description: String,
     replacement: String
 )

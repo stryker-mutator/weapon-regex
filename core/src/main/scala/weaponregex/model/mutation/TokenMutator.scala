@@ -1,5 +1,6 @@
 package weaponregex.model.mutation
 
+import cats.data.NonEmptySet
 import weaponregex.internal.model.regextree.RegexTree
 import weaponregex.model.Location
 
@@ -11,7 +12,7 @@ trait TokenMutator {
 
   /** The mutation levels that the token mutator falls under
     */
-  val levels: Seq[Int]
+  val levels: NonEmptySet[Int]
 
   /** Generate the default description for the mutants of this mutator
     * @param original

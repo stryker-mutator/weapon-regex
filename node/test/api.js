@@ -67,6 +67,11 @@ describe('#mutate()', () => {
     assert.strictEqual(mutants.length, 4);
   });
 
+  it('Can mutate with `null` as options', () => {
+    const mutants = mutate('\\u{20}', null, null);
+    assert.strictEqual(mutants.length, 4);
+  });
+
   it('Can mutate with flags but no options param', () => {
     const mutants = mutate('\\u{20}', 'u');
     assert.strictEqual(mutants.length, 0);

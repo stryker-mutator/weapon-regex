@@ -1,5 +1,6 @@
 package weaponregex.internal.mutator
 
+import cats.data.NonEmptySet
 import weaponregex.internal.TokenMutator
 import weaponregex.internal.extension.RegexTreeExtension.RegexTreeStringBuilder
 import weaponregex.internal.extension.StringExtension.*
@@ -15,7 +16,7 @@ import weaponregex.model.mutation.Mutant
   */
 object PredefCharClassNegation extends TokenMutator {
   override val name = "Predefined character class negation"
-  override val levels: Seq[Int] = Seq(1)
+  override val levels: NonEmptySet[Int] = NonEmptySet.of(1)
   override def description(original: String, mutated: String, location: Location): String =
     s"${location.show} Negate the predefined character class `$original` to `$mutated`"
 
@@ -33,7 +34,7 @@ object PredefCharClassNegation extends TokenMutator {
   */
 object PredefCharClassNullification extends TokenMutator {
   override val name = "Predefined character class nullification"
-  override val levels: Seq[Int] = Seq(2, 3)
+  override val levels: NonEmptySet[Int] = NonEmptySet.of(2, 3)
   override def description(original: String, mutated: String, location: Location): String =
     s"${location.show} Nullify the predefined character class `$original` by removing the `\\`"
 
@@ -51,7 +52,7 @@ object PredefCharClassNullification extends TokenMutator {
   */
 object PredefCharClassAnyChar extends TokenMutator {
   override val name = "Predefined character class to character class with its negation change"
-  override val levels: Seq[Int] = Seq(2, 3)
+  override val levels: NonEmptySet[Int] = NonEmptySet.of(2, 3)
   override def description(original: String, mutated: String, location: Location): String =
     s"${location.show} Change the predefined character class `$original` to a character class with its negation `$mutated` to match any character"
 
@@ -70,7 +71,7 @@ object PredefCharClassAnyChar extends TokenMutator {
   */
 object UnicodeCharClassNegation extends TokenMutator {
   override val name = "Unicode character class negation"
-  override val levels: Seq[Int] = Seq(1)
+  override val levels: NonEmptySet[Int] = NonEmptySet.of(1)
   override def description(original: String, mutated: String, location: Location): String =
     s"${location.show} sNegate Unicode character class `$original` to `$mutated`"
 

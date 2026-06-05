@@ -1,5 +1,6 @@
 package weaponregex.internal.mutator
 
+import cats.data.NonEmptyList
 import weaponregex.internal.extension.EitherExtension.LeftStringEitherTest
 import weaponregex.internal.extension.RegexTreeExtension.RegexTreeMutator
 import weaponregex.internal.parser.Parser
@@ -9,7 +10,7 @@ class BoundaryMutatorTest extends munit.FunSuite {
     val pattern = "^abc^def^"
     val parsedTree = Parser(pattern).getOrFail
 
-    val mutants: Seq[String] = parsedTree.mutate(Seq(BOLRemoval)) map (_.pattern)
+    val mutants: Seq[String] = parsedTree.mutate(NonEmptyList.one(BOLRemoval)).map(_.pattern)
 
     val expected: Seq[String] = Seq(
       "abc^def^",
@@ -18,22 +19,22 @@ class BoundaryMutatorTest extends munit.FunSuite {
     )
 
     assertEquals(clue(mutants).length, expected.length)
-    expected foreach (m => assert(clue(mutants) contains clue(m)))
+    expected.foreach(m => assert(clue(mutants).contains(clue(m))))
   }
 
   test("Does not remove escaped BOL") {
     val pattern = "\\^abc"
     val parsedTree = Parser(pattern).getOrFail
 
-    val mutants: Seq[String] = parsedTree.mutate(Seq(BOLRemoval)) map (_.pattern)
-    assertEquals(clue(mutants), Nil)
+    val mutants: Seq[String] = parsedTree.mutate(NonEmptyList.one(BOLRemoval)).map(_.pattern)
+    assertEquals(mutants, Nil)
   }
 
   test("Removes EOL") {
     val pattern = "$abc$def$"
     val parsedTree = Parser(pattern).getOrFail
 
-    val mutants: Seq[String] = parsedTree.mutate(Seq(EOLRemoval)) map (_.pattern)
+    val mutants: Seq[String] = parsedTree.mutate(NonEmptyList.one(EOLRemoval)).map(_.pattern)
 
     val expected: Seq[String] = Seq(
       "abc$def$",
@@ -42,22 +43,22 @@ class BoundaryMutatorTest extends munit.FunSuite {
     )
 
     assertEquals(clue(mutants).length, expected.length)
-    expected foreach (m => assert(clue(mutants) contains clue(m)))
+    expected.foreach(m => assert(clue(mutants).contains(clue(m))))
   }
 
   test("Does not remove escaped EOL") {
     val pattern = "abc\\$"
     val parsedTree = Parser(pattern).getOrFail
 
-    val mutants: Seq[String] = parsedTree.mutate(Seq(EOLRemoval)) map (_.pattern)
-    assertEquals(clue(mutants), Nil)
+    val mutants: Seq[String] = parsedTree.mutate(NonEmptyList.one(EOLRemoval)).map(_.pattern)
+    assertEquals(mutants, Nil)
   }
 
   test("Changes BOL to BOI") {
     val pattern = "^abc^def^ghi\\^"
     val parsedTree = Parser(pattern).getOrFail
 
-    val mutants: Seq[String] = parsedTree.mutate(Seq(BOL2BOI)) map (_.pattern)
+    val mutants: Seq[String] = parsedTree.mutate(NonEmptyList.one(BOL2BOI)).map(_.pattern)
 
     val expected: Seq[String] = Seq(
       """\Aabc^def^ghi\^""",
@@ -66,22 +67,22 @@ class BoundaryMutatorTest extends munit.FunSuite {
     )
 
     assertEquals(clue(mutants).length, expected.length)
-    expected foreach (m => assert(clue(mutants) contains clue(m)))
+    expected.foreach(m => assert(clue(mutants).contains(clue(m))))
   }
 
   test("Does not change escaped BOL") {
     val pattern = "\\^abc"
     val parsedTree = Parser(pattern).getOrFail
 
-    val mutants: Seq[String] = parsedTree.mutate(Seq(BOL2BOI)) map (_.pattern)
-    assertEquals(clue(mutants), Nil)
+    val mutants: Seq[String] = parsedTree.mutate(NonEmptyList.one(BOL2BOI)).map(_.pattern)
+    assertEquals(mutants, Nil)
   }
 
   test("Changes EOL to EOI") {
     val pattern = "$abc$def$ghi\\$"
     val parsedTree = Parser(pattern).getOrFail
 
-    val mutants: Seq[String] = parsedTree.mutate(Seq(EOL2EOI)) map (_.pattern)
+    val mutants: Seq[String] = parsedTree.mutate(NonEmptyList.one(EOL2EOI)).map(_.pattern)
 
     val expected: Seq[String] = Seq(
       """\zabc$def$ghi\$""",
@@ -90,14 +91,14 @@ class BoundaryMutatorTest extends munit.FunSuite {
     )
 
     assertEquals(clue(mutants).length, expected.length)
-    expected foreach (m => assert(clue(mutants) contains clue(m)))
+    expected.foreach(m => assert(clue(mutants).contains(clue(m))))
   }
 
   test("Does not change escaped EOL") {
     val pattern = "abc\\$"
     val parsedTree = Parser(pattern).getOrFail
 
-    val mutants: Seq[String] = parsedTree.mutate(Seq(EOL2EOI)) map (_.pattern)
-    assertEquals(clue(mutants), Nil)
+    val mutants: Seq[String] = parsedTree.mutate(NonEmptyList.one(EOL2EOI)).map(_.pattern)
+    assertEquals(mutants, Nil)
   }
 }

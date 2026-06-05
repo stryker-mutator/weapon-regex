@@ -1,5 +1,6 @@
 package weaponregex.internal.mutator
 
+import cats.data.NonEmptySet
 import weaponregex.internal.TokenMutator
 import weaponregex.internal.extension.RegexTreeExtension.RegexTreeStringBuilder
 import weaponregex.internal.model.regextree.*
@@ -14,7 +15,7 @@ import weaponregex.model.mutation.Mutant
   */
 object QuantifierRemoval extends TokenMutator {
   override val name: String = "Quantifier removal"
-  override val levels: Seq[Int] = Seq(1)
+  override val levels: NonEmptySet[Int] = NonEmptySet.of(1)
   override def description(original: String, mutated: String, location: Location): String =
     s"${location.show} Remove the quantifier from `$original` to `$mutated`"
 
@@ -35,7 +36,7 @@ object QuantifierRemoval extends TokenMutator {
   */
 object QuantifierNChange extends TokenMutator {
   override val name: String = "Quantifier `{n}` to `{0,n}` and `{n,}` change"
-  override val levels: Seq[Int] = Seq(2, 3)
+  override val levels: NonEmptySet[Int] = NonEmptySet.of(2, 3)
   override def description(original: String, mutated: String, location: Location): String =
     s"${location.show} Change the quantifier from `$original` to `$mutated`"
 
@@ -57,7 +58,7 @@ object QuantifierNChange extends TokenMutator {
   */
 object QuantifierNOrMoreModification extends TokenMutator {
   override val name: String = "Quantifier `{n,}` to `{n-1,}` and `{n+1,}` modification"
-  override val levels: Seq[Int] = Seq(2, 3)
+  override val levels: NonEmptySet[Int] = NonEmptySet.of(2, 3)
   override def description(original: String, mutated: String, location: Location): String =
     s"${location.show} Modify the quantifier from `$original` to `$mutated`"
 
@@ -77,7 +78,7 @@ object QuantifierNOrMoreModification extends TokenMutator {
   */
 object QuantifierNOrMoreChange extends TokenMutator {
   override val name: String = "Quantifier `{n,}` to `{n}` change"
-  override val levels: Seq[Int] = Seq(2, 3)
+  override val levels: NonEmptySet[Int] = NonEmptySet.of(2, 3)
   override def description(original: String, mutated: String, location: Location): String =
     s"${location.show} Change the quantifier from `$original` to `$mutated`"
 
@@ -95,7 +96,7 @@ object QuantifierNOrMoreChange extends TokenMutator {
   */
 object QuantifierNMModification extends TokenMutator {
   override val name: String = "Quantifier `{n,m}` modification"
-  override val levels: Seq[Int] = Seq(2, 3)
+  override val levels: NonEmptySet[Int] = NonEmptySet.of(2, 3)
   override def description(original: String, mutated: String, location: Location): String =
     s"${location.show} Change the quantifier from `$original` to `$mutated`"
 
@@ -130,7 +131,7 @@ object QuantifierNMModification extends TokenMutator {
   */
 object QuantifierShortModification extends TokenMutator {
   override val name: String = "Short quantifier to `{n,}` or `{n,m}` modification"
-  override val levels: Seq[Int] = Seq(2, 3)
+  override val levels: NonEmptySet[Int] = NonEmptySet.of(2, 3)
   override def description(original: String, mutated: String, location: Location): String =
     s"${location.show} Change the short quantifier from `$original` to `$mutated`"
 
@@ -160,7 +161,7 @@ object QuantifierShortModification extends TokenMutator {
   */
 object QuantifierShortChange extends TokenMutator {
   override val name: String = "Short quantifier `*` and `+` to `{n}` change"
-  override val levels: Seq[Int] = Seq(2, 3)
+  override val levels: NonEmptySet[Int] = NonEmptySet.of(2, 3)
   override def description(original: String, mutated: String, location: Location): String =
     s"${location.show} Change the short quantifier from `$original` to `$mutated`"
 
@@ -181,7 +182,7 @@ object QuantifierShortChange extends TokenMutator {
   */
 object QuantifierReluctantAddition extends TokenMutator {
   override val name: String = "Greedy quantifier to reluctant quantifier modification"
-  override val levels: Seq[Int] = Seq(3)
+  override val levels: NonEmptySet[Int] = NonEmptySet.of(3)
   override def description(original: String, mutated: String, location: Location): String =
     s"${location.show} Modify the greedy quantifier `$original` to reluctant quantifier `$mutated`"
 

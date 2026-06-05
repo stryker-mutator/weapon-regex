@@ -22,7 +22,7 @@ case class TokenMutatorJS(tokenMutator: TokenMutator) {
   /** The mutation levels that the token mutator falls under
     */
   @JSExport
-  val levels: js.Array[Int] = tokenMutator.levels.toJSArray
+  val levels: js.Array[Int] = tokenMutator.levels.toSortedSet.toJSArray
 
   /** Mutate the given token
     * @param token
