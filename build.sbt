@@ -62,11 +62,11 @@ lazy val WeaponRegeX = projectMatrix
       "org.typelevel" %%% "discipline-munit" % "2.0.0" % Test
     ),
     tpolecatScalacOptions ++= Set(
-      ScalacOptions.source3,
-      ScalacOptions.release("8"),
-      ScalacOptions.other("-Wconf:cat=scala3-migration:s", _.isBetween(ScalaVersion.V2_12_2, ScalaVersion.V3_0_0))
+      ScalacOptions.source("3", version => version.isBetween(ScalaVersion.V2_12_0, ScalaVersion.V2_13_0)),
+      ScalacOptions.source("3-cross", version => version.isBetween(ScalaVersion.V2_13_0, ScalaVersion.V3_0_0)),
+      ScalacOptions.release("8")
     ),
-    tpolecatExcludeOptions ++= Set(ScalacOptions.warnNonUnitStatement, ScalacOptions.warnUnusedNoWarn),
+    Test / tpolecatExcludeOptions ++= Set(ScalacOptions.warnNonUnitStatement, ScalacOptions.warnUnusedNoWarn),
     // To introduce a breaking version, comment out these lines and add `.disablePlugins(MimaPlugin)` after the .settings()
     mimaPreviousArtifacts := previousStableVersion.value
       .map(previousVersion => organization.value %% name.value % previousVersion)
