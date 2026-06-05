@@ -77,7 +77,22 @@ lazy val WeaponRegeX = projectMatrix
       ProblemFilters.exclude[MissingTypesProblem]("weaponregex.model.mutation.Mutant$"),
       ProblemFilters.exclude[MissingTypesProblem]("weaponregex.model.*"),
       ProblemFilters.exclude[DirectMissingMethodProblem]("weaponregex.model.*")
-    )
+    ),
+    apiMappings ++= {
+      def mappingsFor(
+          organization: String,
+          names: List[String],
+          location: String
+      ): Seq[(File, URL)] =
+        for {
+          entry: Attributed[File] <- (Compile / fullClasspath).value
+          module: ModuleID <- entry.get(moduleID.key)
+          if module.organization == organization
+          if names.exists(module.name.startsWith)
+        } yield entry.data -> url(location.format(s"${organization}/${module.name}/${module.revision}"))
+
+      mappingsFor("io.stryker-mutator", List("mutation-testing-metrics"), "https://javadoc.io/doc/%s/").toMap
+    }
   )
   .jvmPlatform(
     scalaVersions = List(Scala3, Scala213, Scala212),

@@ -1,8 +1,8 @@
 package weaponregex.model.mutation
 
 import scala.scalajs.js
-import scala.scalajs.js.JSConverters.`*`
-import scala.scalajs.js.annotation.`*`
+import scala.scalajs.js.JSConverters.*
+import scala.scalajs.js.annotation.*
 
 /** A wrapper class for [[weaponregex.model.mutation.Mutant]] for exporting to JavaScript
   * @param mutant
