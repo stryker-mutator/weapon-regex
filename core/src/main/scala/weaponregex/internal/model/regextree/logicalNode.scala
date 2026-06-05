@@ -1,7 +1,7 @@
 package weaponregex.internal.model.regextree
 
 import cats.data.NonEmptyList
-import weaponregex.model.Location
+import mutationtesting.Location
 
 /** Concatenation node
   *

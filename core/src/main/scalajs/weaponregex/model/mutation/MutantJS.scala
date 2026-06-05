@@ -1,7 +1,5 @@
 package weaponregex.model.mutation
 
-import weaponregex.model.Location
-
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters.*
 import scala.scalajs.js.annotation.*
@@ -25,7 +23,17 @@ case class MutantJS(mutant: Mutant) {
 
   /** [[weaponregex.model.Location]] in the original string where the mutation occurred
     */
-  val location: Location = mutant.location
+  val location: js.Object = js.Dynamic.literal(
+    start = js.Dynamic.literal(
+      line = mutant.location.start.line,
+      column = mutant.location.start.column
+    ),
+    end = js.Dynamic.literal(
+      line = mutant.location.end.line,
+      column = mutant.location.end.column
+    ),
+    show = mutant.location.show
+  )
 
   /** The mutation levels of the mutator
     */

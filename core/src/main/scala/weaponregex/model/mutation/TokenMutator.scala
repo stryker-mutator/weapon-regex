@@ -1,8 +1,8 @@
 package weaponregex.model.mutation
 
 import cats.data.NonEmptySet
+import mutationtesting.Location
 import weaponregex.internal.model.regextree.RegexTree
-import weaponregex.model.Location
 
 trait TokenMutator {
 

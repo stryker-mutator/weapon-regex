@@ -1,7 +1,7 @@
 package weaponregex.model.mutation
 
 import cats.data.NonEmptySet
-import weaponregex.model.Location
+import mutationtesting.Location
 
 /** A mutation made by the mutator.
   * @param pattern

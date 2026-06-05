@@ -1,11 +1,11 @@
 package weaponregex.internal.mutator
 
 import cats.data.NonEmptySet
+import mutationtesting.Location
 import weaponregex.internal.TokenMutator
 import weaponregex.internal.extension.RegexTreeExtension.RegexTreeStringBuilder
 import weaponregex.internal.extension.StringExtension.*
 import weaponregex.internal.model.regextree.*
-import weaponregex.model.Location
 import weaponregex.model.mutation.Mutant
 
 /** Mutator for predefined character class negation
