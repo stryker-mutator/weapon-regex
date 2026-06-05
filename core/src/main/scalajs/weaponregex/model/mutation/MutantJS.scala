@@ -1,8 +1,8 @@
 package weaponregex.model.mutation
 
 import scala.scalajs.js
-import scala.scalajs.js.JSConverters.*
-import scala.scalajs.js.annotation.*
+import scala.scalajs.js.JSConverters.`*`
+import scala.scalajs.js.annotation.`*`
 
 /** A wrapper class for [[weaponregex.model.mutation.Mutant]] for exporting to JavaScript
   * @param mutant
@@ -21,7 +21,7 @@ case class MutantJS(mutant: Mutant) {
     */
   val name: String = mutant.name
 
-  /** [[weaponregex.model.Location]] in the original string where the mutation occurred
+  /** [[mutationtesting.Location]] in the original string where the mutation occurred
     */
   val location: js.Object = js.Dynamic.literal(
     start = js.Dynamic.literal(

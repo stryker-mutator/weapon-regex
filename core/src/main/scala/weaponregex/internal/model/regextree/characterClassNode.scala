@@ -7,7 +7,7 @@ import mutationtesting.Location
   * @param nodes
   *   The child nodes contained in the character class
   * @param location
-  *   The [[weaponregex.model.Location]] of the node in the regex string
+  *   The [[mutationtesting.Location]] of the node in the regex string
   * @param isPositive
   *   `true` if the character class is positive, `false` otherwise
   */
@@ -18,7 +18,7 @@ case class CharacterClass(nodes: Seq[RegexTree], override val location: Location
   * @param nodes
   *   The child nodes contained in the character class
   * @param location
-  *   The [[weaponregex.model.Location]] of the node in the regex string
+  *   The [[mutationtesting.Location]] of the node in the regex string
   */
 case class CharacterClassNaked(nodes: Seq[RegexTree], override val location: Location) extends Node(nodes, location)
 
@@ -26,7 +26,7 @@ case class CharacterClassNaked(nodes: Seq[RegexTree], override val location: Loc
   * @param nodes
   *   The nodes that are being "or-ed"
   * @param location
-  *   The [[weaponregex.model.Location]] of the node in the regex string
+  *   The [[mutationtesting.Location]] of the node in the regex string
   */
 case class CharClassIntersection(nodes: Seq[RegexTree], override val location: Location)
     extends Node(nodes, location, sep = "&&")
@@ -37,7 +37,7 @@ case class CharClassIntersection(nodes: Seq[RegexTree], override val location: L
   * @param to
   *   The right bound of the range
   * @param location
-  *   The [[weaponregex.model.Location]] of the node in the regex string
+  *   The [[mutationtesting.Location]] of the node in the regex string
   */
 case class Range(from: Character, to: Character, override val location: Location)
     extends Node(Seq(from, to), location, sep = "-")

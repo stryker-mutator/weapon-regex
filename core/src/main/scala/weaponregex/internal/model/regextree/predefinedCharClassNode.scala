@@ -7,7 +7,7 @@ import mutationtesting.Location
   * @param charClass
   *   The literal class character without the `\`
   * @param location
-  *   The [[weaponregex.model.Location]] of the node in the regex string
+  *   The [[mutationtesting.Location]] of the node in the regex string
   */
 case class PredefinedCharClass(charClass: Char, override val location: Location)
     extends Leaf(charClass, location, """\""")
@@ -18,7 +18,7 @@ case class PredefinedCharClass(charClass: Char, override val location: Location)
   * @param propValue
   *   The value of the [[property]]
   * @param location
-  *   The [[weaponregex.model.Location]] of the node in the regex string
+  *   The [[mutationtesting.Location]] of the node in the regex string
   */
 case class UnicodeCharClass(
     property: String,

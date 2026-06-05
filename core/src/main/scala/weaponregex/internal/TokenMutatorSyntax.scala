@@ -20,11 +20,11 @@ private[internal] trait TokenMutatorSyntax {
   implicit protected class MutatedPatternExtension(pattern: String) {
 
     /** Convert a mutated pattern string into a [[weaponregex.model.mutation.Mutant]] with the
-      * [[weaponregex.model.Location]] taken from the provided token
+      * [[mutationtesting.Location]] taken from the provided token
       * @param token
       *   The token for reference
       * @param location
-      *   The [[weaponregex.model.Location]] where the mutation occurred. If not provided, this will be taken from the
+      *   The [[mutationtesting.Location]] where the mutation occurred. If not provided, this will be taken from the
       *   provided token.
       * @param description
       *   The description of the mutant. If not provided, the default description of the mutator is used instead.
@@ -43,7 +43,7 @@ private[internal] trait TokenMutatorSyntax {
     }
 
     /** Convert a mutated pattern string into a [[weaponregex.model.mutation.Mutant]] with the
-      * [[weaponregex.model.Location]] starts from the start of the provided token and ends at the start of the token's
+      * [[mutationtesting.Location]] starts from the start of the provided token and ends at the start of the token's
       * first child
       *
       * If the given token has no child, the location of the given token is considered to be the location of the mutant
@@ -68,7 +68,7 @@ private[internal] trait TokenMutatorSyntax {
     }
 
     /** Convert a mutated pattern string into a [[weaponregex.model.mutation.Mutant]] with the
-      * [[weaponregex.model.Location]] starts from the end of the provided token's last child and ends at the end of the
+      * [[mutationtesting.Location]] starts from the end of the provided token's last child and ends at the end of the
       * token
       *
       * If the given token has no child, the location of the given token is considered to be the location of the mutant

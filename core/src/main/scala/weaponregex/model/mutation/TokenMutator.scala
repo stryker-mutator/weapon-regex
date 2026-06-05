@@ -20,7 +20,7 @@ trait TokenMutator {
     * @param mutated
     *   The mutated string
     * @param location
-    *   The [[weaponregex.model.Location]] where the mutation occurred
+    *   The [[mutationtesting.Location]] where the mutation occurred
     */
   def description(original: String, mutated: String, location: Location): String =
     s"${location.show} Mutate $original to $mutated"

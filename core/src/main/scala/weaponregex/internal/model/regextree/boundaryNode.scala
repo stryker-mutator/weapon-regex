@@ -5,13 +5,13 @@ import mutationtesting.Location
 /** Beginning of Line (BOL) leaf node
   *
   * @param location
-  *   The [[weaponregex.model.Location]] of the node in the regex string
+  *   The [[mutationtesting.Location]] of the node in the regex string
   */
 case class BOL(override val location: Location) extends Leaf('^', location)
 
 /** End of Line (EOL) leaf node
   * @param location
-  *   The [[weaponregex.model.Location]] of the node in the regex string
+  *   The [[mutationtesting.Location]] of the node in the regex string
   */
 case class EOL(override val location: Location) extends Leaf('$', location)
 
@@ -19,6 +19,6 @@ case class EOL(override val location: Location) extends Leaf('$', location)
   * @param boundary
   *   The literal boundary character without the `\`
   * @param location
-  *   The [[weaponregex.model.Location]] of the node in the regex string
+  *   The [[mutationtesting.Location]] of the node in the regex string
   */
 case class Boundary(boundary: Char, override val location: Location) extends Leaf(boundary, location, """\""")
