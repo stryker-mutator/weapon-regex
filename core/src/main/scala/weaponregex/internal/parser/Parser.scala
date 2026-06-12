@@ -81,20 +81,20 @@ abstract private[weaponregex] class Parser {
   protected def fromCaret(start: Caret, end: Caret): Location =
     Location(Position(start.line, start.col), Position(end.line, end.col))
 
-  /** A higher order parser that add [[mutationtesting.Location]] index information of the parse of the given parser
+  /** A higher order parser that add `mutationtesting.Location` index information of the parse of the given parser
     * @param p
     *   the parser to be indexed
     * @return
-    *   A tuple of the [[mutationtesting.Location]] of the parse, and the return of the given parser `p`
+    *   A tuple of the `mutationtesting.Location` of the parse, and the return of the given parser `p`
     */
   protected def indexed[A](p: P[A]): P[(Location, A)] =
     (P.caret.with1 ~ p ~ P.caret).map { case ((i, a), j) => (fromCaret(i, j), a) }
 
-  /** A higher order parser that add [[mutationtesting.Location]] index information of the parse of the given parser
+  /** A higher order parser that add `mutationtesting.Location` index information of the parse of the given parser
     * @param p
     *   the parser to be indexed
     * @return
-    *   A tuple of the [[mutationtesting.Location]] of the parse, and the return of the given parser `p`
+    *   A tuple of the `mutationtesting.Location` of the parse, and the return of the given parser `p`
     */
   protected def indexed0[A](p: P0[A]): P0[(Location, A)] =
     (P.caret ~ p ~ P.caret).map { case ((i, a), j) => (fromCaret(i, j), a) }

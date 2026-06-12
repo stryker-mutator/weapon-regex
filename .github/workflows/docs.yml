@@ -22,7 +22,7 @@ jobs:
           private-key: ${{ secrets.STRYKER_MUTATOR_NPA_KEY }}
       - uses: ./.github/setup
       - name: Compile docs
-        run: sbt "docs3/mdoc"
+        run: sbt "docs/mdoc"
 
       - name: Get GitHub App User ID
         id: get-user-id

@@ -9,9 +9,18 @@ import com.typesafe.tools.mima.core.{
   ProblemFilters
 }
 
-// Skip publish root
-publish / skip := true
-disablePlugins(MimaPlugin)
+commands ++= List(
+  Command.command("WeaponRegeXPublishSigned")(
+    "fullLinkJS" :: "+publishSigned" :: "WeaponRegeXJS/npmPublish" :: _
+  )
+)
+
+lazy val root = rootProject
+  .disablePlugins(MimaPlugin)
+  .settings(
+    publish / skip := true
+  )
+  .autoAggregate
 
 val Scala212 = "2.12.21"
 val Scala213 = "2.13.18"
@@ -56,14 +65,14 @@ lazy val WeaponRegeX = projectMatrix
   .settings(
     name := "weapon-regex",
     libraryDependencies ++= Seq(
-      "org.typelevel" %%% "cats-parse" % "1.1.0",
-      "io.stryker-mutator" %%% "mutation-testing-metrics" % "3.8.3",
-      "org.scalameta" %%% "munit" % "1.3.3" % Test
+      "org.typelevel" %% "cats-parse" % "1.1.0",
+      "io.stryker-mutator" %% "mutation-testing-metrics" % "3.8.3",
+      "org.scalameta" %% "munit" % "1.3.3" % Test
     ),
     tpolecatScalacOptions ++= Set(
       ScalacOptions.source("3", version => version.isBetween(ScalaVersion.V2_12_0, ScalaVersion.V2_13_0)),
       ScalacOptions.source("3-cross", version => version.isBetween(ScalaVersion.V2_13_0, ScalaVersion.V3_0_0)),
-      ScalacOptions.release("8")
+      ScalacOptions.release("17")
     ),
     Test / tpolecatExcludeOptions ++= Set(ScalacOptions.warnNonUnitStatement, ScalacOptions.warnUnusedNoWarn),
     // To introduce a breaking version, comment out these lines and add `.disablePlugins(MimaPlugin)` after the .settings()
@@ -74,23 +83,8 @@ lazy val WeaponRegeX = projectMatrix
       ProblemFilters.exclude[Problem]("weaponregex.internal.*"),
       // Adding fields to Mutant is not considered a breaking change
       ProblemFilters.exclude[MissingMethodProblem]("weaponregex.model.mutation.Mutant.*"),
-      ProblemFilters.exclude[MissingTypesProblem]("weaponregex.model.mutation.Mutant$"),
+      ProblemFilters.exclude[MissingTypesProblem]("weaponregex.model.mutation.Mutant$")
     ),
-    apiMappings ++= {
-      def mappingsFor(
-          organization: String,
-          names: List[String],
-          location: String
-      ): Seq[(File, URL)] =
-        for {
-          entry: Attributed[File] <- (Compile / fullClasspath).value
-          module: ModuleID <- entry.get(moduleID.key)
-          if module.organization == organization
-          if names.exists(module.name.startsWith)
-        } yield entry.data -> url(location.format(s"${organization}/${module.name}/${module.revision}"))
-
-      mappingsFor("io.stryker-mutator", List("mutation-testing-metrics"), "https://javadoc.io/doc/%s/").toMap
-    }
   )
   .jvmPlatform(
     scalaVersions = List(Scala3, Scala213, Scala212),
@@ -105,9 +99,70 @@ lazy val WeaponRegeX = projectMatrix
       // Add JS-specific settings here
       scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.ESModule)
         .withESFeatures(ESFeatures.Defaults.withESVersion(ESVersion.ES2020))),
-      tpolecatScalacOptions += ScalacOptions.other(scalaJSSourceUri.value)
+      tpolecatScalacOptions += ScalacOptions.other(scalaJSSourceUri.value),
+      // Emit the linker output under scala-<binary> (e.g. scala-3) instead of scala-<full> (e.g. scala-3.3.8)
+      Compile / fastLinkJS / scalaJSLinkerOutputDirectory := jsLinkerBinaryVersionDir.value / s"${moduleName.value}-fastopt",
+      Compile / fullLinkJS / scalaJSLinkerOutputDirectory := jsLinkerBinaryVersionDir.value / s"${moduleName.value}-opt",
+
+      generatePackageJson :=
+        s"""{
+           |  "name": "${name.value}",
+           |  "type": "module",
+           |  "version": "${version.value}",
+           |  "description": "${description.value}",
+           |  "exports": {
+           |    ".": {
+           |      "types": "./index.d.ts",
+           |      "import": "./main.js"
+           |    }
+           |  },
+           |  "repository": {
+           |    "type": "git",
+           |    "url": "git+${homepage.value.get}.git"
+           |  },
+           |  "keywords": [
+           |    "regex",
+           |    "regexp",
+           |    "regular expression",
+           |    "mutate",
+           |    "mutation",
+           |    "mutator"
+           |  ],
+           |  "license": "${licenses.value.head.spdxId}"
+           |}
+           |""".stripMargin,
+      npmPackage := Def.uncached {
+        val outDir = (Compile / fullLinkJSOutput).value
+        val packageJsonContent = generatePackageJson.value
+        val rootIndexDts = (LocalRootProject / baseDirectory).value / "index.d.ts"
+
+        IO.write(outDir / "package.json", packageJsonContent)
+        IO.copyFile(rootIndexDts, outDir / "index.d.ts")
+        streams.value.log.info(s"Created NPM project in ${outDir}")
+
+        outDir
+      },
+      npmPublish := Def.uncached {
+        // Assemble the package, then publish from the linker output directory.
+        val outDir = npmPackage.value
+        val command = Seq("npm", "publish")
+        val os = sys.props("os.name").toLowerCase
+        val panderToWindows =
+          if (os.contains("windows")) Seq("cmd", "/C") ++ command
+          else command
+
+        scala.sys.process.Process(panderToWindows, outDir).! match {
+          case 0        =>
+          case exitCode => throw new Exception(s"Exit code $exitCode")
+        }
+      }
     )
   )
+
+lazy val jsLinkerBinaryVersionDir = Def.setting {
+  val ct = crossTarget.value
+  ct.getParentFile.getParentFile / s"scala-${scalaBinaryVersion.value}" / ct.getName
+}
 
 /** Map sourceURI to github location, taken from
   * https://github.com/typelevel/cats/blob/7ce35f50ced2ceb5747ec643333e38f0af866c1e/build.sbt#L186-L195
@@ -134,36 +189,6 @@ lazy val docs = projectMatrix
   .enablePlugins(MdocPlugin)
   .disablePlugins(MimaPlugin)
 
-lazy val writePackageJson = taskKey[Unit]("Write package.json")
-writePackageJson := IO.write(file("package.json"), generatePackageJson.value)
-
 lazy val generatePackageJson = taskKey[String]("Generate package.json")
-generatePackageJson := s"""{
-                          |  "name": "${name.value}",
-                          |  "type": "module",
-                          |  "version": "${version.value}",
-                          |  "description": "${description.value}",
-                          |  "exports": {
-                          |    ".": {
-                          |      "types": "./index.d.ts",
-                          |      "import": "./${(WeaponRegeX.js(Scala3) / Compile / fullLinkJSOutput).value
-                           .relativeTo(file("."))
-                           .get
-                           .toString}/main.js"
-                          |    }
-                          |  },
-                          |  "repository": {
-                          |    "type": "git",
-                          |    "url": "git+${homepage.value.get}.git"
-                          |  },
-                          |  "keywords": [
-                          |    "regex",
-                          |    "regexp",
-                          |    "regular expression",
-                          |    "mutate",
-                          |    "mutation",
-                          |    "mutator"
-                          |  ],
-                          |  "license": "${licenses.value.head._1}"
-                          |}
-                          |""".stripMargin
+lazy val npmPackage = taskKey[File]("Assemble the npm package in the Scala.js linker output dir")
+lazy val npmPublish = taskKey[Unit]("Publish to npm")

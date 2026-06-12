@@ -9,7 +9,7 @@ import mutationtesting.Location
   * @param isCapturing
   *   `true` if group is capturing, `false` otherwise
   * @param location
-  *   The [[mutationtesting.Location]] of the node in the regex string
+  *   The `mutationtesting.Location` of the node in the regex string
   */
 case class Group(
     expr: RegexTree,
@@ -23,7 +23,7 @@ case class Group(
   * @param name
   *   The name of the group
   * @param location
-  *   The [[mutationtesting.Location]] of the node in the regex string
+  *   The `mutationtesting.Location` of the node in the regex string
   */
 case class NamedGroup(expr: RegexTree, name: String, override val location: Location)
     extends Node(Seq(expr), location, s"(?<$name>", ")")
@@ -34,7 +34,7 @@ case class NamedGroup(expr: RegexTree, name: String, override val location: Loca
   * @param expr
   *   The regex inside the group
   * @param location
-  *   The [[mutationtesting.Location]] of the node in the regex string
+  *   The `mutationtesting.Location` of the node in the regex string
   */
 case class FlagNCGroup(
     flagToggle: FlagToggle,
@@ -46,7 +46,7 @@ case class FlagNCGroup(
   * @param flagToggle
   *   The [[weaponregex.internal.model.regextree.FlagToggle]] object associated with the group
   * @param location
-  *   The [[mutationtesting.Location]] of the node in the regex string
+  *   The `mutationtesting.Location` of the node in the regex string
   */
 case class FlagToggleGroup(flagToggle: FlagToggle, override val location: Location)
     extends Node(Seq(flagToggle), location, "(?", ")")
@@ -59,7 +59,7 @@ case class FlagToggleGroup(flagToggle: FlagToggle, override val location: Locati
   * @param offFlags
   *   The flags that are toggled off
   * @param location
-  *   The [[mutationtesting.Location]] of the node in the regex string
+  *   The `mutationtesting.Location` of the node in the regex string
   */
 case class FlagToggle(onFlags: Flags, hasDash: Boolean, offFlags: Flags, override val location: Location)
     extends Node(Seq(onFlags, offFlags), location)
@@ -68,7 +68,7 @@ case class FlagToggle(onFlags: Flags, hasDash: Boolean, offFlags: Flags, overrid
   * @param flags
   *   The sequence of flag [[weaponregex.internal.model.regextree.Character]] s
   * @param location
-  *   The [[mutationtesting.Location]] of the node in the regex string
+  *   The `mutationtesting.Location` of the node in the regex string
   */
 case class Flags(flags: Seq[Character], override val location: Location) extends Node(flags, location)
 
@@ -80,7 +80,7 @@ case class Flags(flags: Seq[Character], override val location: Location) extends
   * @param isLookahead
   *   `true` if this is a lookahead, `false` if this is a lookbehind
   * @param location
-  *   The [[mutationtesting.Location]] of the node in the regex string
+  *   The `mutationtesting.Location` of the node in the regex string
   */
 case class Lookaround(expr: RegexTree, isPositive: Boolean, isLookahead: Boolean, override val location: Location)
     extends Node(
@@ -96,6 +96,6 @@ case class Lookaround(expr: RegexTree, isPositive: Boolean, isLookahead: Boolean
   * @param expr
   *   The regex inside the group
   * @param location
-  *   The [[mutationtesting.Location]] of the node in the regex string
+  *   The `mutationtesting.Location` of the node in the regex string
   */
 case class AtomicGroup(expr: RegexTree, override val location: Location) extends Node(Seq(expr), location, "(?>", ")")

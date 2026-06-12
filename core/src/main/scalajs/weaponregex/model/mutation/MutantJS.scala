@@ -21,7 +21,7 @@ case class MutantJS(mutant: Mutant) {
     */
   val name: String = mutant.name
 
-  /** [[mutationtesting.Location]] in the original string where the mutation occurred
+  /** `mutationtesting.Location` in the original string where the mutation occurred
     */
   val location: js.Object = js.Dynamic.literal(
     start = js.Dynamic.literal(

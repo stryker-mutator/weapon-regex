@@ -8,7 +8,7 @@ import mutationtesting.Location
   * @param nodes
   *   The nodes that are being concatenated
   * @param location
-  *   The [[mutationtesting.Location]] of the node in the regex string
+  *   The `mutationtesting.Location` of the node in the regex string
   */
 case class Concat(nodes: NonEmptyList[RegexTree], override val location: Location) extends Node(nodes.toList, location)
 
@@ -16,7 +16,7 @@ case class Concat(nodes: NonEmptyList[RegexTree], override val location: Locatio
   * @param nodes
   *   The nodes that are being "or-ed"
   * @param location
-  *   The [[mutationtesting.Location]] of the node in the regex string
+  *   The `mutationtesting.Location` of the node in the regex string
   */
 case class Or(nodes: NonEmptyList[RegexTree], override val location: Location)
     extends Node(nodes.toList, location, sep = "|")
