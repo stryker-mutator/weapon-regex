@@ -75,8 +75,6 @@ lazy val WeaponRegeX = projectMatrix
       // Adding fields to Mutant is not considered a breaking change
       ProblemFilters.exclude[MissingMethodProblem]("weaponregex.model.mutation.Mutant.*"),
       ProblemFilters.exclude[MissingTypesProblem]("weaponregex.model.mutation.Mutant$"),
-      ProblemFilters.exclude[MissingTypesProblem]("weaponregex.model.*"),
-      ProblemFilters.exclude[DirectMissingMethodProblem]("weaponregex.model.*")
     ),
     apiMappings ++= {
       def mappingsFor(
