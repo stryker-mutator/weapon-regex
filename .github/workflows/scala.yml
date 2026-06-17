@@ -21,9 +21,7 @@ jobs:
       - run: git fetch --tags
       - uses: ./.github/setup
       - name: Compile code
-        # TODO: enable after releasing new major version
-        # run: sbt "compile; docs3/mdoc --check; mimaReportBinaryIssues"
-        run: sbt "compile; docs3/mdoc --check"
+        run: sbt "compile; docs3/mdoc --check; mimaReportBinaryIssues"
 
   formatting:
     runs-on: ubuntu-latest
