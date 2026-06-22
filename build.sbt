@@ -24,7 +24,7 @@ lazy val root = rootProject
 
 val Scala212 = "2.12.21"
 val Scala213 = "2.13.18"
-val Scala3 = "3.3.8"
+val Scala3 = "3.8.4"
 
 inThisBuild(
   List(
@@ -84,7 +84,7 @@ lazy val WeaponRegeX = projectMatrix
       // Adding fields to Mutant is not considered a breaking change
       ProblemFilters.exclude[MissingMethodProblem]("weaponregex.model.mutation.Mutant.*"),
       ProblemFilters.exclude[MissingTypesProblem]("weaponregex.model.mutation.Mutant$")
-    ),
+    )
   )
   .jvmPlatform(
     scalaVersions = List(Scala3, Scala213, Scala212),
@@ -100,7 +100,7 @@ lazy val WeaponRegeX = projectMatrix
       scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.ESModule)
         .withESFeatures(ESFeatures.Defaults.withESVersion(ESVersion.ES2020))),
       tpolecatScalacOptions += ScalacOptions.other(scalaJSSourceUri.value),
-      // Emit the linker output under scala-<binary> (e.g. scala-3) instead of scala-<full> (e.g. scala-3.3.8)
+      // Emit the linker output under scala-<binary> (e.g. scala-3) instead of scala-<full> (e.g. scala-3.8.4)
       Compile / fastLinkJS / scalaJSLinkerOutputDirectory := jsLinkerBinaryVersionDir.value / s"${moduleName.value}-fastopt",
       Compile / fullLinkJS / scalaJSLinkerOutputDirectory := jsLinkerBinaryVersionDir.value / s"${moduleName.value}-opt",
 
