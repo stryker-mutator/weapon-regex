@@ -44,7 +44,7 @@ export interface Mutant {
    */
   name: string;
 
-  /** [[mutationtesting.Location]] in the original string where the mutation occurred
+  /** `mutationtesting.Location` in the original string where the mutation occurred
    */
   location: Location;
 

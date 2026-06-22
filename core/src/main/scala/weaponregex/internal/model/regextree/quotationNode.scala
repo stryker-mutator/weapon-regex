@@ -7,7 +7,7 @@ import mutationtesting.Location
   * @param char
   *   The character being quoted
   * @param location
-  *   The [[mutationtesting.Location]] of the node in the regex string
+  *   The `mutationtesting.Location` of the node in the regex string
   */
 case class QuoteChar(char: Char, override val location: Location) extends Leaf(char, location, """\""")
 
@@ -17,7 +17,7 @@ case class QuoteChar(char: Char, override val location: Location) extends Leaf(c
   * @param hasEnd
   *   `true` if quote has an end symbol `\E`, `false` otherwise
   * @param location
-  *   The [[mutationtesting.Location]] of the node in the regex string
+  *   The `mutationtesting.Location` of the node in the regex string
   */
 case class Quote(quote: String, hasEnd: Boolean, override val location: Location)
     extends Leaf(quote, location, """\Q""", if (hasEnd) """\E""" else "")

@@ -14,7 +14,7 @@ sealed trait RegexTree {
     */
   def postfix: String
 
-  /** The [[mutationtesting.Location]] of the node in the regex string
+  /** The `mutationtesting.Location` of the node in the regex string
     */
   def location: Location
 }
@@ -23,7 +23,7 @@ sealed trait RegexTree {
   * @param children
   *   The children that fall under this node
   * @param location
-  *   The [[mutationtesting.Location]] of the node in the regex string
+  *   The `mutationtesting.Location` of the node in the regex string
   * @param prefix
   *   The string that is put in front of the node's children when building
   * @param postfix
@@ -43,7 +43,7 @@ abstract class Node(
   * @param value
   *   The value that the leaf holds
   * @param location
-  *   The [[mutationtesting.Location]] of the node in the regex string
+  *   The `mutationtesting.Location` of the node in the regex string
   * @param prefix
   *   The string that is put in front of the leaf's value when building
   * @param postfix

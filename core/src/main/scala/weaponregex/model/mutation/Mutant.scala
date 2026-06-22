@@ -9,7 +9,7 @@ import mutationtesting.Location
   * @param name
   *   Name of the mutation
   * @param location
-  *   [[mutationtesting.Location]] in the original string where the mutation occurred
+  *   `mutationtesting.Location` in the original string where the mutation occurred
   * @param levels
   *   The mutation levels of the mutator
   * @param description

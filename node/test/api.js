@@ -2,7 +2,7 @@
 /// <reference types="node" />
 import assert from 'assert';
 import { describe, it } from 'node:test';
-import * as wrx from '../../core/target/js-3/weapon-regex-fastopt/main.js';
+import * as wrx from '../../target/out/sjs1/scala-3/weapon-regex/weapon-regex-fastopt/main.js';
 
 // @ts-ignore
 /** @type {import('../../')} */ const {

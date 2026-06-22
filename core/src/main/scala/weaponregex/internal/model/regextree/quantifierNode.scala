@@ -31,7 +31,7 @@ case object PossessiveQuantifier extends QuantifierType("+")
   * @param max
   *   The maximum number of repetitions
   * @param location
-  *   The [[mutationtesting.Location]] of the node in the regex string
+  *   The `mutationtesting.Location` of the node in the regex string
   * @param quantifierType
   *   The type of the quantifier: greedy, reluctant, or possessive
   * @param isExact
@@ -70,7 +70,7 @@ object Quantifier {
     * @param exact
     *   The exact number of repetition
     * @param location
-    *   The [[mutationtesting.Location]] of the node in the regex string
+    *   The `mutationtesting.Location` of the node in the regex string
     * @param quantifierType
     *   The type of the quantifier: greedy, reluctant, or possessive
     * @return
@@ -91,7 +91,7 @@ object Quantifier {
     * @param max
     *   The maximum number of repetitions
     * @param location
-    *   The [[mutationtesting.Location]] of the node in the regex string
+    *   The `mutationtesting.Location` of the node in the regex string
     * @param quantifierType
     *   The type of the quantifier: greedy, reluctant, or possessive
     * @return
@@ -110,7 +110,7 @@ object Quantifier {
   * @param expr
   *   The regex that is being quantified
   * @param location
-  *   The [[mutationtesting.Location]] of the node in the regex string
+  *   The `mutationtesting.Location` of the node in the regex string
   * @param quantifierType
   *   The type of the quantifier: greedy, reluctant, or possessive
   */
@@ -124,7 +124,7 @@ case class ZeroOrOne(
   * @param expr
   *   The regex that is being quantified
   * @param location
-  *   The [[mutationtesting.Location]] of the node in the regex string
+  *   The `mutationtesting.Location` of the node in the regex string
   * @param quantifierType
   *   The type of the quantifier: greedy, reluctant, or possessive
   */
@@ -138,7 +138,7 @@ case class ZeroOrMore(
   * @param expr
   *   The regex that is being quantified
   * @param location
-  *   The [[mutationtesting.Location]] of the node in the regex string
+  *   The `mutationtesting.Location` of the node in the regex string
   * @param quantifierType
   *   The type of the quantifier: greedy, reluctant, or possessive
   */

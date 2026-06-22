@@ -7,7 +7,7 @@ import mutationtesting.Location
   * @param name
   *   The name of the capturing group being referenced
   * @param location
-  *   The [[mutationtesting.Location]] of the node in the regex string
+  *   The `mutationtesting.Location` of the node in the regex string
   */
 case class NameReference(name: String, override val location: Location) extends Leaf(name, location, """\k<""", ">")
 
@@ -15,6 +15,6 @@ case class NameReference(name: String, override val location: Location) extends 
   * @param num
   *   The order number of the capturing group being referenced
   * @param location
-  *   The [[mutationtesting.Location]] of the node in the regex string
+  *   The `mutationtesting.Location` of the node in the regex string
   */
 case class NumberReference(num: Int, override val location: Location) extends Leaf(num, location, """\""")
