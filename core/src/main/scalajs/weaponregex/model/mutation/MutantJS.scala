@@ -2,7 +2,6 @@ package weaponregex.model.mutation
 
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters.*
-import scala.scalajs.js.annotation.*
 
 /** A wrapper class for [[weaponregex.model.mutation.Mutant]] for exporting to JavaScript
   * @param mutant
@@ -10,8 +9,7 @@ import scala.scalajs.js.annotation.*
   * @note
   *   For JavaScript use only
   */
-@JSExportAll
-case class MutantJS(mutant: Mutant) {
+class MutantJS(mutant: Mutant) extends js.Object {
 
   /** The replacement pattern
     */

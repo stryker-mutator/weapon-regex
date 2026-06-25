@@ -22,7 +22,7 @@ object BuiltinMutatorsJS {
     *   A JS array of [[weaponregex.model.mutation.TokenMutatorJS]]
     */
   private def toTokenMutatorJSArray(mutators: Option[NonEmptyList[TokenMutator]]): js.Array[TokenMutatorJS] =
-    mutators.map(_.toList.map(TokenMutatorJS(_))).orEmpty.toJSArray
+    mutators.map(_.toList.map(new TokenMutatorJS(_))).orEmpty.toJSArray
 
   /** JS Array of all built-in token mutators
     */
@@ -32,7 +32,7 @@ object BuiltinMutatorsJS {
     */
   @JSExportTopLevel("mutators")
   val byName: js.Map[String, TokenMutatorJS] =
-    BuiltinMutators.byName.transform((_, mutator) => TokenMutatorJS(mutator)).toSortedMap.toJSMap
+    BuiltinMutators.byName.transform((_, mutator) => new TokenMutatorJS(mutator)).toSortedMap.toJSMap
 
   /** JS Map that maps from mutation level number to token mutators in that level
     */
