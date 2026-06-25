@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/stryker-mutator/weapon-regex/compare/v2.0.0...v2.0.1) (2026-06-25)
+
+
+### Bug Fixes
+
+* use js.Object for exported JS objects ([#669](https://github.com/stryker-mutator/weapon-regex/issues/669)) ([870d339](https://github.com/stryker-mutator/weapon-regex/commit/870d3394725ecb0297387927c872f71c2e9de3a6))
+
 ## [2.0.0](https://github.com/stryker-mutator/weapon-regex/compare/v1.4.1...v2.0.0) (2026-06-05)
 
 
