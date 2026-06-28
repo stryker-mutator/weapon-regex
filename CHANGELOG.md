@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.2](https://github.com/stryker-mutator/weapon-regex/compare/v2.0.1...v2.0.2) (2026-06-28)
+
+
+### Bug Fixes
+
+* revert Scala to LTS (3.3.8) ([#672](https://github.com/stryker-mutator/weapon-regex/issues/672)) ([e72f695](https://github.com/stryker-mutator/weapon-regex/commit/e72f6950785201680c3e58741143e6c0e1cfc761))
+
 ## [2.0.1](https://github.com/stryker-mutator/weapon-regex/compare/v2.0.0...v2.0.1) (2026-06-25)
 
 
