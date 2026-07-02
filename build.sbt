@@ -134,10 +134,11 @@ lazy val WeaponRegeX = projectMatrix
       npmPackage := Def.uncached {
         val outDir = (Compile / fullLinkJSOutput).value
         val packageJsonContent = generatePackageJson.value
-        val rootIndexDts = (LocalRootProject / baseDirectory).value / "index.d.ts"
+        val root = (LocalRootProject / baseDirectory).value 
 
         IO.write(outDir / "package.json", packageJsonContent)
-        IO.copyFile(rootIndexDts, outDir / "index.d.ts")
+        IO.copyFile(root / "index.d.ts", outDir / "index.d.ts")
+        IO.copyFile(root / "README.md", outDir / "README.md")
         streams.value.log.info(s"Created NPM project in ${outDir}")
 
         outDir

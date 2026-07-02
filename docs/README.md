@@ -63,7 +63,7 @@ mutants.forEach((mutant) => {
 
 Note: as of 1.0.0 weapon-regex uses ES Modules.
 
-[![Try it!](https://img.shields.io/static/v1?label=RunKit&message=Try%20it!&color=F55FA6&logo=runkit)](https://npm.runkit.com/weapon-regex)
+[![Try it!](https://img.shields.io/static/v1?label=npmjs&message=Try%20it!&color=F55FA6)](https://npmjs.dev/weapon-regex)
 
 # API
 
