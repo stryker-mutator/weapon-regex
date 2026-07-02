@@ -9,7 +9,7 @@ import scala.scalajs.js.JSConverters.*
   * @note
   *   For JavaScript use only
   */
-final class TokenMutatorJS(val tokenMutator: TokenMutator) extends js.Object {
+final class TokenMutatorJS(final private[weaponregex] val tokenMutator: TokenMutator) extends js.Object {
 
   /** The name of the mutator
     */
