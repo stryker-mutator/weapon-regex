@@ -110,11 +110,14 @@ lazy val WeaponRegeX = projectMatrix
            |  "type": "module",
            |  "version": "${version.value}",
            |  "description": "${description.value}",
+           |  "main": "./main.js",
+           |  "types": "./index.d.ts",
            |  "exports": {
            |    ".": {
            |      "types": "./index.d.ts",
            |      "import": "./main.js"
-           |    }
+           |    },
+           |    "./package.json": "./package.json"
            |  },
            |  "repository": {
            |    "type": "git",
@@ -134,7 +137,7 @@ lazy val WeaponRegeX = projectMatrix
       npmPackage := Def.uncached {
         val outDir = (Compile / fullLinkJSOutput).value
         val packageJsonContent = generatePackageJson.value
-        val root = (LocalRootProject / baseDirectory).value 
+        val root = (LocalRootProject / baseDirectory).value
 
         IO.write(outDir / "package.json", packageJsonContent)
         IO.copyFile(root / "index.d.ts", outDir / "index.d.ts")
