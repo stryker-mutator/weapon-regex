@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.3](https://github.com/stryker-mutator/weapon-regex/compare/v2.0.2...v2.0.3) (2026-07-02)
+
+
+### Bug Fixes
+
+* add 'main' field to package.json ([#677](https://github.com/stryker-mutator/weapon-regex/issues/677)) ([61fc900](https://github.com/stryker-mutator/weapon-regex/commit/61fc900cde7a0683ce2c85e8c9eeb4a1d4de5cae))
+
 ## [2.0.2](https://github.com/stryker-mutator/weapon-regex/compare/v2.0.1...v2.0.2) (2026-06-28)
 
 
