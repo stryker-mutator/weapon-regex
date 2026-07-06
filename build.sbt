@@ -66,7 +66,7 @@ lazy val WeaponRegeX = projectMatrix
     name := "weapon-regex",
     libraryDependencies ++= Seq(
       "org.typelevel" %% "cats-parse" % "1.1.0",
-      "io.stryker-mutator" %% "mutation-testing-metrics" % "3.8.3",
+      "io.stryker-mutator" %% "mutation-testing-metrics" % "3.8.4",
       "org.scalameta" %% "munit" % "1.3.3" % Test
     ),
     tpolecatScalacOptions ++= Set(
