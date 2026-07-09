@@ -58,6 +58,12 @@ private[weaponregex] object ParserJVM extends Parser {
       .map { case (loc, octDigits) => MetaChar("0" + octDigits, loc) }
       .withContext("octal character")
 
+  /** Consume a `\0` that is not followed by valid octal digits so it hard-fails (matching `java.util.regex`, which
+    * rejects a bare `\0`) instead of degrading into a quoted `0` character.
+    */
+  override protected val octEscCharConsumer: P[RegexTree] =
+    P.string("\\0").void.flatMap(_ => P.fail)
+
   /** Parse special cases of a character literal in a character class
     * @return
     *   The captured character as a string
