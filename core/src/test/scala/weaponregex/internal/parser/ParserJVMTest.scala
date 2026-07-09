@@ -153,6 +153,41 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
     )
   }
 
+  test("Unparsable: dangling hexadecimal escape in a character class") {
+    val patterns = Seq("[\\xGG]", "[\\uGGGG]")
+    patterns.foreach(p =>
+      parseErrorTest(
+        p,
+        s"""|$p
+            |^""".stripMargin
+      )
+    )
+  }
+
+  test("Unparsable: octal escape `\\0` not followed by octal digits") {
+    val patterns = Seq(
+      "\\0" -> """|\0
+                  |  ^""".stripMargin,
+      "\\09" -> """|\09
+                   |  ^""".stripMargin,
+      "a\\0" -> """|a\0
+                   |   ^""".stripMargin,
+      "[\\0]" -> """|[\0]
+                    |^""".stripMargin
+    )
+    patterns.foreach { case (p, m) => parseErrorTest(p, m) }
+  }
+
+  test("Unparsable: unclosed named reference") {
+    val patterns = Seq(
+      "\\k<unclosed" -> """|\k<unclosed
+                           |           ^""".stripMargin,
+      "\\k<n" -> """|\k<n
+                    |    ^""".stripMargin
+    )
+    patterns.foreach { case (p, m) => parseErrorTest(p, m) }
+  }
+
   test("Parse character class with Unicode character classes with lone properties") {
     val pattern = """[\p{Alpha}\P{hello_World_0123}]"""
     val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[CharacterClass]

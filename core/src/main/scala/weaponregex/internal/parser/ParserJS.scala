@@ -150,11 +150,11 @@ private[weaponregex] class ParserJS private[parser] (unicodeMode: Boolean) exten
   override protected val elementaryRE: P[RegexTree] =
     if (unicodeMode)
       P.oneOf(
-        capturing.backtrack ::
-          anyDot.backtrack ::
+        capturing ::
+          anyDot ::
           preDefinedCharClass.backtrack ::
           unicodeCharClass.backtrack ::
-          boundary.backtrack ::
+          boundary ::
           charClass.backtrack ::
           reference.backtrack ::
           character.backtrack ::
@@ -162,10 +162,10 @@ private[weaponregex] class ParserJS private[parser] (unicodeMode: Boolean) exten
       )
     else
       P.oneOf(
-        capturing.backtrack ::
-          anyDot.backtrack ::
+        capturing ::
+          anyDot ::
           preDefinedCharClass.backtrack ::
-          boundary.backtrack ::
+          boundary ::
           charClass.backtrack ::
           reference.backtrack ::
           character.backtrack ::

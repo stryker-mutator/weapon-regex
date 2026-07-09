@@ -268,11 +268,15 @@ abstract private[weaponregex] class Parser {
 
   /** Used to consume a hexadecimal escape character `\ x` or `\ u` when all other hex related cases are checked and
     * failed to prevent back tracking.
-    * @return
-    *   a `null` dummy
     */
   protected val hexEscCharConsumer: P[RegexTree] =
     P.stringIn(Set("\\x", "\\u")).void.flatMap(_ => P.fail)
+
+  /** Used to consume an octal escape prefix (e.g. `\ 0`) that starts a valid octal escape but is not followed by valid
+    * octal digits, so that it hard-fails instead of back-tracking into a plain quoted character. Flavors that treat
+    * such a prefix as valid (or as a literal) leave this as a no-op.
+    */
+  protected val octEscCharConsumer: P[RegexTree] = P.fail
 
   /** Parse a character range inside a character class
     * @return
@@ -316,6 +320,8 @@ abstract private[weaponregex] class Parser {
         unicodeCharClass.backtrack ::
         metaCharacter.backtrack ::
         range.backtrack ::
+        hexEscCharConsumer ::
+        octEscCharConsumer ::
         quoteChar.backtrack ::
         charClassCharLiteral :: Nil
     )
@@ -407,45 +413,6 @@ abstract private[weaponregex] class Parser {
     (unicodeCharClassPropertyValue.backtrack | unicodeCharClassLoneProperty)
       .withContext("unicode character class")
 
-  /** A higher order parser that add [[weaponregex.internal.model.regextree.QuantifierType]] information of the parse of
-    * the given (quantifier) parser
-    * @param p
-    *   the quantifier parser
-    * @return
-    *   A tuple of the return of the given (quantifier) parser `p`, and its
-    *   [[weaponregex.internal.model.regextree.QuantifierType]]
-    */
-  protected def quantifierType[A](p: P[A]): P[(A, QuantifierType)] =
-    (p ~ P.charIn('?', '+').?).map { case (result, optQ) =>
-      (
-        result,
-        optQ match {
-          case Some('?') => ReluctantQuantifier
-          case Some('+') => PossessiveQuantifier
-          case _         => GreedyQuantifier
-        }
-      )
-    }
-
-  /** Parse a shorthand notation for quantifier (`?`, `*`, `+`)
-    * @return
-    *   [[weaponregex.internal.model.regextree.RegexTree]] (sub)tree
-    * @example
-    *   `"a*"`
-    */
-  protected val quantifierShort: P[RegexTree] =
-    indexed(quantifierType(P.defer(elementaryRE) ~ P.charIn('?', '*', '+')))
-      .flatMap { case (loc, ((expr, q), quantifierType)) =>
-        q match {
-          case '?' => P.pure(ZeroOrOne(expr, loc, quantifierType))
-          case '*' => P.pure(ZeroOrMore(expr, loc, quantifierType))
-          case '+' => P.pure(OneOrMore(expr, loc, quantifierType))
-          // This case should never happen since the parser only allows "?", "*", or "+" as `q`
-          case _ => P.fail
-        }
-      }
-      .withContext("short quantifier")
-
   /** Parse the tail part of a long quantifier
     * @return
     *   A tuple of the quantifier minimum and optional maximum part
@@ -453,32 +420,53 @@ abstract private[weaponregex] class Parser {
   protected val quantifierLongTail: P[(Int, Option[Option[Int]])] =
     number ~ (P.char(',') *> number.?).? <* P.char('}')
 
-  /** Parse a (full) quantifier (`{n}`, `{n,}`, `{n,m}`)
-    * @return
-    *   [[weaponregex.internal.model.regextree.Quantifier]] tree node
-    * @example
-    *   `"a{1}"`
+  /** Parse the quantifier type suffix that may follow a short or long quantifier: `?` for reluctant, `+` for
+    * possessive, or nothing for greedy.
     */
-  protected val quantifierLong: P[Quantifier] =
-    indexed(quantifierType(P.defer(elementaryRE) ~ (P.char('{') *> quantifierLongTail)))
-      .flatMap {
-        case (_, ((_, (num, Some(Some(max)))), _)) if num > max =>
-          P.failWith(s"Invalid quantifier: minimum $num is greater than maximum $max")
-        case (loc, ((expr, (num, optionMax)), qt)) =>
-          val q = optionMax match {
-            case None            => Quantifier(expr, num, loc, qt)
-            case Some(None)      => Quantifier(expr, num, Quantifier.Infinity, loc, qt)
-            case Some(Some(max)) => Quantifier(expr, num, max, loc, qt)
-          }
-          P.pure(q)
-      }
-      .withContext("long quantifier")
+  private val quantifierTypeSuffix: P0[QuantifierType] =
+    P.charIn('?', '+').?.map {
+      case Some('?') => ReluctantQuantifier
+      case Some('+') => PossessiveQuantifier
+      case _         => GreedyQuantifier
+    }
 
-  /** Intermediate parsing rule for quantifier tokens which can parse either `quantifierShort` or `quantifierLong`
+  /** Parse the trailing quantifier (short `?`/`*`/`+` or long `{n}`/`{n,}`/`{n,m}`) that applies to an already-parsed
+    * expression.
     * @return
-    *   [[weaponregex.internal.model.regextree.RegexTree]] (sub)tree
+    *   a function producing the quantified [[weaponregex.internal.model.regextree.RegexTree]] node
     */
-  protected val quantifier: P[RegexTree] = quantifierShort.backtrack | quantifierLong.backtrack
+  protected val quantifierTail: P[(RegexTree, Location) => RegexTree] = {
+    val short: P[(RegexTree, Location) => RegexTree] =
+      (P.charIn('?', '*', '+') ~ quantifierTypeSuffix)
+        .map { case (symbol, qt) =>
+          (expr: RegexTree, loc: Location) =>
+            (symbol: @unchecked) match {
+              case '?' => ZeroOrOne(expr, loc, qt)
+              case '*' => ZeroOrMore(expr, loc, qt)
+              case '+' => OneOrMore(expr, loc, qt)
+            }
+        }
+        .withContext("short quantifier")
+
+    val long: P[(RegexTree, Location) => RegexTree] =
+      ((P.char('{') *> quantifierLongTail) ~ quantifierTypeSuffix)
+        .flatMap {
+          case ((num, Some(Some(max))), _) if num > max =>
+            P.failWith(s"Invalid quantifier: minimum $num is greater than maximum $max")
+          case ((num, optionMax), qt) =>
+            P.pure { (expr: RegexTree, loc: Location) =>
+              optionMax match {
+                case None            => Quantifier(expr, num, loc, qt)
+                case Some(None)      => Quantifier(expr, num, Quantifier.Infinity, loc, qt)
+                case Some(Some(max)) => Quantifier(expr, num, max, loc, qt)
+              }
+            }
+        }
+        .backtrack
+        .withContext("long quantifier")
+
+    short | long
+  }
 
   /** Parse a capturing group
     * @return
@@ -640,7 +628,7 @@ abstract private[weaponregex] class Parser {
     * @return
     *   [[weaponregex.internal.model.regextree.RegexTree]] (sub)tree
     */
-  protected val reference: P[RegexTree] = nameReference.backtrack | numReference.backtrack
+  protected val reference: P[RegexTree] = nameReference | numReference.backtrack
 
   /** Parse a quoted character (any character)
     * @return
@@ -668,7 +656,7 @@ abstract private[weaponregex] class Parser {
     * @return
     *   [[weaponregex.internal.model.regextree.RegexTree]] (sub)tree
     */
-  protected val quote: P[RegexTree] = quoteLong.backtrack | quoteChar
+  protected val quote: P[RegexTree] = quoteLong | quoteChar
 
   /** Intermediate parsing rule which can parse either `capturing`, `anyDot`, `preDefinedCharClass`, `boundary`,
     * `charClass`, `reference`, `character` or `quote`
@@ -678,35 +666,30 @@ abstract private[weaponregex] class Parser {
   protected val elementaryRE: P[RegexTree] =
     P.defer(
       P.oneOf(
-        capturing.backtrack ::
+        capturing ::
           anyDot ::
           preDefinedCharClass.backtrack ::
           unicodeCharClass.backtrack ::
-          boundary.backtrack ::
+          boundary ::
           charClass.backtrack ::
-          reference.backtrack ::
-          character.backtrack ::
+          reference ::
+          character ::
           hexEscCharConsumer ::
+          octEscCharConsumer ::
           quote :: Nil
       )
     )
 
-  /** Intermediate parsing rule which can parse either `quantifier` or `elementaryRE`
+  /** Intermediate parsing rule which parses an `elementaryRE` optionally followed by a quantifier
     * @return
     *   [[weaponregex.internal.model.regextree.RegexTree]] (sub)tree
     */
-  protected val basicRE: P[RegexTree] = P.defer(quantifier.backtrack | elementaryRE)
-
-  /** Parse a concatenation of `basicRE`s
-    * @return
-    *   [[weaponregex.internal.model.regextree.Concat]] tree node
-    * @example
-    *   `"abc"`
-    */
-  protected val concat: P[Concat] =
-    indexed(basicRE.rep(min = 2))
-      .map { case (loc, nodes) => Concat(nodes, loc) }
-      .withContext("concatenation")
+  protected val basicRE: P[RegexTree] = P.defer(
+    indexed(elementaryRE ~ quantifierTail.?).map {
+      case (_, (expr, None))          => expr
+      case (loc, (expr, Some(build))) => build(expr, loc)
+    }
+  )
 
   /** Parse an empty string
     *
@@ -719,31 +702,45 @@ abstract private[weaponregex] class Parser {
     indexed0(P.unit)
       .map { case (loc, _) => Empty(loc) }
 
-  /** Intermediate parsing rule which can parse either `concat`, `basicRE`
+  /** Parse a concatenation of one or more `basicRE`s. A single `basicRE` is returned as-is; two or more are wrapped in
+    * a [[weaponregex.internal.model.regextree.Concat]].
     * @return
     *   [[weaponregex.internal.model.regextree.RegexTree]] (sub)tree
-    */
-  protected val simpleRE: P[RegexTree] = concat.backtrack | basicRE
-
-  /** Parse an 'or' (`|`) of `simpleRE` or `empty`
-    * @return
-    *   [[weaponregex.internal.model.regextree.Or]] tree node
     * @example
-    *   `"a|b|c"`
+    *   `"abc"`
     */
-  protected val or: P[Or] =
-    indexed(
-      (simpleRE | empty).with1 ~ (P.char('|') *> (simpleRE | empty)).rep
-    ).map { case (loc, (first, rest)) => Or(first :: rest, loc) }
-      .withContext("or")
 
-  /** The top-level parsing rule which can parse either `or` or `simpleRE`
+  protected val simpleRE: P[RegexTree] =
+    indexed(basicRE.rep(min = 1))
+      .map {
+        case (_, nodes) if nodes.tail.isEmpty => nodes.head
+        case (loc, nodes)                     => Concat(nodes, loc)
+      }
+
+  /** The top-level parsing rule: a `|`-separated sequence of `simpleRE` (or `empty`) alternatives.
     * @return
     *   [[weaponregex.internal.model.regextree.RegexTree]] tree
     * @example
     *   any supported regex
     */
-  protected val RE: P[RegexTree] = or.backtrack | simpleRE
+  protected val RE: P[RegexTree] = {
+    val alternative: P0[RegexTree] = simpleRE | empty
+
+    // Starts with a real `simpleRE`; the `|`-separated tail is optional (no `|` means a bare `simpleRE`).
+    val simpleRELed: P[RegexTree] =
+      indexed(simpleRE ~ (P.char('|') *> alternative).rep.?).map {
+        case (_, (first, None))         => first
+        case (loc, (first, Some(rest))) => Or(first :: rest, loc)
+      }
+
+    // Starts with an `empty` alternative (pattern begins with `|`)
+    val emptyLed: P[Or] =
+      indexed(empty.with1 ~ (P.char('|') *> alternative).rep).map { case (loc, (first, rest)) =>
+        Or(first :: rest, loc)
+      }
+
+    simpleRELed | emptyLed
+  }
 
   /** Parse the given regex pattern
     * @return
