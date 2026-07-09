@@ -2,6 +2,15 @@
 
 ## [2.0.4](https://github.com/stryker-mutator/weapon-regex/compare/v2.0.3...v2.0.4) (2026-07-09)
 
+Multiple performance improvements that speed up parsing by orders of magnitude. 
+
+```
+Benchmark                                     Before       After  Units
+ParserBenchmark.parseComplexPattern          682,944   42.670,681  ops/s
+ParserBenchmark.parseNamedCapturingGroup   1.855,765  135.183,519  ops/s
+ParserBenchmark.parseNestedNonCapturing      266,218  132.042,481  ops/s
+ParserBenchmark.parseSimplePattern        12.883,831  242.333,369  ops/s
+```
 
 ### Performance Improvements
 
