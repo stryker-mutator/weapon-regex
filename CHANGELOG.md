@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.0.4](https://github.com/stryker-mutator/weapon-regex/compare/v2.0.3...v2.0.4) (2026-07-09)
+
+Multiple performance improvements that speed up parsing by orders of magnitude. 
+
+```
+Benchmark                                     Before       After  Units
+ParserBenchmark.parseComplexPattern          682,944   42.670,681  ops/s
+ParserBenchmark.parseNamedCapturingGroup   1.855,765  135.183,519  ops/s
+ParserBenchmark.parseNestedNonCapturing      266,218  132.042,481  ops/s
+ParserBenchmark.parseSimplePattern        12.883,831  242.333,369  ops/s
+```
+
+### Performance Improvements
+
+* **parser:** parse expressions once instead of multiple times per nesting level ([#682](https://github.com/stryker-mutator/weapon-regex/issues/682)) ([d4171fa](https://github.com/stryker-mutator/weapon-regex/commit/d4171fa11a523e9e7c2b1d389685339b79b95b4b))
+* **parser:** reorder parsing to try most-common cases first ([#685](https://github.com/stryker-mutator/weapon-regex/issues/685)) ([c9d8560](https://github.com/stryker-mutator/weapon-regex/commit/c9d85609addb0167166c566aa88d02a2dda6c103))
+* **parser:** reuse already-parsed locations ([#684](https://github.com/stryker-mutator/weapon-regex/issues/684)) ([906b9fb](https://github.com/stryker-mutator/weapon-regex/commit/906b9fb0d9f0c1d5fe075671f22733379c35a873))
+
 ## [2.0.3](https://github.com/stryker-mutator/weapon-regex/compare/v2.0.2...v2.0.3) (2026-07-02)
 
 
