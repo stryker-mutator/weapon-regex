@@ -64,20 +64,20 @@ private[weaponregex] class ParserJS private[parser] (unicodeMode: Boolean) exten
   override protected val classItem: P[RegexTree] =
     if (unicodeMode)
       P.oneOf(
-        preDefinedCharClass.backtrack ::
+        range.backtrack ::
+          charClassCharLiteral.backtrack ::
+          preDefinedCharClass.backtrack ::
           unicodeCharClass.backtrack ::
           P.defer(metaCharacter).backtrack ::
-          range.backtrack ::
-          quoteChar.backtrack ::
-          charClassCharLiteral :: Nil
+          quoteChar.backtrack :: Nil
       )
     else
       P.oneOf(
-        preDefinedCharClass.backtrack ::
+        range.backtrack ::
+          charClassCharLiteral.backtrack ::
+          preDefinedCharClass.backtrack ::
           P.defer(metaCharacter).backtrack ::
-          range.backtrack ::
-          quoteChar.backtrack ::
-          charClassCharLiteral :: Nil
+          quoteChar.backtrack :: Nil
       )
 
   /** Parse a group name
@@ -150,7 +150,8 @@ private[weaponregex] class ParserJS private[parser] (unicodeMode: Boolean) exten
   override protected val elementaryRE: P[RegexTree] =
     if (unicodeMode)
       P.oneOf(
-        capturing ::
+        charLiteral.backtrack ::
+          capturing ::
           anyDot ::
           preDefinedCharClass.backtrack ::
           unicodeCharClass.backtrack ::
@@ -162,7 +163,8 @@ private[weaponregex] class ParserJS private[parser] (unicodeMode: Boolean) exten
       )
     else
       P.oneOf(
-        capturing ::
+        charLiteral.backtrack ::
+          capturing ::
           anyDot ::
           preDefinedCharClass.backtrack ::
           boundary ::
