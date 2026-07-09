@@ -173,7 +173,7 @@ lazy val jsLinkerBinaryVersionDir = Def.setting {
   */
 lazy val scalaJSSourceUri = Def.setting {
   val tagOrHash =
-    if (isSnapshot.value) git.gitHeadCommit.value.get
+    if (isSnapshot.value) sys.process.Process("git rev-parse HEAD").lazyLines_!.head
     else "v" + version.value
   val a = (LocalRootProject / baseDirectory).value.toURI.toString
   val g = "https://raw.githubusercontent.com/stryker-mutator/weapon-regex/" + tagOrHash
