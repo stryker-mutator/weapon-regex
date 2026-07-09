@@ -316,15 +316,15 @@ abstract private[weaponregex] class Parser {
     */
   protected val classItem: P[RegexTree] = P.defer(
     P.oneOf(
-      charClass.backtrack ::
+      range.backtrack ::
+        charClassCharLiteral.backtrack ::
+        charClass.backtrack ::
         preDefinedCharClass.backtrack ::
         unicodeCharClass.backtrack ::
         metaCharacter.backtrack ::
-        range.backtrack ::
         hexEscCharConsumer ::
         octEscCharConsumer ::
-        quoteChar.backtrack ::
-        charClassCharLiteral :: Nil
+        quoteChar.backtrack :: Nil
     )
   )
 
@@ -667,7 +667,8 @@ abstract private[weaponregex] class Parser {
   protected val elementaryRE: P[RegexTree] =
     P.defer(
       P.oneOf(
-        capturing ::
+        charLiteral.backtrack ::
+          capturing ::
           anyDot ::
           preDefinedCharClass.backtrack ::
           unicodeCharClass.backtrack ::
