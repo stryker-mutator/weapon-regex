@@ -78,8 +78,9 @@ abstract private[weaponregex] class Parser {
     */
   protected val codePointEscChar: Char
 
-  protected def fromCaret(start: Caret, end: Caret): Location =
-    Location(Position(start.line, start.col), Position(end.line, end.col))
+  protected def fromCaret(c: Caret): Position = Position(c.line, c.col)
+
+  protected val position: P0[Position] = P.caret.map(fromCaret)
 
   /** A higher order parser that add `mutationtesting.Location` index information of the parse of the given parser
     * @param p
@@ -88,7 +89,7 @@ abstract private[weaponregex] class Parser {
     *   A tuple of the `mutationtesting.Location` of the parse, and the return of the given parser `p`
     */
   protected def indexed[A](p: P[A]): P[(Location, A)] =
-    (P.caret.with1 ~ p ~ P.caret).map { case ((i, a), j) => (fromCaret(i, j), a) }
+    (position.with1 ~ p ~ position).map { case ((i, a), j) => (Location(i, j), a) }
 
   /** A higher order parser that add `mutationtesting.Location` index information of the parse of the given parser
     * @param p
@@ -97,7 +98,7 @@ abstract private[weaponregex] class Parser {
     *   A tuple of the `mutationtesting.Location` of the parse, and the return of the given parser `p`
     */
   protected def indexed0[A](p: P0[A]): P0[(Location, A)] =
-    (P.caret ~ p ~ P.caret).map { case ((i, a), j) => (fromCaret(i, j), a) }
+    (position ~ p ~ position).map { case ((i, a), j) => (Location(i, j), a) }
 
   protected val backslash: P[Unit] = P.char('\\')
 
@@ -285,8 +286,8 @@ abstract private[weaponregex] class Parser {
     *   `"a-z"`
     */
   protected val range: P[Range] =
-    indexed(P.defer(charClassCharLiteral ~ (P.char('-') *> charClassCharLiteral)))
-      .map { case (loc, (from, to)) => Range(from, to, loc) }
+    P.defer(charClassCharLiteral ~ (P.char('-') *> charClassCharLiteral))
+      .map { case (from, to) => Range(from, to, from.location.copy(end = to.location.end)) }
       .withContext("character range")
 
   /** Parse special cases of a character literal in a character class
@@ -685,9 +686,10 @@ abstract private[weaponregex] class Parser {
     *   [[weaponregex.internal.model.regextree.RegexTree]] (sub)tree
     */
   protected val basicRE: P[RegexTree] = P.defer(
-    indexed(elementaryRE ~ quantifierTail.?).map {
-      case (_, (expr, None))          => expr
-      case (loc, (expr, Some(build))) => build(expr, loc)
+    (elementaryRE ~ (quantifierTail ~ position).?).map {
+      case (expr, None)               => expr
+      case (expr, Some((build, end))) =>
+        build(expr, expr.location.copy(end = end))
     }
   )
 
@@ -711,10 +713,11 @@ abstract private[weaponregex] class Parser {
     */
 
   protected val simpleRE: P[RegexTree] =
-    indexed(basicRE.rep(min = 1))
-      .map {
-        case (_, nodes) if nodes.tail.isEmpty => nodes.head
-        case (loc, nodes)                     => Concat(nodes, loc)
+    basicRE
+      .rep(min = 1)
+      .map { nodes =>
+        if (nodes.tail.isEmpty) nodes.head
+        else Concat(nodes, nodes.head.location.copy(end = nodes.last.location.end))
       }
 
   /** The top-level parsing rule: a `|`-separated sequence of `simpleRE` (or `empty`) alternatives.
@@ -728,15 +731,16 @@ abstract private[weaponregex] class Parser {
 
     // Starts with a real `simpleRE`; the `|`-separated tail is optional (no `|` means a bare `simpleRE`).
     val simpleRELed: P[RegexTree] =
-      indexed(simpleRE ~ (P.char('|') *> alternative).rep.?).map {
-        case (_, (first, None))         => first
-        case (loc, (first, Some(rest))) => Or(first :: rest, loc)
+      (simpleRE ~ (P.char('|') *> alternative).rep.?).map {
+        case (first, None)       => first
+        case (first, Some(rest)) =>
+          Or(first :: rest, first.location.copy(end = rest.last.location.end))
       }
 
     // Starts with an `empty` alternative (pattern begins with `|`)
     val emptyLed: P[Or] =
-      indexed(empty.with1 ~ (P.char('|') *> alternative).rep).map { case (loc, (first, rest)) =>
-        Or(first :: rest, loc)
+      (empty.with1 ~ (P.char('|') *> alternative).rep).map { case (first, rest) =>
+        Or(first :: rest, first.location.copy(end = rest.last.location.end))
       }
 
     simpleRELed | emptyLed
