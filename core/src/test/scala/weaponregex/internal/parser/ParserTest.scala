@@ -158,6 +158,70 @@ trait ParserTest {
     treeBuildTest(parsedTree, pattern)
   }
 
+  test("Parse single line with location") {
+    val pattern = "ab+"
+    val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Concat]
+
+    parsedTree.children zip Seq((0, 1), (1, 3)) foreach { case (node, (startColumn, endColumn)) =>
+      assertEquals(clue(node).location.start.line, 0)
+      assertEquals(clue(node).location.start.column, startColumn)
+      assertEquals(clue(node).location.end.line, 0)
+      assertEquals(clue(node).location.end.column, endColumn)
+    }
+
+    treeBuildTest(parsedTree, pattern)
+  }
+
+  test("Parse token spanning a line break with location") {
+    val pattern = "[a\nb]c"
+    val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Concat]
+
+    val charClass = parsedTree.children.head.to[CharacterClass]
+    assertEquals(clue(charClass).location.start.line, 0)
+    assertEquals(clue(charClass).location.start.column, 0)
+    assertEquals(clue(charClass).location.end.line, 1)
+    assertEquals(clue(charClass).location.end.column, 2)
+
+    val lineBreak = charClass.children(1)
+    assertEquals(clue(lineBreak).location.start.line, 0)
+    assertEquals(clue(lineBreak).location.start.column, 2)
+    assertEquals(clue(lineBreak).location.end.line, 1)
+    assertEquals(clue(lineBreak).location.end.column, 0)
+
+    treeBuildTest(parsedTree, pattern)
+  }
+
+  test("Parse an escaped line break with location") {
+    val pattern = """abc\ndef"""
+    val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Concat]
+
+    assertMatches(clue(parsedTree.children)) {
+      case Seq(
+            Character('a', _),
+            Character('b', _),
+            Character('c', _),
+            MetaChar("n", _),
+            Character('d', _),
+            Character('e', _),
+            Character('f', _)
+          ) =>
+        true
+    }
+
+    val escape = parsedTree.children(3)
+    assertEquals(clue(escape).location.start.line, 0)
+    assertEquals(clue(escape).location.start.column, 3)
+    assertEquals(clue(escape).location.end.line, 0)
+    assertEquals(clue(escape).location.end.column, 5)
+
+    parsedTree.children foreach { node =>
+      assertEquals(clue(node).location.start.line, 0)
+      assertEquals(clue(node).location.end.line, 0)
+    }
+
+    treeBuildTest(parsedTree, pattern)
+  }
+
   test("Parse positive character class with characters") {
     val pattern = "[abc]"
     val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[CharacterClass]

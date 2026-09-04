@@ -15,7 +15,8 @@ import weaponregex.internal.model.regextree.*
   * @see
   *   [[https://tc39.es/ecma262/multipage/text-processing.html#sec-patterns]]
   */
-private[weaponregex] class ParserJS private[parser] (unicodeMode: Boolean) extends Parser {
+private[weaponregex] class ParserJS private[parser] (unicodeMode: Boolean, singleLine: Boolean)
+    extends Parser(singleLine) {
 
   /** Regex special characters
     */
@@ -181,9 +182,12 @@ object ParserJS {
   private def unicodeMode(flags: Option[String]): Boolean = flags.exists(f => f.contains('u') || f.contains('v'))
 
   // Create lazy instances so all parsers are only instantiated once
-  private lazy val unicodeParser: ParserJS = new ParserJS(true)
-  private lazy val nonUnicodeParser: ParserJS = new ParserJS(false)
+  private lazy val unicodeParser: ParserJS = new ParserJS(true, false)
+  private lazy val nonUnicodeParser: ParserJS = new ParserJS(false, false)
+  private lazy val unicodeSingleLineParser: ParserJS = new ParserJS(true, true)
+  private lazy val nonUnicodeSingleLineParser: ParserJS = new ParserJS(false, true)
 
-  private[parser] def apply(flags: Option[String] = None): ParserJS =
-    if (unicodeMode(flags)) unicodeParser else nonUnicodeParser
+  private[parser] def apply(flags: Option[String] = None, singleLine: Boolean = false): ParserJS =
+    if (unicodeMode(flags)) { if (singleLine) unicodeSingleLineParser else unicodeParser }
+    else { if (singleLine) nonUnicodeSingleLineParser else nonUnicodeParser }
 }

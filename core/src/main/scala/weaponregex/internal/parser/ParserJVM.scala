@@ -10,7 +10,7 @@ import weaponregex.internal.model.regextree.*
   * @see
   *   [[https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/regex/Pattern.html]]
   */
-private[weaponregex] object ParserJVM extends Parser {
+private[weaponregex] class ParserJVM private[parser] (singleLine: Boolean) extends Parser(singleLine) {
 
   /** Regex special characters
     */
@@ -129,4 +129,12 @@ private[weaponregex] object ParserJVM extends Parser {
         lookaround.backtrack ::
         atomicGroup.backtrack :: Nil
     )
+}
+
+object ParserJVM {
+  private lazy val singleLineParser: ParserJVM = new ParserJVM(true)
+  private lazy val multiLineParser: ParserJVM = new ParserJVM(false)
+
+  private[parser] def apply(singleLine: Boolean): ParserJVM =
+    if (singleLine) singleLineParser else multiLineParser
 }

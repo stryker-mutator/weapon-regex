@@ -22,14 +22,18 @@ private[weaponregex] object Parser {
     *   A `Right` of parsed [[weaponregex.internal.model.regextree.RegexTree]] if can be parsed, a `Left` with the error
     *   message otherwise
     */
-  def apply(pattern: String, flags: Option[String], flavor: ParserFlavor): Either[String, RegexTree] =
+  def apply(pattern: String, flags: Option[String], flavor: ParserFlavor): Either[String, RegexTree] = {
+    // A pattern without a line break has `line` 0 and `col` == offset everywhere, so positions can be
+    // computed from the parser offset alone. Patterns with a line break use the caret-based parsers.
+    val singleLine: Boolean = pattern.indexOf('\n') < 0
     flavor match {
       case ParserFlavorJVM =>
         if (flags.isDefined) Left(ErrorMessage.jvmWithStringFlags)
-        else ParserJVM.parse(pattern)
-      case ParserFlavorJS => ParserJS(flags).parse(pattern)
+        else ParserJVM(singleLine).parse(pattern)
+      case ParserFlavorJS => ParserJS(flags, singleLine).parse(pattern)
       case null           => Left(ErrorMessage.unsupportedFlavor)
     }
+  }
 
   /** Apply the parser to parse the given pattern
     * @param pattern
@@ -46,7 +50,7 @@ private[weaponregex] object Parser {
   * @note
   *   The parsing rules methods inside this class is created based on the defined grammar
   */
-abstract private[weaponregex] class Parser {
+abstract private[weaponregex] class Parser(singleLine: Boolean) {
 
   /** Regex special characters
     */
@@ -89,7 +93,10 @@ abstract private[weaponregex] class Parser {
     *   A tuple of the `mutationtesting.Location` of the parse, and the return of the given parser `p`
     */
   protected def indexed[A](p: P[A]): P[(Location, A)] =
-    (position.with1 ~ p ~ position).map { case ((i, a), j) => (Location(i, j), a) }
+    if (singleLine) (P.index.with1 ~ p ~ P.index).map { case ((i, a), j) => (flatLocation(i, j), a) }
+    else (position.with1 ~ p ~ position).map { case ((i, a), j) => (Location(i, j), a) }
+
+  private def flatLocation(start: Int, end: Int): Location = Location(Position(0, start), Position(0, end))
 
   /** A higher order parser that add `mutationtesting.Location` index information of the parse of the given parser
     * @param p
@@ -98,7 +105,8 @@ abstract private[weaponregex] class Parser {
     *   A tuple of the `mutationtesting.Location` of the parse, and the return of the given parser `p`
     */
   protected def indexed0[A](p: P0[A]): P0[(Location, A)] =
-    (position ~ p ~ position).map { case ((i, a), j) => (Location(i, j), a) }
+    if (singleLine) (P.index ~ p ~ P.index).map { case ((i, a), j) => (flatLocation(i, j), a) }
+    else (position ~ p ~ position).map { case ((i, a), j) => (Location(i, j), a) }
 
   protected val backslash: P[Unit] = P.char('\\')
 
