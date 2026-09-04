@@ -9,16 +9,10 @@ import weaponregex.mutator.BuiltinMutators
 private[weaponregex] object RegexTreeExtension {
 
   /** The extension that build a given [[weaponregex.internal.model.regextree.RegexTree]] into a string
+    * @note
+    *   The tree itself builds into a string through [[weaponregex.internal.model.regextree.RegexTree.build]]
     */
-  implicit class RegexTreeStringBuilder(tree: RegexTree) {
-
-    /** Build the tree into a String
-      */
-    lazy val build: String = tree match {
-      case leaf: Leaf[?]  => leaf.prefix + leaf.value + leaf.postfix
-      case ft: FlagToggle => ft.onFlags.build + (if (ft.hasDash) "-" else "") + ft.offFlags.build
-      case _              => buildWhile(_ => true)
-    }
+  implicit class RegexTreeStringBuilder(val tree: RegexTree) extends AnyVal {
 
     /** Build the tree into a String with a child replaced by a string.
       * @param child
@@ -33,7 +27,7 @@ private[weaponregex] object RegexTreeExtension {
         node.children
           .map(c => if (c eq child) childString else c.build)
           .mkString(node.prefix, node.sep, tree.postfix)
-      case _ => build
+      case _ => tree.build
     }
 
     /** Build the tree into a String while a predicate holds for a given child.
@@ -48,7 +42,7 @@ private[weaponregex] object RegexTreeExtension {
           .filter(pred)
           .map(_.build)
           .mkString(tree.prefix, node.sep, tree.postfix)
-      case _ => build
+      case _ => tree.build
     }
   }
 

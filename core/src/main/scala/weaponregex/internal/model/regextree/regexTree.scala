@@ -17,6 +17,17 @@ sealed trait RegexTree {
   /** The `mutationtesting.Location` of the node in the regex string
     */
   def location: Location
+
+  /** The regex string that this (sub)tree represents.
+    *
+    * Building a mutant rewrites the pattern of every node between the mutated token and the root, so a subtree is built
+    * many times per mutation run. The result is computed once per node and reused after that.
+    */
+  final lazy val build: String = buildString
+
+  /** Compute the regex string that this (sub)tree represents, without using the [[build]] cache
+    */
+  protected def buildString: String
 }
 
 /** The non-terminal node of the [[weaponregex.internal.model.regextree.RegexTree]] that have at least one child node
@@ -37,7 +48,9 @@ abstract class Node(
     override val prefix: String = "",
     override val postfix: String = "",
     val sep: String = ""
-) extends RegexTree
+) extends RegexTree {
+  override protected def buildString: String = children.map(_.build).mkString(prefix, sep, postfix)
+}
 
 /** The leaf of the [[weaponregex.internal.model.regextree.RegexTree]] (terminal node) that have no children node
   * @param value
@@ -54,4 +67,6 @@ abstract class Leaf[A](
     override val location: Location,
     override val prefix: String = "",
     override val postfix: String = ""
-) extends RegexTree
+) extends RegexTree {
+  override protected def buildString: String = prefix + value + postfix
+}

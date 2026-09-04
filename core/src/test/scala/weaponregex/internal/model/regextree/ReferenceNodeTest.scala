@@ -1,7 +1,6 @@
 package weaponregex.internal.model.regextree
 
 import weaponregex.internal.constant.RegexTreeStubs.LOCATION
-import weaponregex.internal.extension.RegexTreeExtension.RegexTreeStringBuilder
 
 class ReferenceNodeTest extends munit.FunSuite {
   test("NameReference build") {

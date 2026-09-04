@@ -1,7 +1,6 @@
 package weaponregex.internal.model.regextree
 
 import weaponregex.internal.constant.RegexTreeStubs.*
-import weaponregex.internal.extension.RegexTreeExtension.RegexTreeStringBuilder
 
 class CapturingNodeTest extends munit.FunSuite {
   test("Group build") {

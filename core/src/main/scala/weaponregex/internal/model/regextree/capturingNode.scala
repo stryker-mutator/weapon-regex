@@ -62,7 +62,12 @@ case class FlagToggleGroup(flagToggle: FlagToggle, override val location: Locati
   *   The `mutationtesting.Location` of the node in the regex string
   */
 case class FlagToggle(onFlags: Flags, hasDash: Boolean, offFlags: Flags, override val location: Location)
-    extends Node(Seq(onFlags, offFlags), location)
+    extends Node(Seq(onFlags, offFlags), location) {
+
+  /** The dash sits between the two children, which the generic `Node` separator cannot express
+    */
+  override protected def buildString: String = onFlags.build + (if (hasDash) "-" else "") + offFlags.build
+}
 
 /** A sequence of flags for use in [[weaponregex.internal.model.regextree.FlagToggle]]
   * @param flags

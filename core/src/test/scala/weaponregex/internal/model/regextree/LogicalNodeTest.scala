@@ -2,7 +2,6 @@ package weaponregex.internal.model.regextree
 
 import cats.data.NonEmptyList
 import weaponregex.internal.constant.RegexTreeStubs.*
-import weaponregex.internal.extension.RegexTreeExtension.RegexTreeStringBuilder
 
 class LogicalNodeTest extends munit.FunSuite {
   test("Concat build") {

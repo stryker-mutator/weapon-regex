@@ -2,7 +2,6 @@ package weaponregex.internal.parser
 
 import munit.Location
 import weaponregex.internal.extension.EitherExtension.LeftStringEitherTest
-import weaponregex.internal.extension.RegexTreeExtension.RegexTreeStringBuilder
 import weaponregex.internal.model.regextree.*
 import weaponregex.parser.ParserFlavor
 

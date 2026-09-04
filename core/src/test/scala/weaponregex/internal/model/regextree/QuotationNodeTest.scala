@@ -1,7 +1,6 @@
 package weaponregex.internal.model.regextree
 
 import weaponregex.internal.constant.RegexTreeStubs.LOCATION
-import weaponregex.internal.extension.RegexTreeExtension.RegexTreeStringBuilder
 
 class QuotationNodeTest extends munit.FunSuite {
   test("QuoteChar build") {

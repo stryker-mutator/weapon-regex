@@ -1,7 +1,6 @@
 package weaponregex.internal
 
 import mutationtesting.Location
-import weaponregex.internal.extension.RegexTreeExtension.RegexTreeStringBuilder
 import weaponregex.internal.model.regextree.{Node, RegexTree}
 import weaponregex.model.mutation.{Mutant, TokenMutator as BaseTokenMutator}
 
