@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.0.5](https://github.com/stryker-mutator/weapon-regex/compare/v2.0.4...v2.0.5) (2026-09-04)
+
+
+### Performance Improvements
+
+* **model:** cache the built string on each tree node ([#716](https://github.com/stryker-mutator/weapon-regex/issues/716)) ([1a76448](https://github.com/stryker-mutator/weapon-regex/commit/1a76448c1fb73effb4966c75d46a7c3d656b8598))
+* **parser:** cut the cost of failing alternatives ([#715](https://github.com/stryker-mutator/weapon-regex/issues/715)) ([1706e77](https://github.com/stryker-mutator/weapon-regex/commit/1706e77fc52746a152fe3db164a303163b25ad0d))
+* **parser:** derive positions from offsets for single-line patterns ([#714](https://github.com/stryker-mutator/weapon-regex/issues/714)) ([62c1661](https://github.com/stryker-mutator/weapon-regex/commit/62c1661d4ffa1699763c9f4f2a21b79c6740908a))
+
 ## [2.0.4](https://github.com/stryker-mutator/weapon-regex/compare/v2.0.3...v2.0.4) (2026-07-09)
 
 Multiple performance improvements that speed up parsing by orders of magnitude. 
