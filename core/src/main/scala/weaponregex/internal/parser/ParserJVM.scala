@@ -56,7 +56,6 @@ private[weaponregex] class ParserJVM private[parser] (singleLine: Boolean) exten
         .repExactlyAs[String](2)).string.backtrack | P.charIn('0' to '7').rep(1, 2).string)
     )
       .map { case (loc, octDigits) => MetaChar("0" + octDigits, loc) }
-      .withContext("octal character")
 
   /** Consume a `\0` that is not followed by valid octal digits so it hard-fails (matching `java.util.regex`, which
     * rejects a bare `\0`) instead of degrading into a quoted `0` character.

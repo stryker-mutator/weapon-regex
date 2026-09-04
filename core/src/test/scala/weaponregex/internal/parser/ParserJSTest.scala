@@ -144,12 +144,12 @@ class ParserJSTest extends munit.FunSuite with ParserTest {
       """|\x{20}
          | ^
          |expectations:
-         |* context: quoted character, must be char: '$'
-         |* context: quoted character, must be a char within the range of: ['(', '+']
-         |* context: quoted character, must be a char within the range of: ['.', '/']
-         |* context: quoted character, must be char: '?'
-         |* context: quoted character, must be a char within the range of: ['[', '^']
-         |* context: quoted character, must be a char within the range of: ['{', '}']""".stripMargin,
+         |* must be char: '$'
+         |* must be a char within the range of: ['(', '+']
+         |* must be a char within the range of: ['.', '/']
+         |* must be char: '?'
+         |* must be a char within the range of: ['[', '^']
+         |* must be a char within the range of: ['{', '}']""".stripMargin,
       Some("u")
     )
     parseErrorTest(
@@ -157,12 +157,12 @@ class ParserJSTest extends munit.FunSuite with ParserTest {
       """|\x{20}
          | ^
          |expectations:
-         |* context: quoted character, must be char: '$'
-         |* context: quoted character, must be a char within the range of: ['(', '+']
-         |* context: quoted character, must be a char within the range of: ['.', '/']
-         |* context: quoted character, must be char: '?'
-         |* context: quoted character, must be a char within the range of: ['[', '^']
-         |* context: quoted character, must be a char within the range of: ['{', '}']""".stripMargin,
+         |* must be char: '$'
+         |* must be a char within the range of: ['(', '+']
+         |* must be a char within the range of: ['.', '/']
+         |* must be char: '?'
+         |* must be a char within the range of: ['[', '^']
+         |* must be a char within the range of: ['{', '}']""".stripMargin,
       Some("v")
     )
   }
@@ -175,12 +175,12 @@ class ParserJSTest extends munit.FunSuite with ParserTest {
       s"""|\\u20
           | ^
           |expectations:
-          |* context: quoted character, must be char: '$dollar'
-          |* context: quoted character, must be a char within the range of: ['(', '+']
-          |* context: quoted character, must be a char within the range of: ['.', '/']
-          |* context: quoted character, must be char: '?'
-          |* context: quoted character, must be a char within the range of: ['[', '^']
-          |* context: quoted character, must be a char within the range of: ['{', '}']""".stripMargin,
+          |* must be char: '$dollar'
+          |* must be a char within the range of: ['(', '+']
+          |* must be a char within the range of: ['.', '/']
+          |* must be char: '?'
+          |* must be a char within the range of: ['[', '^']
+          |* must be a char within the range of: ['{', '}']""".stripMargin,
       Some("u")
     )
     parseErrorTest(
@@ -188,12 +188,12 @@ class ParserJSTest extends munit.FunSuite with ParserTest {
       s"""|\\u20
           | ^
           |expectations:
-          |* context: quoted character, must be char: '$dollar'
-          |* context: quoted character, must be a char within the range of: ['(', '+']
-          |* context: quoted character, must be a char within the range of: ['.', '/']
-          |* context: quoted character, must be char: '?'
-          |* context: quoted character, must be a char within the range of: ['[', '^']
-          |* context: quoted character, must be a char within the range of: ['{', '}']""".stripMargin,
+          |* must be char: '$dollar'
+          |* must be a char within the range of: ['(', '+']
+          |* must be a char within the range of: ['.', '/']
+          |* must be char: '?'
+          |* must be a char within the range of: ['[', '^']
+          |* must be a char within the range of: ['{', '}']""".stripMargin,
       Some("v")
     )
   }
@@ -206,12 +206,12 @@ class ParserJSTest extends munit.FunSuite with ParserTest {
       s"""|\\u{110000}
           | ^
           |expectations:
-          |* context: quoted character, must be char: '$dollar'
-          |* context: quoted character, must be a char within the range of: ['(', '+']
-          |* context: quoted character, must be a char within the range of: ['.', '/']
-          |* context: quoted character, must be char: '?'
-          |* context: quoted character, must be a char within the range of: ['[', '^']
-          |* context: quoted character, must be a char within the range of: ['{', '}']""".stripMargin,
+          |* must be char: '$dollar'
+          |* must be a char within the range of: ['(', '+']
+          |* must be a char within the range of: ['.', '/']
+          |* must be char: '?'
+          |* must be a char within the range of: ['[', '^']
+          |* must be a char within the range of: ['{', '}']""".stripMargin,
       Some("u")
     )
     parseErrorTest(
@@ -219,12 +219,12 @@ class ParserJSTest extends munit.FunSuite with ParserTest {
       s"""|\\u{110000}
           | ^
           |expectations:
-          |* context: quoted character, must be char: '$dollar'
-          |* context: quoted character, must be a char within the range of: ['(', '+']
-          |* context: quoted character, must be a char within the range of: ['.', '/']
-          |* context: quoted character, must be char: '?'
-          |* context: quoted character, must be a char within the range of: ['[', '^']
-          |* context: quoted character, must be a char within the range of: ['{', '}']""".stripMargin,
+          |* must be char: '$dollar'
+          |* must be a char within the range of: ['(', '+']
+          |* must be a char within the range of: ['.', '/']
+          |* must be char: '?'
+          |* must be a char within the range of: ['[', '^']
+          |* must be a char within the range of: ['{', '}']""".stripMargin,
       Some("v")
     )
   }

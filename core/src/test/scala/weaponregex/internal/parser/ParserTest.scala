@@ -221,6 +221,26 @@ trait ParserTest {
     treeBuildTest(parsedTree, pattern)
   }
 
+  test("Parse backslash and non-backslash tokens next to each other") {
+    val pattern = """^a\t.[b\t]+(\t)$"""
+    val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Concat]
+
+    assertMatches(clue(parsedTree.children)) {
+      case Seq(
+            BOL(_),
+            Character('a', _),
+            MetaChar("t", _),
+            AnyDot(_),
+            OneOrMore(CharacterClass(Seq(Character('b', _), MetaChar("t", _)), _, true), _, GreedyQuantifier),
+            Group(MetaChar("t", _), true, _),
+            EOL(_)
+          ) =>
+        true
+    }
+
+    treeBuildTest(parsedTree, pattern)
+  }
+
   test("Parse positive character class with characters") {
     val pattern = "[abc]"
     val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[CharacterClass]
@@ -674,23 +694,10 @@ trait ParserTest {
       """|(a{1,2}
          |^""".stripMargin,
       context = Seq(
-        "character literal",
-        "beginning of line",
-        "end of line",
-        "boundary meta-character",
-        "escape character",
-        "control character",
-        "hexadecimal character",
-        "any dot",
-        "predefined character class",
         "capturing group",
         "named capturing group",
         "non-capturing group",
         "lookaround",
-        "named reference",
-        "quoted character",
-        "quoted character",
-        "octal character",
         "character class"
       )
     )

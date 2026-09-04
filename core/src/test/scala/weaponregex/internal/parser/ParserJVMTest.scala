@@ -412,12 +412,11 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
       """|{
          |^""".stripMargin,
       context = Seq(
-        "unicode character",
-        "code point character",
-        "unicode character class",
         "flag toggle group",
+        "flag non-capturing group",
         "atomic group",
-        "long quote"
+        "capturing group",
+        "character class"
       )
     )
   }

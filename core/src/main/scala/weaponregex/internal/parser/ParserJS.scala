@@ -62,24 +62,29 @@ private[weaponregex] class ParserJS private[parser] (unicodeMode: Boolean, singl
     * @note
     *   Nested character class is a Scala/Java-only regex syntax
     */
-  override protected val classItem: P[RegexTree] =
+  override protected val backslashClassItem: P[RegexTree] =
     if (unicodeMode)
       P.oneOf(
-        range.backtrack ::
-          charClassCharLiteral.backtrack ::
-          preDefinedCharClass.backtrack ::
+        preDefinedCharClass.backtrack ::
           unicodeCharClass.backtrack ::
           P.defer(metaCharacter).backtrack ::
           quoteChar.backtrack :: Nil
       )
     else
       P.oneOf(
-        range.backtrack ::
-          charClassCharLiteral.backtrack ::
-          preDefinedCharClass.backtrack ::
+        preDefinedCharClass.backtrack ::
           P.defer(metaCharacter).backtrack ::
           quoteChar.backtrack :: Nil
       )
+
+  /** Intermediate parsing rule for character class item tokens that do not start with a backslash
+    * @return
+    *   [[weaponregex.internal.model.regextree.RegexTree]] (sub)tree
+    * @note
+    *   Nested character class is a Scala/Java-only regex syntax
+    */
+  override protected val plainClassItem: P[RegexTree] =
+    P.oneOf(range.backtrack :: charClassCharLiteral.backtrack :: Nil)
 
   /** Parse a group name
     * @return
@@ -102,7 +107,6 @@ private[weaponregex] class ParserJS private[parser] (unicodeMode: Boolean, singl
     if (unicodeMode)
       indexed(P.char('\\') *> P.charIn("""^$\.*+?()[]{}|/"""))
         .map { case (loc, char) => QuoteChar(char, loc) }
-        .withContext("quoted character")
     else quoteChar
 
   /** Parse a character with octal value `\n`, `\nn`, `\mnn` (0 <= m,n <= 9)
@@ -118,7 +122,6 @@ private[weaponregex] class ParserJS private[parser] (unicodeMode: Boolean, singl
   override protected val charOct: P[MetaChar] =
     indexed(P.char('\\') *> Numbers.digit.rep(1, 3).string)
       .map { case (loc, octDigits) => MetaChar(octDigits, loc) }
-      .withContext("octal character")
 
   /** Intermediate parsing rule for reference tokens which can parse only `nameReference`
     * @return
@@ -148,32 +151,38 @@ private[weaponregex] class ParserJS private[parser] (unicodeMode: Boolean, singl
     * @return
     *   [[weaponregex.internal.model.regextree.RegexTree]] (sub)tree
     */
-  override protected val elementaryRE: P[RegexTree] =
+  override protected val backslashElementaryRE: P[RegexTree] =
     if (unicodeMode)
       P.oneOf(
-        charLiteral.backtrack ::
-          capturing ::
-          anyDot ::
-          preDefinedCharClass.backtrack ::
+        preDefinedCharClass.backtrack ::
           unicodeCharClass.backtrack ::
-          boundary ::
-          charClass.backtrack ::
+          boundaryMetaChar.backtrack ::
           reference.backtrack ::
-          character.backtrack ::
+          P.defer(metaCharacter).backtrack ::
           quote :: Nil
       )
     else
       P.oneOf(
-        charLiteral.backtrack ::
-          capturing ::
-          anyDot ::
-          preDefinedCharClass.backtrack ::
-          boundary ::
-          charClass.backtrack ::
+        preDefinedCharClass.backtrack ::
+          boundaryMetaChar.backtrack ::
           reference.backtrack ::
-          character.backtrack ::
+          P.defer(metaCharacter).backtrack ::
           quote :: Nil
       )
+
+  /** Intermediate parsing rule which parses the alternatives that do not start with a backslash
+    * @return
+    *   [[weaponregex.internal.model.regextree.RegexTree]] (sub)tree
+    */
+  override protected val plainElementaryRE: P[RegexTree] =
+    P.oneOf(
+      charLiteral.backtrack ::
+        capturing ::
+        anyDot ::
+        bol ::
+        eol ::
+        charClass.backtrack :: Nil
+    )
 }
 
 object ParserJS {

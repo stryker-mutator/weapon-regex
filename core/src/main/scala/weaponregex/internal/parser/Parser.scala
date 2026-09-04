@@ -135,7 +135,6 @@ abstract private[weaponregex] class Parser(singleLine: Boolean) {
   protected val charLiteral: P[Character] =
     indexed(P.defer(P.charWhere(c => !specialChars.contains(c)) | charLiteralSpecialCases))
       .map { case (loc, c) => Character(c, loc) }
-      .withContext("character literal")
 
   /** Intermediate parsing rule for character-related tokens which can parse either `metaCharacter` or `charLiteral`
     * @return
@@ -152,7 +151,6 @@ abstract private[weaponregex] class Parser(singleLine: Boolean) {
   protected val bol: P[BOL] =
     indexed(P.char('^'))
       .map { case (loc, _) => BOL(loc) }
-      .withContext("beginning of line")
 
   /** Parse a beginning of line character (`$`)
     * @return
@@ -163,7 +161,6 @@ abstract private[weaponregex] class Parser(singleLine: Boolean) {
   protected val eol: P[EOL] =
     indexed(P.char('$'))
       .map { case (loc, _) => EOL(loc) }
-      .withContext("end of line")
 
   /** Parse a boundary meta-character character
     * @return
@@ -176,7 +173,6 @@ abstract private[weaponregex] class Parser(singleLine: Boolean) {
   protected val boundaryMetaChar: P[Boundary] =
     indexed(backslash *> P.defer(P.charIn(boundaryMetaChars)))
       .map { case (loc, b) => Boundary(b, loc) }
-      .withContext("boundary meta-character")
 
   /** Intermediate parsing rule for boundary tokens which can parse either `bol`, `eol` or `boundaryMetaChar`
     * @return
@@ -212,7 +208,6 @@ abstract private[weaponregex] class Parser(singleLine: Boolean) {
   protected val escapeChar: P[MetaChar] =
     indexed(backslash *> P.defer(P.charIn(escapeChars)))
       .map { case (loc, c) => MetaChar(c.toString(), loc) }
-      .withContext("escape character")
 
   /** Parse an control meta-character based on caret notation
     * @return
@@ -225,7 +220,6 @@ abstract private[weaponregex] class Parser(singleLine: Boolean) {
   protected val controlChar: P[ControlChar] =
     indexed(P.string("\\c") *> alpha)
       .map { case (loc, c) => ControlChar(c, loc) }
-      .withContext("control character")
 
   /** Parse a character with octal value
     * @return
@@ -244,7 +238,6 @@ abstract private[weaponregex] class Parser(singleLine: Boolean) {
   protected val charHex: P[MetaChar] =
     indexed(P.string("\\x") *> hexdig.repExactlyAs[String](2))
       .map { case (loc, hexDigits) => MetaChar("x" + hexDigits, loc) }
-      .withContext("hexadecimal character")
 
   /** Parse a unicode character `\ uhhhh`
     * @return
@@ -255,7 +248,6 @@ abstract private[weaponregex] class Parser(singleLine: Boolean) {
   protected val charUnicode: P[MetaChar] =
     indexed(P.string("\\u") *> hexdig.repExactlyAs[String](4))
       .map { case (loc, hexDigits) => MetaChar("u" + hexDigits, loc) }
-      .withContext("unicode character")
 
   /** Parse a character with a code point `\x{h...h}`, where Character.MIN_CODE_POINT <= 0xh...h <=
     * Character.MAX_CODE_POINT and x is [[weaponregex.internal.parser.Parser#codePointEscChar]]
@@ -273,7 +265,6 @@ abstract private[weaponregex] class Parser(singleLine: Boolean) {
           P.pure(MetaChar(s"$codePointEscChar{$hexDigits}", loc))
         else P.failWith(s"Invalid code point: $hexDigits")
       }
-      .withContext("code point character")
 
   /** Used to consume a hexadecimal escape character `\ x` or `\ u` when all other hex related cases are checked and
     * failed to prevent back tracking.
@@ -296,7 +287,6 @@ abstract private[weaponregex] class Parser(singleLine: Boolean) {
   protected val range: P[Range] =
     P.defer(charClassCharLiteral ~ (P.char('-') *> charClassCharLiteral))
       .map { case (from, to) => Range(from, to, from.location.copy(end = to.location.end)) }
-      .withContext("character range")
 
   /** Parse special cases of a character literal in a character class
     * @return
@@ -315,25 +305,48 @@ abstract private[weaponregex] class Parser(singleLine: Boolean) {
   protected val charClassCharLiteral: P[Character] =
     indexed(P.defer(P.charWhere(c => !charClassSpecialChars.contains(c)) | charClassCharLiteralSpecialCases))
       .map { case (loc, c) => Character(c, loc) }
-      .withContext("character literal in character class")
 
-  /** Intermediate parsing rule for character class item tokens which can parse either `charClass`,
-    * `preDefinedCharClass`, `metaCharacter`, `range`, `quoteChar`, or `charClassCharLiteral`
+  /** The `classItem` alternatives that start with a backslash
     * @return
     *   [[weaponregex.internal.model.regextree.RegexTree]] (sub)tree
+    * @see
+    *   [[weaponregex.internal.parser.Parser.classItem]]
     */
-  protected val classItem: P[RegexTree] = P.defer(
+  protected val backslashClassItem: P[RegexTree] = P.defer(
     P.oneOf(
-      range.backtrack ::
-        charClassCharLiteral.backtrack ::
-        charClass.backtrack ::
-        preDefinedCharClass.backtrack ::
+      preDefinedCharClass.backtrack ::
         unicodeCharClass.backtrack ::
         metaCharacter.backtrack ::
         hexEscCharConsumer ::
         octEscCharConsumer ::
         quoteChar.backtrack :: Nil
     )
+  )
+
+  /** The `classItem` alternatives that never start with a backslash
+    * @return
+    *   [[weaponregex.internal.model.regextree.RegexTree]] (sub)tree
+    * @see
+    *   [[weaponregex.internal.parser.Parser.classItem]]
+    */
+  protected val plainClassItem: P[RegexTree] = P.defer(
+    P.oneOf(
+      range.backtrack ::
+        charClassCharLiteral.backtrack ::
+        charClass.backtrack :: Nil
+    )
+  )
+
+  /** Intermediate parsing rule for character class item tokens which can parse either `charClass`,
+    * `preDefinedCharClass`, `metaCharacter`, `range`, `quoteChar`, or `charClassCharLiteral`
+    * @return
+    *   [[weaponregex.internal.model.regextree.RegexTree]] (sub)tree
+    * @note
+    *   The alternatives are split on their first character, so a backslash only tries the escape rules and any other
+    *   character only tries the rest
+    */
+  protected val classItem: P[RegexTree] = P.defer(
+    (P.peek(backslash).with1 *> backslashClassItem) | (P.not(backslash).with1 *> plainClassItem)
   )
 
   /** Parse a character class
@@ -363,7 +376,6 @@ abstract private[weaponregex] class Parser(singleLine: Boolean) {
   protected val anyDot: P[AnyDot] =
     indexed(P.char('.').void)
       .map { case (loc, _) => AnyDot(loc) }
-      .withContext("any dot")
 
   /** Parse a predefined character class
     * @return
@@ -648,7 +660,6 @@ abstract private[weaponregex] class Parser(singleLine: Boolean) {
   protected val quoteChar: P[QuoteChar] =
     indexed(backslash *> P.anyChar)
       .map { case (loc, char) => QuoteChar(char, loc) }
-      .withContext("quoted character")
 
   /** Parse a 'long' quote, using `\Q` and `\E`
     * @return
@@ -671,22 +682,50 @@ abstract private[weaponregex] class Parser(singleLine: Boolean) {
     * `charClass`, `reference`, `character` or `quote`
     * @return
     *   [[weaponregex.internal.model.regextree.RegexTree]] (sub)tree
+    * @note
+    *   The alternatives are split on their first character, so a backslash only tries the escape rules and any other
+    *   character only tries the rest
     */
   protected val elementaryRE: P[RegexTree] =
+    P.defer(
+      (P.peek(backslash).with1 *> backslashElementaryRE) | (P.not(backslash).with1 *> plainElementaryRE)
+    )
+
+  /** The `elementaryRE` alternatives that start with a backslash
+    * @return
+    *   [[weaponregex.internal.model.regextree.RegexTree]] (sub)tree
+    * @see
+    *   [[weaponregex.internal.parser.Parser.elementaryRE]]
+    */
+  protected val backslashElementaryRE: P[RegexTree] =
+    P.defer(
+      P.oneOf(
+        preDefinedCharClass.backtrack ::
+          unicodeCharClass.backtrack ::
+          boundaryMetaChar.backtrack ::
+          reference ::
+          metaCharacter.backtrack ::
+          hexEscCharConsumer ::
+          octEscCharConsumer ::
+          quote :: Nil
+      )
+    )
+
+  /** The `elementaryRE` alternatives that never start with a backslash
+    * @return
+    *   [[weaponregex.internal.model.regextree.RegexTree]] (sub)tree
+    * @see
+    *   [[weaponregex.internal.parser.Parser.elementaryRE]]
+    */
+  protected val plainElementaryRE: P[RegexTree] =
     P.defer(
       P.oneOf(
         charLiteral.backtrack ::
           capturing ::
           anyDot ::
-          preDefinedCharClass.backtrack ::
-          unicodeCharClass.backtrack ::
-          boundary ::
-          charClass.backtrack ::
-          reference ::
-          character ::
-          hexEscCharConsumer ::
-          octEscCharConsumer ::
-          quote :: Nil
+          bol ::
+          eol ::
+          charClass.backtrack :: Nil
       )
     )
 
