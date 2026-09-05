@@ -100,7 +100,7 @@ lazy val WeaponRegeX = projectMatrix
       scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.ESModule)
         .withESFeatures(ESFeatures.Defaults.withESVersion(ESVersion.ES2020))),
       tpolecatScalacOptions += ScalacOptions.other(scalaJSSourceUri.value),
-      // Emit the linker output under scala-<binary> (e.g. scala-3) instead of scala-<full> (e.g. scala-3.8.4)
+      // Emit the linker output under scala-<binary> (e.g. scala-3) instead of scala-<full> (e.g. scala-3.9.0)
       Compile / fastLinkJS / scalaJSLinkerOutputDirectory := jsLinkerBinaryVersionDir.value / s"${moduleName.value}-fastopt",
       Compile / fullLinkJS / scalaJSLinkerOutputDirectory := jsLinkerBinaryVersionDir.value / s"${moduleName.value}-opt",
 
