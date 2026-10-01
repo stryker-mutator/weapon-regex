@@ -1,8 +1,9 @@
 package weaponregex.internal.parser
 
-import cats.parse.Rfc5234.*
 import cats.parse.{Numbers, Parser as P}
 import weaponregex.internal.model.regextree.*
+
+import java.lang.Character as JChar
 
 /** Parser instance for JS flavor of regex
   * @param unicodeMode
@@ -86,15 +87,16 @@ private[weaponregex] class ParserJS private[parser] (unicodeMode: Boolean, singl
   override protected val plainClassItem: P[RegexTree] =
     P.oneOf(range.backtrack :: charClassCharLiteral.backtrack :: Nil)
 
-  /** Parse a group name
+  /** Parse a group name. A name starts with an ID_Start character, `$` or `_`, followed by ID_Continue characters, `$`,
+    * ZWNJ or ZWJ
     * @return
     *   the parsed name string
     * @example
     *   `"name1"`
+    * @see
+    *   [[https://tc39.es/ecma262/#prod-RegExpIdentifierName]]
     */
-  override protected val groupName: P[String] =
-    ((alpha.void | P.char('_')) ~
-      (alpha.void | digit.void | P.char('_')).rep).string
+  override protected val groupName: P[String] = ParserJS.groupName
 
   /** Parse a quoted character (any character). If [[weaponregex.internal.parser.ParserJS unicodeMode]] is true, only
     * the following characters are allowed: `^ $ \ . * + ? ( ) [ ] { } |` or `/`
@@ -189,6 +191,50 @@ object ParserJS {
 
   /** Whether the flags contain the `u` or `v` flag for Unicode mode */
   private def unicodeMode(flags: Option[String]): Boolean = flags.exists(f => f.contains('u') || f.contains('v'))
+
+  /** A surrogate pair, parsed as the supplementary code point it encodes */
+  private val surrogatePair: P[Int] =
+    (P.charIn('\ud800' to '\udbff') ~ P.charIn('\udc00' to '\udfff')).map { case (high, low) =>
+      JChar.toCodePoint(high, low)
+    }
+
+  /** A Unicode escape in a group name, parsed as the code point it encodes: `\ uXXXX`, `\ u{X...}`, or a surrogate pair
+    * escaped as `\ uXXXX\ uXXXX`. Group names always allow these escapes, also outside of Unicode mode
+    * @see
+    *   [[https://tc39.es/ecma262/#prod-RegExpUnicodeEscapeSequence]]
+    */
+  // `.filter()` function from cats-parse is wrongly mutated by Stryker4s into `.filterNot()` which does not exist in cats-parse
+  @SuppressWarnings(Array("stryker4s.mutation.MethodExpression"))
+  private val unicodeEscape: P[Int] = {
+    val hex4: P[Char] = Parser.hex4Digits.map(Integer.parseInt(_, 16).toChar)
+    // A high surrogate may be followed by an escaped low surrogate; together they encode a supplementary code point
+    val lowSurrogate: P[Char] = (P.string("\\u") *> hex4.filter(JChar.isLowSurrogate)).backtrack
+    val hex4CodePoint: P[Int] = hex4.flatMap { c =>
+      if (JChar.isHighSurrogate(c)) lowSurrogate.?.map(_.fold(c.toInt)(JChar.toCodePoint(c, _)))
+      else P.pure(c.toInt)
+    }
+    P.string("\\u") *> (Parser.bracedHexDigits.mapFilter(Parser.codePoint) | hex4CodePoint)
+  }
+
+  /** Parse a single code point that satisfies the given predicate. A supplementary code point is parsed as its
+    * surrogate pair, and any code point can be written as a [[unicodeEscape]]
+    * @param isValid
+    *   The predicate the code point must satisfy
+    */
+  // `.filter()` function from cats-parse is wrongly mutated by Stryker4s into `.filterNot()` which does not exist in cats-parse
+  @SuppressWarnings(Array("stryker4s.mutation.MethodExpression"))
+  private def codePointWhere(isValid: Int => Boolean): P[Unit] =
+    P.charWhere(c => isValid(c.toInt)).void | (surrogatePair | unicodeEscape).filter(isValid).backtrack.void
+
+  /** Group name parser shared by all instances */
+  private val groupName: P[String] = {
+    val start = codePointWhere(cp => cp == '$' || cp == '_' || JChar.isUnicodeIdentifierStart(cp))
+    val part = codePointWhere(cp =>
+      cp == '$' || cp == '\u200c' || cp == '\u200d' ||
+        (JChar.isUnicodeIdentifierPart(cp) && !JChar.isIdentifierIgnorable(cp))
+    )
+    (start ~ part.rep0).string
+  }
 
   // Create lazy instances so all parsers are only instantiated once
   private lazy val unicodeParser: ParserJS = new ParserJS(true, false)

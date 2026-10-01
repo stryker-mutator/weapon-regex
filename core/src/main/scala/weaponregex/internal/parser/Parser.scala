@@ -8,6 +8,8 @@ import weaponregex.internal.constant.ErrorMessage
 import weaponregex.internal.model.regextree.*
 import weaponregex.parser.*
 
+import java.lang.Character as JChar
+
 /** Companion object for [[weaponregex.internal.parser.Parser]] class that instantiates flavor-specific parsers
   * instances
   */
@@ -44,6 +46,22 @@ private[weaponregex] object Parser {
     */
   def apply(pattern: String, flavor: ParserFlavor = ParserFlavorJVM): Either[String, RegexTree] =
     apply(pattern, None, flavor)
+
+  private[parser] val hex4Digits: P[String] = hexdig.repExactlyAs[String](4)
+
+  /** Hexadecimal digits between braces */
+  private[parser] val bracedHexDigits: P[String] = hexdig.rep.string.between(P.char('{'), P.char('}'))
+
+  /** The code point encoded by the given hexadecimal digits, if it is a valid code point. Leading zeros are allowed
+    * @param hexDigits
+    *   One or more hexadecimal digits
+    */
+  private[parser] def codePoint(hexDigits: String): Option[Int] = {
+    // Drop leading zeros, so that only values with at most 6 digits (which fit in an Int) are parsed
+    val significant = hexDigits.dropWhile(_ == '0')
+    if (significant.length > 6) None
+    else Some(Integer.parseInt("0" + significant, 16)).filter(JChar.isValidCodePoint)
+  }
 }
 
 /** The based abstract parser
@@ -246,7 +264,7 @@ abstract private[weaponregex] class Parser(singleLine: Boolean) {
     *   `"\ u0020"`
     */
   protected val charUnicode: P[MetaChar] =
-    indexed(P.string("\\u") *> hexdig.repExactlyAs[String](4))
+    indexed(P.string("\\u") *> Parser.hex4Digits)
       .map { case (loc, hexDigits) => MetaChar("u" + hexDigits, loc) }
 
   /** Parse a character with a code point `\x{h...h}`, where Character.MIN_CODE_POINT <= 0xh...h <=
@@ -259,9 +277,9 @@ abstract private[weaponregex] class Parser(singleLine: Boolean) {
     *   [[weaponregex.internal.parser.Parser#codePointEscChar]]
     */
   protected val charCodePoint: P[MetaChar] =
-    indexed(P.defer(hexdig.rep.string.between(P.string(s"\\$codePointEscChar{"), P.char('}'))))
+    indexed(P.defer(P.string(s"\\$codePointEscChar") *> Parser.bracedHexDigits))
       .flatMap { case (loc, hexDigits) =>
-        if (java.lang.Character.isValidCodePoint(Integer.parseInt(hexDigits, 16)))
+        if (Parser.codePoint(hexDigits).isDefined)
           P.pure(MetaChar(s"$codePointEscChar{$hexDigits}", loc))
         else P.failWith(s"Invalid code point: $hexDigits")
       }
@@ -391,7 +409,7 @@ abstract private[weaponregex] class Parser(singleLine: Boolean) {
       .withContext("predefined character class")
 
   protected val propName: P[String] =
-    (alpha.void ~ (alpha.void | digit.void | P.char('_')).rep).string
+    (alpha.void ~ (alpha.void | digit.void | P.char('_')).rep0).string
 
   /** Parse a unicode character class with lone property
     *
