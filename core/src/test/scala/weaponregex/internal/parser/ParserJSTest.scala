@@ -384,10 +384,13 @@ class ParserJSTest extends munit.FunSuite with ParserTest {
     // Unicode escapes: `\ uXXXX` (upper- and lowercase hex), `\ u{X...}`, and an escaped surrogate pair (U+1D49C)
     Seq("\\u0061b", "a\\u0062", "caf\\u00E9", "\\u0024", "\\u{61}", "\\u{0000061}", "\\u{1d49c}", "\\ud835\\udc9c")
 
-  test("Parse named capturing group with ECMAScript identifier names in Unicode mode") {
-    identifierNames foreach { name =>
+  test("Parse named capturing group and named reference with ECMAScript identifier names") {
+    for {
+      name <- identifierNames
+      flags <- Seq(None, unicodeFlag)
+    } {
       val pattern = s"(?<$name>hello)\\k<$name>"
-      val parsedTree = Parser(pattern, unicodeFlag, parserFlavor).getOrFail.to[Concat]
+      val parsedTree = Parser(pattern, flags, parserFlavor).getOrFail.to[Concat]
 
       assertMatches(clue(parsedTree.children.head)) { case NamedGroup(_, `name`, _) => true }
       assertMatches(clue(parsedTree.children.last)) { case NameReference(`name`, _) => true }
@@ -396,41 +399,12 @@ class ParserJSTest extends munit.FunSuite with ParserTest {
     }
   }
 
-  test("Parse named capturing group with ECMAScript identifier names") {
-    identifierNames foreach { name =>
-      val pattern = s"(?<$name>hello)"
-      val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[NamedGroup]
-
-      assertEquals(parsedTree.name, name)
-
-      treeBuildTest(parsedTree, pattern)
-    }
-  }
-
-  test("Parse named reference with ECMAScript identifier names") {
-    identifierNames foreach { name =>
-      val pattern = s"\\k<$name>"
-      val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[NameReference]
-
-      assertEquals(parsedTree.name, name)
-
-      treeBuildTest(parsedTree, pattern)
-    }
-  }
-
-  test("Unparsable: named capturing group name starting with a non-start character") {
-    // A digit, a combining mark (U+0301) and ZWNJ may continue a name, but not start one
-    Seq("(?<1a>hello)", "(?<\u0301a>hello)", "(?<\u200ca>hello)") foreach { pattern =>
-      parseErrorTest(
-        pattern,
-        s"""|$pattern
-            |^""".stripMargin
-      )
-    }
-  }
-
-  test("Unparsable: named capturing group name with an invalid Unicode escape") {
+  test("Unparsable: invalid named capturing group name") {
     Seq(
+      // A digit, a combining mark (U+0301) and ZWNJ may continue a name, but not start one
+      "1a",
+      "\u0301a",
+      "\u200ca",
       "\\u0031a", // escaped digit cannot start a name
       "\\u{110000}", // beyond the maximum code point
       "\\u{FFFFFFFFFF}", // overflows an Int
