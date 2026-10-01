@@ -14,6 +14,7 @@ class ParserJSTest extends munit.FunSuite with ParserTest {
   val hexCharacters: String = "\\x20\\x21"
   val octCharacters: String = """\1\12\123"""
   val predefCharClasses: String = "." + charClassPredefCharClasses
+  val unicodeFlag: Option[String] = Some("u")
 
   test("""Not parse `\A\G\z\Z` as boundary metacharacters""") {
     val pattern = """\A\G\z\Z"""
@@ -200,10 +201,13 @@ class ParserJSTest extends munit.FunSuite with ParserTest {
 
   test("Unparsable: out-of-range code point hexadecimal values with the Unicode flag") {
     val dollar = '$'
-    val pattern = "\\u{110000}" // 10FFFF + 1
-    parseErrorTest(
+    // 10FFFF + 1, and a value that overflows an Int
+    for {
+      pattern <- Seq("\\u{110000}", "\\u{FFFFFFFFFF}")
+      flag <- Seq("u", "v")
+    } parseErrorTest(
       pattern,
-      s"""|\\u{110000}
+      s"""|$pattern
           | ^
           |expectations:
           |* must be char: '$dollar'
@@ -212,20 +216,7 @@ class ParserJSTest extends munit.FunSuite with ParserTest {
           |* must be char: '?'
           |* must be a char within the range of: ['[', '^']
           |* must be a char within the range of: ['{', '}']""".stripMargin,
-      Some("u")
-    )
-    parseErrorTest(
-      pattern,
-      s"""|\\u{110000}
-          | ^
-          |expectations:
-          |* must be char: '$dollar'
-          |* must be a char within the range of: ['(', '+']
-          |* must be a char within the range of: ['.', '/']
-          |* must be char: '?'
-          |* must be a char within the range of: ['[', '^']
-          |* must be a char within the range of: ['{', '}']""".stripMargin,
-      Some("v")
+      Some(flag)
     )
   }
 
@@ -386,6 +377,77 @@ class ParserJSTest extends munit.FunSuite with ParserTest {
     assertEquals(parsedTree.name, "name_1")
 
     treeBuildTest(parsedTree, pattern)
+  }
+
+  // `$`, non-ASCII letters, a supplementary-plane letter (U+1D49C, a surrogate pair), ZWNJ and ZWJ
+  val identifierNames: Seq[String] = Seq("$t", "a$", "caf\u00e9", "\u540d\u524d", "\ud835\udc9c1", "a\u200cb\u200dc") ++
+    // Unicode escapes: `\ uXXXX` (upper- and lowercase hex), `\ u{X...}`, and an escaped surrogate pair (U+1D49C)
+    Seq("\\u0061b", "a\\u0062", "caf\\u00E9", "\\u0024", "\\u{61}", "\\u{0000061}", "\\u{1d49c}", "\\ud835\\udc9c")
+
+  test("Parse named capturing group with ECMAScript identifier names in Unicode mode") {
+    identifierNames foreach { name =>
+      val pattern = s"(?<$name>hello)\\k<$name>"
+      val parsedTree = Parser(pattern, unicodeFlag, parserFlavor).getOrFail.to[Concat]
+
+      assertMatches(clue(parsedTree.children.head)) { case NamedGroup(_, `name`, _) => true }
+      assertMatches(clue(parsedTree.children.last)) { case NameReference(`name`, _) => true }
+
+      treeBuildTest(parsedTree, pattern)
+    }
+  }
+
+  test("Parse named capturing group with ECMAScript identifier names") {
+    identifierNames foreach { name =>
+      val pattern = s"(?<$name>hello)"
+      val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[NamedGroup]
+
+      assertEquals(parsedTree.name, name)
+
+      treeBuildTest(parsedTree, pattern)
+    }
+  }
+
+  test("Parse named reference with ECMAScript identifier names") {
+    identifierNames foreach { name =>
+      val pattern = s"\\k<$name>"
+      val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[NameReference]
+
+      assertEquals(parsedTree.name, name)
+
+      treeBuildTest(parsedTree, pattern)
+    }
+  }
+
+  test("Unparsable: named capturing group name starting with a non-start character") {
+    // A digit, a combining mark (U+0301) and ZWNJ may continue a name, but not start one
+    Seq("(?<1a>hello)", "(?<\u0301a>hello)", "(?<\u200ca>hello)") foreach { pattern =>
+      parseErrorTest(
+        pattern,
+        s"""|$pattern
+            |^""".stripMargin
+      )
+    }
+  }
+
+  test("Unparsable: named capturing group name with an invalid Unicode escape") {
+    Seq(
+      "\\u0031a", // escaped digit cannot start a name
+      "\\u{110000}", // beyond the maximum code point
+      "\\u{FFFFFFFFFF}", // overflows an Int
+      "\\ud835", // lone high surrogate
+      "a\\udc9c", // lone low surrogate
+      "\\u{}",
+      "\\u00",
+      "\\x61",
+      "\\U0061"
+    ) foreach { name =>
+      val pattern = s"(?<$name>hello)"
+      parseErrorTest(
+        pattern,
+        s"""|$pattern
+            |^""".stripMargin
+      )
+    }
   }
 
   test("Unparsable: flag toggle group i-i") {

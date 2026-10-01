@@ -14,6 +14,7 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
   val hexCharacters: String = "\\x20\\x{000020}\\u0020"
   val octCharacters: String = """\01\012\0123"""
   val predefCharClasses: String = "." + charClassPredefCharClasses
+  val unicodeFlag: Option[String] = None
 
   test("Unparsable: empty positive character class `[]`") {
     val pattern = "[]"
@@ -145,12 +146,23 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
   }
 
   test("Unparsable: out-of-range code point hexadecimal values") {
-    val pattern = "\\x{110000}" // 10FFFF + 1
-    parseErrorTest(
-      pattern,
-      """|\x{110000}
-         |  ^""".stripMargin
-    )
+    // 10FFFF + 1, and a value that overflows an Int
+    Seq("\\x{110000}", "\\x{FFFFFFFFFF}") foreach { pattern =>
+      parseErrorTest(
+        pattern,
+        s"""|$pattern
+            |  ^""".stripMargin
+      )
+    }
+  }
+
+  test("Parse code point hexadecimal value with leading zeros") {
+    val pattern = "\\x{00000000000041}"
+    val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[MetaChar]
+
+    assertEquals(parsedTree.metaChar, "x{00000000000041}")
+
+    treeBuildTest(parsedTree, pattern)
   }
 
   test("Unparsable: dangling hexadecimal escape in a character class") {
@@ -176,6 +188,14 @@ class ParserJVMTest extends munit.FunSuite with ParserTest {
                     |^""".stripMargin
     )
     patterns.foreach { case (p, m) => parseErrorTest(p, m) }
+  }
+
+  test("Unparsable: named capturing group with a dollar sign in name") {
+    parseErrorTest(
+      "(?<$t>hello)",
+      """|(?<$t>hello)
+         |^""".stripMargin
+    )
   }
 
   test("Unparsable: unclosed named reference") {

@@ -20,6 +20,9 @@ trait ParserTest {
   val octCharacters: String
   val predefCharClasses: String
 
+  /** Flags needed to parse `\p{...}` as a Unicode character class */
+  val unicodeFlag: Option[String]
+
   def treeBuildTest(tree: RegexTree, pattern: String)(implicit loc: Location): Unit =
     assertEquals(tree.build, pattern)
 
@@ -587,6 +590,15 @@ trait ParserTest {
     treeBuildTest(parsedTree, pattern)
   }
 
+  test("Parse named capturing group with a single-character name") {
+    val pattern = "(?<t>hello)"
+    val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[NamedGroup]
+
+    assertEquals(parsedTree.name, "t")
+
+    treeBuildTest(parsedTree, pattern)
+  }
+
   test("Parse non-capturing group") {
     val pattern = "(?:hello)(?:world)"
     val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[Concat]
@@ -659,12 +671,14 @@ trait ParserTest {
   }
 
   test("Parse named reference") {
-    val pattern = """\k<name1>"""
-    val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[NameReference]
+    Seq("name1", "t") foreach { name =>
+      val pattern = s"\\k<$name>"
+      val parsedTree = Parser(pattern, parserFlavor).getOrFail.to[NameReference]
 
-    assertEquals(parsedTree.name, "name1")
+      assertEquals(parsedTree.name, name)
 
-    treeBuildTest(parsedTree, pattern)
+      treeBuildTest(parsedTree, pattern)
+    }
   }
 
   test("Parse character quote") {
@@ -710,6 +724,23 @@ trait ParserTest {
       """|abc(def
          |   ^""".stripMargin
     )
+  }
+
+  test("Parse Unicode character classes with single-character properties and values") {
+    val pattern = """\p{L}\P{N}[\p{General_Category=L}]"""
+    val parsedTree = Parser(pattern, unicodeFlag, parserFlavor).getOrFail.to[Concat]
+
+    assertMatches(clue(parsedTree.children.head)) { case UnicodeCharClass("L", _, true, None) =>
+      true
+    }
+    assertMatches(clue(parsedTree.children(1))) { case UnicodeCharClass("N", _, false, None) =>
+      true
+    }
+    assertMatches(clue(parsedTree.children.last)) {
+      case CharacterClass(Seq(UnicodeCharClass("General_Category", _, true, Some("L"))), _, true) => true
+    }
+
+    treeBuildTest(parsedTree, pattern)
   }
 
   test("Parse complex regular expression") {
