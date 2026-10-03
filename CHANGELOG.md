@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.6](https://github.com/stryker-mutator/weapon-regex/compare/v2.0.5...v2.0.6) (2026-10-03)
+
+
+### Bug Fixes
+
+* better support for named capturing groups ([#733](https://github.com/stryker-mutator/weapon-regex/issues/733)) ([47f541e](https://github.com/stryker-mutator/weapon-regex/commit/47f541e9e7bf5e9d20ef7f5457a782651b5324e3))
+
 ## [2.0.5](https://github.com/stryker-mutator/weapon-regex/compare/v2.0.4...v2.0.5) (2026-09-04)
 
 
