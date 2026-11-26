@@ -30,26 +30,26 @@ inThisBuild(
   List(
     organization := "io.stryker-mutator",
     description := "Weapon regeX mutates regular expressions for use in mutation testing.",
-    homepage := Some(url("https://github.com/stryker-mutator/weapon-regex")),
+    homepage := Some(uri("https://github.com/stryker-mutator/weapon-regex")),
     licenses := List(License.Apache2),
     developers := List(
       Developer(
         id = "nhat",
         name = "Nhat",
         email = "",
-        url = url("https://github.com/Nhaajt")
+        url = uri("https://github.com/Nhaajt")
       ),
       Developer(
         id = "jan",
         name = "Jan",
         email = "",
-        url = url("https://github.com/JSmits-utwente")
+        url = uri("https://github.com/JSmits-utwente")
       ),
       Developer(
         id = "wijtse",
         name = "Wijtse",
         email = "",
-        url = url("https://github.com/wijtserekker")
+        url = uri("https://github.com/wijtserekker")
       )
     ),
     versionScheme := Some(VersionScheme.SemVerSpec),
@@ -187,6 +187,7 @@ lazy val docs = projectMatrix
   .settings(
     publish / skip := true,
     mdocOut := file("."),
+    excludeDependencies += ExclusionRule("com.lihaoyi", "sourcecode_2.13"),
     tpolecatExcludeOptions += ScalacOptions.warnNonUnitStatement
   )
   .jvmPlatform(scalaVersions = List(Scala3))
